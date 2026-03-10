@@ -103,11 +103,17 @@ export default function RecordPage() {
         setAbsentIds(mt?.absentMemberIds ?? []);
     }, [selectedMeetingId, meetings]);
 
-    const handleSave = async (memberId: string, topicIndex: number, text: string) => {
+    const handleTopicSave = async (topicIndex: number) => {
         if (!selectedMeetingId) return;
-        const key = `${memberId}_${topicIndex}`;
-        setSaving(key);
-        await saveAnswer(selectedMeetingId, memberId, topicIndex, text);
+        setSaving(`topic_${topicIndex}`);
+
+        const presentMembers = members.filter((m) => !absentIds.includes(m.id));
+        const promises = presentMembers.map((mb) => {
+            const val = answers[mb.id]?.[topicIndex] ?? '';
+            return saveAnswer(selectedMeetingId, mb.id, topicIndex, val);
+        });
+
+        await Promise.all(promises);
         setSaving(null);
         showToast();
     };
@@ -211,36 +217,36 @@ export default function RecordPage() {
                         </div>
                     ) : (
                         selectedMeeting.topics.map((topic, topicIdx) => (
-                            <div className="card" key={topicIdx} style={{ marginBottom: 12 }}>
-                                <div className="record-topic-header">
-                                    <div className="record-topic-num">{topicIdx + 1}</div>
-                                    <div className="record-topic-text">{topic}</div>
+                            <div className="card" key={topicIdx} style={{ marginBottom: 16 }}>
+                                <div className="record-topic-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                                        <div className="record-topic-num">{topicIdx + 1}</div>
+                                        <div className="record-topic-text">{topic}</div>
+                                    </div>
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        style={{ flexShrink: 0 }}
+                                        disabled={saving === `topic_${topicIdx}`}
+                                        onClick={() => handleTopicSave(topicIdx)}
+                                    >
+                                        {saving === `topic_${topicIdx}` ? '저장 중…' : '주제 답변 모두 저장'}
+                                    </button>
                                 </div>
                                 <div className="record-answers">
                                     {presentMembers.map((mb) => {
-                                        const key = `${mb.id}_${topicIdx}`;
                                         const val = answers[mb.id]?.[topicIdx] ?? '';
                                         return (
-                                            <div key={mb.id} className="record-answer-row">
-                                                <div className="record-answer-label">{mb.name}</div>
+                                            <div key={mb.id} className="record-answer-row" style={{ marginBottom: 10 }}>
+                                                <div className="record-answer-label" style={{ minWidth: '60px' }}>{mb.name}</div>
                                                 <div style={{ flex: 1 }}>
                                                     <textarea
                                                         className="form-textarea"
-                                                        style={{ minHeight: 60 }}
-                                                        placeholder={`${mb.name}의 답변`}
+                                                        style={{ minHeight: 60, width: '100%' }}
+                                                        placeholder={`${mb.name}의 답변을 입력하세요`}
                                                         value={val}
                                                         onChange={(e) => handleChange(mb.id, topicIdx, e.target.value)}
-                                                        onBlur={() => { if (val.trim()) handleSave(mb.id, topicIdx, val); }}
                                                     />
                                                 </div>
-                                                <button
-                                                    className="btn btn-ghost btn-sm"
-                                                    style={{ marginLeft: 6, flexShrink: 0, alignSelf: 'flex-start', marginTop: 0 }}
-                                                    disabled={saving === key}
-                                                    onClick={() => handleSave(mb.id, topicIdx, val)}
-                                                >
-                                                    {saving === key ? '…' : '저장'}
-                                                </button>
                                             </div>
                                         );
                                     })}

@@ -7,6 +7,7 @@ import { useMember } from '@/context/MemberContext';
 
 const tabs = [
     { href: '/home', label: '홈', icon: '🏠' },
+    { href: '/past-meetings', label: '이전 모임', icon: '🕰️' },
     { href: '/presenters', label: '발제자', icon: '📋' },
     { href: '/record', label: '서기기록', icon: '✏️' },
     { href: '/admin', label: '관리', icon: '⚙️' },
