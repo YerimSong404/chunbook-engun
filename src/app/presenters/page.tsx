@@ -48,17 +48,19 @@ export default function PresentersPage() {
         if (list) list.push(mt);
     });
 
-    // 현재 회차: 최소 발제 횟수 기준
-    const minCount = memberCount > 0
-        ? Math.min(...members.map((m) => allPresented.get(m.id)!.length))
+    // 현재 회차: 최대 발제 횟수를 기준으로 유동적으로 판단
+    const maxCount = memberCount > 0
+        ? Math.max(...members.map((m) => allPresented.get(m.id)!.length))
         : 0;
-    const currentRound = minCount + 1;
 
-    // 이번 회차 완료 여부
+    // 아무도 발제하지 않았다면 1회차, 누군가 발제를 시작했다면 그 사람의 횟수가 현재 회차
+    const currentRound = Math.max(1, maxCount);
+
+    // 이번 회차 완료/진행 여부
     const doneThisRound = members.filter((m) => (allPresented.get(m.id)?.length ?? 0) >= currentRound);
     const pendingThisRound = members.filter((m) => (allPresented.get(m.id)?.length ?? 0) < currentRound);
 
-    // 이번 회차에서 발제한 모임 (currentRound번째 발제)
+    // 이번 회차에서 발제한 모임 내역
     const getRoundMeeting = (memberId: string) => {
         const list = allPresented.get(memberId) ?? [];
         return list[currentRound - 1] ?? null;

@@ -6,11 +6,31 @@ import { useState } from 'react';
 import { useMember } from '@/context/MemberContext';
 
 const tabs = [
-    { href: '/home', label: '홈', icon: '🏠' },
-    { href: '/past-meetings', label: '이전 모임', icon: '🕰️' },
-    { href: '/presenters', label: '발제자', icon: '📋' },
-    { href: '/record', label: '서기기록', icon: '✏️' },
-    { href: '/admin', label: '관리', icon: '⚙️' },
+    {
+        href: '/home', label: '홈', icon: (
+            <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        )
+    },
+    {
+        href: '/past-meetings', label: '이전 모임', icon: (
+            <svg viewBox="0 0 24 24"><path d="M4 6h16v12a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm0 0V4a2 2 0 012-2h12a2 2 0 012 2v2M8 10h8M8 14h5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        )
+    },
+    {
+        href: '/presenters', label: '발제자', icon: (
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M8 10h8M8 14h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+        )
+    },
+    {
+        href: '/record', label: '서기기록', icon: (
+            <svg viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        )
+    },
+    {
+        href: '/admin', label: '관리', icon: (
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4" fill="none" stroke="currentColor" strokeWidth="2" /><path d="M4 21v-2a4 4 0 014-4h8a4 4 0 014 4v2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+        )
+    },
 ];
 
 export default function AppShell({ children }: { children: React.ReactNode }) {

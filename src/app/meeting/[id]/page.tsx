@@ -103,54 +103,56 @@ export default function MeetingDetailPage() {
 
     return (
         <AppShell>
-            {/* Header / Back Button */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                <div>
-                    {selectedTopicIndex === null ? (
-                        <button onClick={() => router.back()} className="btn btn-ghost" style={{ padding: '8px', marginRight: '10px' }}>
+            {selectedTopicIndex === null && (
+                <div style={{ margin: '-24px -20px 32px -20px', background: 'linear-gradient(135deg, #9D48B4 0%, #FFDE59 100%)', padding: '24px 20px 60px 20px', color: '#fff' }}>
+                    {/* Header / Back Button Inside Hero */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                        <button onClick={() => router.back()} className="btn btn-ghost" style={{ padding: '8px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none' }}>
                             ← 뒤로가기
                         </button>
-                    ) : (
-                        <button onClick={() => setSelectedTopicIndex(null)} className="btn btn-ghost" style={{ padding: '8px', marginRight: '10px' }}>
-                            ← 발제 목록
-                        </button>
-                    )}
-                </div>
-                {selectedTopicIndex === null && meeting.status === 'upcoming' && (
-                    <button onClick={handleComplete} className="btn btn-primary btn-sm">
-                        모임 완료 처리
-                    </button>
-                )}
-            </div>
-
-            {/* Meeting Metadata hero */}
-            {selectedTopicIndex === null && (
-                <div className="meeting-hero" style={{ marginBottom: 20 }}>
-                    <div className="meeting-hero-label">
-                        {meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 모임` : '모임 상세'}
-                    </div>
-                    <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
-                        {meeting.coverImageUrl && (
-                            <div style={{
-                                flexShrink: 0, width: 72, height: 100,
-                                borderRadius: 8, overflow: 'hidden',
-                                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-                            }}>
-                                <img
-                                    src={meeting.coverImageUrl}
-                                    alt={meeting.book}
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
-                                />
-                            </div>
+                        {meeting.status === 'upcoming' && (
+                            <button onClick={handleComplete} className="btn btn-sm" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
+                                모임 완료 처리
+                            </button>
                         )}
-                        <div style={{ flex: 1 }}>
-                            <div className="meeting-hero-book" style={{ fontSize: '1.2rem', marginBottom: '0.4rem' }}>『{meeting.book}』</div>
-                            <div className="meeting-hero-author" style={{ fontSize: '0.9rem', color: 'var(--text-sub)' }}>{meeting.author}</div>
-                            <div className="meeting-hero-meta" style={{ marginTop: '0.8rem' }}>
-                                <span className="meeting-hero-chip">📅 {formatDate(meeting.date)}</span>
-                                <span className="meeting-hero-chip">🎤 발제자: {getMemberName(meeting.presenterMemberId)}</span>
-                            </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Content Area overlapped */}
+            {selectedTopicIndex === null && (
+                <div style={{ marginTop: '-80px', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 32 }}>
+                    {meeting.coverImageUrl ? (
+                        <div style={{
+                            width: 140, height: 200, borderRadius: 8, overflow: 'hidden',
+                            boxShadow: '0 12px 36px rgba(0,0,0,0.25)', background: '#fff', marginBottom: 24
+                        }}>
+                            <img src={meeting.coverImageUrl} alt={meeting.book} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }} />
+                        </div>
+                    ) : (
+                        <div style={{ width: 140, height: 200, borderRadius: 8, background: 'var(--border)', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <span style={{ fontSize: '3rem' }}>📓</span>
+                        </div>
+                    )}
+
+                    <div style={{ textAlign: 'center' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--primary)', marginBottom: 8, letterSpacing: '0.05em' }}>
+                            {meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : '독서모임'}
+                        </div>
+                        <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--text)', wordBreak: 'keep-all' }}>
+                            {meeting.book}
+                        </h1>
+                        <div style={{ fontSize: '0.95rem', color: 'var(--text-sub)', marginBottom: 16 }}>
+                            {meeting.author}
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+                            <span style={{ background: 'var(--surface-alt)', color: 'var(--text-sub)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
+                                📅 {formatDate(meeting.date)}
+                            </span>
+                            <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
+                                🎤 발제자: {getMemberName(meeting.presenterMemberId)}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -158,16 +160,22 @@ export default function MeetingDetailPage() {
 
             {/* Dynamic Content */}
             {selectedTopicIndex === null ? (
-                /* Topics List View */
+                /* Topics View */
                 <>
-                    <div className="section-title" style={{ marginTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>발제문</span>
+                    <div className="section-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                        <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', textTransform: 'none', letterSpacing: '0' }}>
+                            발제 키워드
+                        </span>
                         {!isEditingTopics && meeting.status === 'upcoming' && (
-                            <button className="btn btn-ghost btn-sm" onClick={startEditTopics}>
-                                {meeting.topics.length === 0 ? '+ 발제 등록' : '발제 수정'}
+                            <button className="btn btn-ghost btn-sm" onClick={startEditTopics} style={{ borderRadius: 100 }}>
+                                {meeting.topics.length === 0 ? '+ 발제 등록' : '수정'}
                             </button>
                         )}
                     </div>
+
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)', marginBottom: 20 }}>
+                        공감되는 발제를 선택해 멤버들의 답변을 확인해보세요.
+                    </p>
 
                     {isEditingTopics ? (
                         <div className="card" style={{ marginBottom: 20 }}>
@@ -181,9 +189,9 @@ export default function MeetingDetailPage() {
                                 {editingTopics.map((t, i) => (
                                     <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                                         <span style={{
-                                            width: 22, height: 22, borderRadius: '50%', background: 'var(--primary-light)',
-                                            color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 700,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 10
+                                            width: 28, height: 28, borderRadius: '50%', background: 'var(--primary-light)',
+                                            color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700,
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 8
                                         }}>{i + 1}</span>
                                         <input className="form-input" placeholder={`주제 ${i + 1}`} value={t}
                                             onChange={(e) => handleTopicChange(i, e.target.value)} style={{ flex: 1 }} />
@@ -196,7 +204,7 @@ export default function MeetingDetailPage() {
                             </div>
                             <div style={{ display: 'flex', gap: 8 }}>
                                 <button className="btn btn-primary btn-sm" onClick={handleSaveTopics} disabled={savingTopics}>
-                                    {savingTopics ? '저장 중…' : '저장'}
+                                    {savingTopics ? '저장 중…' : '저장 완료'}
                                 </button>
                                 <button className="btn btn-ghost btn-sm" onClick={() => setIsEditingTopics(false)} disabled={savingTopics}>
                                     취소
@@ -204,8 +212,8 @@ export default function MeetingDetailPage() {
                             </div>
                         </div>
                     ) : meeting.topics.length === 0 ? (
-                        <div className="card">
-                            <div className="empty">
+                        <div className="card" style={{ border: 'none', background: 'var(--surface-alt)' }}>
+                            <div className="empty" style={{ padding: '32px 20px' }}>
                                 <div className="empty-text">아직 등록된 발제가 없어요.</div>
                             </div>
                         </div>
@@ -215,19 +223,28 @@ export default function MeetingDetailPage() {
                                 <div
                                     key={idx}
                                     className="card"
-                                    style={{ cursor: 'pointer', display: 'flex', gap: 12, alignItems: 'center' }}
+                                    style={{
+                                        cursor: 'pointer',
+                                        display: 'flex', gap: 14, alignItems: 'flex-start',
+                                        transition: 'all 0.15s ease',
+                                        border: '1px solid var(--border)',
+                                        padding: '20px',
+                                        borderRadius: 'var(--radius)'
+                                    }}
                                     onClick={() => setSelectedTopicIndex(idx)}
+                                    onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                                    onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none' }}
                                 >
                                     <span style={{
-                                        flexShrink: 0, width: 28, height: 28, borderRadius: '50%',
-                                        background: 'var(--accent)', color: '#fff', display: 'flex',
-                                        alignItems: 'center', justifyContent: 'center',
-                                        fontSize: '0.9rem', fontWeight: 700
+                                        color: 'var(--primary)', fontWeight: 800, fontSize: '0.95rem',
+                                        background: 'var(--primary-light)', width: 26, height: 26,
+                                        borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        flexShrink: 0, marginTop: -2
                                     }}>
                                         {idx + 1}
                                     </span>
-                                    <span style={{ fontSize: '1rem', lineHeight: 1.5, fontWeight: 500 }}>
-                                        {t.length > 50 ? t.slice(0, 50) + '...' : t}
+                                    <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1.5, wordBreak: 'keep-all' }}>
+                                        {t}
                                     </span>
                                 </div>
                             ))}
@@ -237,23 +254,31 @@ export default function MeetingDetailPage() {
             ) : (
                 /* Single Topic Answer View */
                 <div>
-                    <div className="card" style={{ marginBottom: 20, background: 'var(--surface-alt)', border: '1px solid var(--accent)' }}>
-                        <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+                        <button onClick={() => setSelectedTopicIndex(null)} className="btn btn-ghost" style={{ padding: '8px' }}>
+                            ← 발제 목록
+                        </button>
+                    </div>
+
+                    <div className="card" style={{ marginBottom: 24, border: 'none', background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--surface) 100%)', padding: '24px 20px' }}>
+                        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                             <span style={{
-                                flexShrink: 0, width: 32, height: 32, borderRadius: '50%',
-                                background: 'var(--accent)', color: '#fff', display: 'flex',
-                                alignItems: 'center', justifyContent: 'center',
-                                fontSize: '1rem', fontWeight: 700
+                                color: '#fff', fontWeight: 800, fontSize: '1rem',
+                                background: 'var(--primary)', width: 28, height: 28,
+                                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                flexShrink: 0, marginTop: -2, boxShadow: 'var(--shadow)'
                             }}>
                                 {selectedTopicIndex + 1}
                             </span>
-                            <h2 style={{ margin: 0, fontSize: '1.1rem', lineHeight: 1.5, color: 'var(--text)' }}>
+                            <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, lineHeight: 1.5, color: 'var(--text)', wordBreak: 'keep-all' }}>
                                 {meeting.topics[selectedTopicIndex]}
                             </h2>
                         </div>
                     </div>
 
-                    <div className="section-title">멤버 답변</div>
+                    <div className="section-title" style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text)', textTransform: 'none', letterSpacing: '0' }}>
+                        멤버 답변
+                    </div>
                     {members.filter(m => !meeting.absentMemberIds?.includes(m.id)).length === 0 ? (
                         <div className="empty">참석한 멤버가 없습니다.</div>
                     ) : (
@@ -261,13 +286,27 @@ export default function MeetingDetailPage() {
                             {members
                                 .filter(m => !meeting.absentMemberIds?.includes(m.id))
                                 .map(m => {
-                                    const answer = answers.find(a => a.memberId === m.id && a.topicIndex === selectedTopicIndex)?.answer || '답변이 없습니다.';
+                                    const answer = answers.find(a => a.memberId === m.id && a.topicIndex === selectedTopicIndex)?.answer;
+                                    const hasAnswer = Boolean(answer?.trim());
+
                                     return (
-                                        <div key={m.id} className="card">
-                                            <div style={{ fontWeight: 600, color: 'var(--accent)', marginBottom: 8 }}>{m.name}</div>
-                                            <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, color: 'var(--text)' }}>
-                                                {answer}
+                                        <div key={m.id} className="card" style={{ padding: '20px', borderRadius: '16px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                                                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                                                    👤
+                                                </div>
+                                                <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{m.name}</div>
                                             </div>
+
+                                            {hasAnswer ? (
+                                                <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6, color: 'var(--text)', fontSize: '0.95rem' }}>
+                                                    {answer}
+                                                </div>
+                                            ) : (
+                                                <div style={{ color: 'var(--text-sub)', fontSize: '0.9rem', fontStyle: 'italic' }}>
+                                                    아직 기록된 답변이 없습니다.
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}

@@ -63,62 +63,115 @@ export default function PastMeetingsPage() {
 
     return (
         <AppShell>
-            <h1 className="page-title">이전 독서모임</h1>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <h1 className="page-title" style={{ margin: 0 }}>내서재</h1>
+            </div>
 
-            <div className="card" style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                    <div style={{ flex: '1 1 120px' }}>
-                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-sub)', marginBottom: 4 }}>연도</label>
-                        <select className="form-input" value={yearFilter} onChange={(e) => setYearFilter(e.target.value)}>
-                            <option value="ALL">전체 연도</option>
-                            {years.map(y => <option key={y} value={y}>{y}년</option>)}
-                        </select>
-                    </div>
-                    <div style={{ flex: '1 1 120px' }}>
-                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-sub)', marginBottom: 4 }}>발제자</label>
-                        <select className="form-input" value={presenterFilter} onChange={(e) => setPresenterFilter(e.target.value)}>
-                            <option value="ALL">모든 발제자</option>
-                            {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
-                        </select>
-                    </div>
-                    <div style={{ flex: '1 1 120px' }}>
-                        <label style={{ display: 'block', fontSize: '0.8rem', color: 'var(--text-sub)', marginBottom: 4 }}>정렬</label>
-                        <select className="form-input" value={sortOrder} onChange={(e) => setSortOrder(e.target.value as 'DESC' | 'ASC')}>
-                            <option value="DESC">최신순</option>
-                            <option value="ASC">오래된순</option>
-                        </select>
-                    </div>
+            {/* Filters Area */}
+            <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 16, marginBottom: 8, scrollbarWidth: 'none' }}>
+                <style dangerouslySetInnerHTML={{ __html: `::-webkit-scrollbar { display: none; }` }} />
+
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <select
+                        value={yearFilter}
+                        onChange={(e) => setYearFilter(e.target.value)}
+                        style={{
+                            appearance: 'none',
+                            background: yearFilter === 'ALL' ? 'var(--surface)' : 'var(--primary)',
+                            color: yearFilter === 'ALL' ? 'var(--text)' : '#fff',
+                            border: `1px solid ${yearFilter === 'ALL' ? 'var(--border)' : 'var(--primary)'}`,
+                            borderRadius: 100, padding: '8px 32px 8px 16px', fontSize: '0.85rem', fontWeight: 600,
+                            cursor: 'pointer', boxShadow: 'var(--shadow)'
+                        }}
+                    >
+                        <option value="ALL">전체 연도</option>
+                        {years.map(y => <option key={y} value={y}>{y}년</option>)}
+                    </select>
+                    <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: yearFilter === 'ALL' ? 'var(--text-sub)' : '#fff', fontSize: '0.7rem' }}>▼</span>
+                </div>
+
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <select
+                        value={presenterFilter}
+                        onChange={(e) => setPresenterFilter(e.target.value)}
+                        style={{
+                            appearance: 'none',
+                            background: presenterFilter === 'ALL' ? 'var(--surface)' : 'var(--primary)',
+                            color: presenterFilter === 'ALL' ? 'var(--text)' : '#fff',
+                            border: `1px solid ${presenterFilter === 'ALL' ? 'var(--border)' : 'var(--primary)'}`,
+                            borderRadius: 100, padding: '8px 32px 8px 16px', fontSize: '0.85rem', fontWeight: 600,
+                            cursor: 'pointer', boxShadow: 'var(--shadow)'
+                        }}
+                    >
+                        <option value="ALL">모든 발제자</option>
+                        {members.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
+                    </select>
+                    <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: presenterFilter === 'ALL' ? 'var(--text-sub)' : '#fff', fontSize: '0.7rem' }}>▼</span>
+                </div>
+
+                <div style={{ position: 'relative', flexShrink: 0, marginLeft: 'auto' }}>
+                    <select
+                        value={sortOrder}
+                        onChange={(e) => setSortOrder(e.target.value as 'DESC' | 'ASC')}
+                        style={{
+                            appearance: 'none',
+                            background: 'transparent',
+                            color: 'var(--text-sub)',
+                            border: 'none',
+                            padding: '8px 24px 8px 8px', fontSize: '0.85rem', fontWeight: 600,
+                            cursor: 'pointer', outline: 'none'
+                        }}
+                    >
+                        <option value="DESC">최신순</option>
+                        <option value="ASC">오래된순</option>
+                    </select>
+                    <span style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', color: 'var(--text-sub)', fontSize: '0.7rem' }}>▼</span>
                 </div>
             </div>
 
             {filteredMeetings.length === 0 ? (
-                <div className="card">
+                <div className="card" style={{ border: 'none', background: 'transparent', boxShadow: 'none' }}>
                     <div className="empty">
                         <div className="empty-text">조건에 맞는 모임이 없어요.</div>
                     </div>
                 </div>
             ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                     {filteredMeetings.map((m) => (
                         <Link key={m.id} href={`/meeting/${m.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                            <div className="card" style={{ cursor: 'pointer', transition: 'transform 0.1s ease' }} onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.01)'} onMouseOut={(e) => e.currentTarget.style.transform = 'none'}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                            <div className="card" style={{
+                                cursor: 'pointer', transition: 'all 0.15s ease', padding: '20px',
+                                border: '1px solid var(--border)', boxShadow: 'var(--shadow)', borderRadius: 'var(--radius)'
+                            }} onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-2px)' }} onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none' }}>
+                                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                                    {/* Small Cover Image Preview (if any) */}
+                                    <div style={{ width: 48, height: 68, borderRadius: 4, background: 'var(--surface-alt)', flexShrink: 0, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                        {m.coverImageUrl ? (
+                                            <img src={m.coverImageUrl} alt={m.book} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                                        ) : (
+                                            <span style={{ fontSize: '1.2rem', opacity: 0.5 }}>📓</span>
+                                        )}
+                                    </div>
+
                                     <div style={{ flex: 1 }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                                             {m.meetingNumber != null && (
                                                 <span style={{
                                                     fontSize: '0.7rem', fontWeight: 700,
-                                                    background: 'var(--surface-alt)', color: 'var(--text-sub)',
-                                                    borderRadius: 100, padding: '1px 7px', flexShrink: 0,
+                                                    background: 'var(--primary-light)', color: 'var(--primary)',
+                                                    borderRadius: 100, padding: '2px 8px', flexShrink: 0,
                                                 }}>제{m.meetingNumber}회</span>
                                             )}
-                                            <span style={{ fontWeight: 600 }}>『{m.book}』</span>
+                                            <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text)' }}>
+                                                {m.book.length > 15 ? m.book.slice(0, 15) + '...' : m.book}
+                                            </span>
                                         </div>
-                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)' }}>
-                                            {formatDate(m.date)} · 발제자 {getMemberName(m.presenterMemberId)}
+                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)', display: 'flex', gap: 8, alignItems: 'center' }}>
+                                            <span>{formatDate(m.date)}</span>
+                                            <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--border)' }}></span>
+                                            <span>발제: <span style={{ color: 'var(--text)', fontWeight: 500 }}>{getMemberName(m.presenterMemberId)}</span></span>
                                         </div>
                                     </div>
-                                    <span className="badge badge-gray">완료</span>
                                 </div>
                             </div>
                         </Link>

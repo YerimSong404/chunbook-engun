@@ -273,12 +273,14 @@ export default function AdminPage() {
                                     </div>
                                 ))}
                             </div>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                                <button className="btn btn-primary btn-lg" onClick={handleSubmitMeeting}>
+                            <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
+                                <button className="btn btn-primary" style={{ flex: 1, borderRadius: 12, padding: '14px 0', fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap' }} onClick={handleSubmitMeeting}>
                                     수정 완료
                                 </button>
-                                <button className="btn btn-ghost btn-lg" style={{ width: 'auto' }}
-                                    onClick={() => { setEditId(null); setForm(emptyForm); }}>취소</button>
+                                <button className="btn btn-ghost" style={{ flex: 1, borderRadius: 12, padding: '14px 0', fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap', border: '1px solid var(--border)' }}
+                                    onClick={() => { setEditId(null); setForm(emptyForm); }}>
+                                    취소
+                                </button>
                             </div>
                         </div>
                     )}
