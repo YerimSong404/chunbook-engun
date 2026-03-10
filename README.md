@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📚 천북인권 독서모임 관리 앱 (Chun-book In-gun)
 
-## Getting Started
+천북인권 독서모임 관리 앱은 독서모임의 일정, 발제자, 발제 내용, 멤버들의 답변을 효율적이고 감성적으로 기록하고 관리할 수 있도록 돕는 웹 애플리케이션입니다. '밀리의 서재'에서 영감을 받은 모던하고 부드러운 UI/UX를 제공합니다.
 
-First, run the development server:
+## ✨ 주요 기능
 
-```bash
+- **🏠 홈 (투데이)**: 다가오는 다음 독서모임 정보(날짜, 책 표지, 발제자)를 가장 직관적으로 확인합니다.
+- **📚 내서재 (이전 모임)**: 이제까지 진행했던 모든 독서모임 기록을 한눈에 모아보고, 연도별/발제자별/최신순 정렬 등 세부 필터링이 가능합니다.
+- **🎤 피드 (발제자 현황)**: 멤버별 발제 횟수를 자동으로 추적하고, 현재 진행 중인 발제 로테이션(회차) 현황을 한눈에 파악합니다.
+- **✍️ 기록 (서기 기록)**: 모임 당일, 다수의 멤버가 남긴 답변을 각 발제(문항)별로 한 번에 입력하고 간편하게 일괄 저장합니다.
+- **⚙️ 관리**: 멤버를 추가/삭제하거나 전체 모임 목록을 제어하고, 독서모임을 새롭게 추가하거나 모임 세부 정보(도서명, 날짜, 표지 사진, 발제 내용 등)를 편집할 수 있습니다.
+
+## 🎨 디자인 특징
+
+- **감성적인 컬러 팔레트**: 생동감 있는 보라색 ~ 노란색 그라데이션 포인트 컬러를 활용하여 감각적인 분위기를 자아냅니다.
+- **카드형 레이아웃 & 라운드 디자인**: 모든 리스트와 버튼에 부드러운 곡선(Radius)과 그림자를 적용하여 편안한 뷰어 경험을 제공합니다.
+- **해시태그 기반 인터랙션**: 발제 주제를 보기 좋게 카드 형태로 분리하고 직관적으로 선택할 수 있습니다.
+- **모바일 최적화**: 어떤 디바이스에서도 쾌적하게 접근할 수 있도록 하단 탭 바(Tab Bar)와 반응형 레이아웃 형태로 설계되었습니다.
+
+## 🚀 설치 및 실행 방법
+
+본 프로젝트는 [Next.js](https://nextjs.org/)를 기반으로 작성되었습니다.
+
+### 1단계: 패키지 설치
+\`\`\`bash
+npm install
+# 또는
+yarn install
+# 또는
+pnpm install
+\`\`\`
+
+### 2단계: 개발 서버 실행
+\`\`\`bash
 npm run dev
-# or
+# 또는
 yarn dev
-# or
+# 또는
 pnpm dev
-# or
-bun dev
-```
+\`\`\`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저를 열고 [http://localhost:3000](http://localhost:3000) 에 접속하여 앱을 확인할 수 있습니다.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠 기술 스택
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **프레임워크**: [Next.js 14+](https://nextjs.org/) (App Router 기반)
+- **언어**: TypeScript
+- **스타일링**: CSS Modules / Global CSS 변수 (바닐라 CSS 기반 다크모드 및 토큰 시스템 설계)
+- **데이터베이스/저장소**: 클라이언트 사이드 스토리지 (IndexedDB) 활용 (`lib/db.ts` 참조)
 
-## Learn More
+## 📌 향후 개선 사항
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 외부 클라우드 데이터베이스(Supabase, Firebase 등)를 연동한 실시간 동기화 지원
+- 독서 모임 참여자별 개별 로그인 및 소셜 로그인 연동
+- 모임 후기 및 사진첩(갤러리) 공유 기능 도입
