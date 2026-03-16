@@ -75,7 +75,7 @@ export default function PresentersPage() {
             <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 background: 'var(--primary-light)', color: 'var(--primary)',
-                borderRadius: 100, padding: '6px 16px', marginBottom: 20,
+                borderRadius: 8, padding: '6px 16px', marginBottom: 20,
                 fontSize: '0.85rem', fontWeight: 700,
             }}>
                 🔄 {currentRound}회차 진행 중

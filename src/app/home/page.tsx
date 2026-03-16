@@ -48,7 +48,7 @@ export default function HomePage() {
                 <Link href="/meeting/new" style={{ 
                     display: 'flex', alignItems: 'center', gap: 6,
                     background: 'var(--primary)', color: '#FFF', 
-                    padding: '10px 16px', borderRadius: 20, 
+                    padding: '10px 16px', borderRadius: 8, 
                     fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' 
                 }}>
                     <Plus size={16} /> 새 모임
@@ -60,7 +60,7 @@ export default function HomePage() {
                     <div className="card" style={{ 
                         padding: 0, overflow: 'hidden', cursor: 'pointer', 
                         transition: 'transform 0.2s ease, box-shadow 0.2s ease', 
-                        border: 'none', borderRadius: 20,
+                        border: 'none', borderRadius: 8,
                         boxShadow: 'var(--shadow-lg)' 
                     }} onMouseOver={(e) => {
                         e.currentTarget.style.transform = 'translateY(-4px)';
@@ -105,14 +105,14 @@ export default function HomePage() {
                                 <span style={{ 
                                     display: 'flex', alignItems: 'center', gap: 6,
                                     background: 'var(--surface-alt)', color: 'var(--text-sub)', 
-                                    borderRadius: 12, padding: '8px 14px', fontSize: '0.85rem', fontWeight: 500 
+                                    borderRadius: 8, padding: '8px 14px', fontSize: '0.85rem', fontWeight: 500 
                                 }}>
                                     <Calendar size={14} /> {formatDate(next.date)}
                                 </span>
                                 <span style={{ 
                                     display: 'flex', alignItems: 'center', gap: 6,
                                     background: 'var(--primary-light)', color: '#695D4A', 
-                                    borderRadius: 12, padding: '8px 14px', fontSize: '0.85rem', fontWeight: 600 
+                                    borderRadius: 8, padding: '8px 14px', fontSize: '0.85rem', fontWeight: 600 
                                 }}>
                                     <Mic size={14} /> {getMemberName(next.presenterMemberId)} 발제
                                 </span>
@@ -123,7 +123,7 @@ export default function HomePage() {
             ) : (
                 <div style={{ 
                     padding: '48px 20px', textAlign: 'center', 
-                    background: 'var(--surface)', borderRadius: 20, 
+                    background: 'var(--surface)', borderRadius: 8, 
                     border: '1px dashed var(--border)', display: 'flex', flexDirection: 'column', alignItems: 'center'
                 }}>
                     <BookOpen size={48} color="var(--border)" style={{ marginBottom: 16 }} />

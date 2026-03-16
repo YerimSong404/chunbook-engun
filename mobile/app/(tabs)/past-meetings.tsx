@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { getMeetings, getMembers } from '../../lib/db';
@@ -19,6 +19,7 @@ export default function PastMeetingsScreen() {
     const [loading, setLoading] = useState(true);
 
     const [sortOrder, setSortOrder] = useState<'DESC' | 'ASC'>('DESC');
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -35,9 +36,17 @@ export default function PastMeetingsScreen() {
 
     const filteredMeetings = useMemo(() => {
         let result = [...meetings];
+        if (searchTerm.trim() !== '') {
+            const term = searchTerm.toLowerCase();
+            result = result.filter(m => 
+                m.book.toLowerCase().includes(term) || 
+                (m.author && m.author.toLowerCase().includes(term)) ||
+                m.topics.some(t => t.toLowerCase().includes(term))
+            );
+        }
         result.sort((a, b) => sortOrder === 'DESC' ? b.date - a.date : a.date - b.date);
         return result;
-    }, [meetings, sortOrder]);
+    }, [meetings, sortOrder, searchTerm]);
 
     if (loading) {
         return (
@@ -60,6 +69,17 @@ export default function PastMeetingsScreen() {
                         {sortOrder === 'DESC' ? '최신순 ▾' : '오래된순 ▴'}
                     </Text>
                 </TouchableOpacity>
+            </View>
+
+            <View style={styles.searchContainer}>
+                <Feather name="search" size={18} color="#7A7265" style={styles.searchIcon} />
+                <TextInput
+                    style={styles.searchInput}
+                    placeholder="책 제목, 저자, 발제 주제 검색..."
+                    placeholderTextColor="#A0988A"
+                    value={searchTerm}
+                    onChangeText={setSearchTerm}
+                />
             </View>
 
             <ScrollView contentContainerStyle={styles.content}>
@@ -139,11 +159,32 @@ const styles = StyleSheet.create({
         color: '#2C2724',
         letterSpacing: -0.5,
     },
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginHorizontal: 20,
+        marginBottom: 16,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#EBE5D9',
+        paddingHorizontal: 12,
+        height: 48,
+    },
+    searchIcon: {
+        marginRight: 8,
+    },
+    searchInput: {
+        flex: 1,
+        fontSize: 15,
+        color: '#2C2724',
+        height: '100%',
+    },
     sortBtn: {
         paddingHorizontal: 14,
         paddingVertical: 8,
         backgroundColor: '#F9F6F0',
-        borderRadius: 20,
+        borderRadius: 6,
     },
     sortBtnText: {
         fontSize: 13,
@@ -166,7 +207,7 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 16,
+        borderRadius: 12,
         marginBottom: 16,
         elevation: 2,
         shadowColor: '#3A3125',
@@ -208,7 +249,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F0EBE1',
         paddingHorizontal: 8,
         paddingVertical: 4,
-        borderRadius: 100,
+        borderRadius: 6,
     },
     badgeText: {
         fontSize: 11,

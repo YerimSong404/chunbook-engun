@@ -14,8 +14,8 @@
   --accent-light: #FAEDDF;
   --success: #6B8E7D;
   --success-light: #EBF2EE;
-  --radius: 20px;
-  --radius-sm: 12px;
+  --radius: 12px;
+  --radius-sm: 8px;
   --shadow: 0 4px 20px rgba(58, 49, 37, 0.05);
   --shadow-md: 0 8px 24px rgba(58, 49, 37, 0.08);
   --shadow-lg: 0 12px 36px rgba(58, 49, 37, 0.12);
@@ -250,7 +250,7 @@ textarea {
   font-size: 0.75rem;
   font-weight: 600;
   padding: 3px 10px;
-  border-radius: 100px;
+  border-radius: 6px;
 }
 
 .badge-primary {
@@ -280,7 +280,7 @@ textarea {
   justify-content: center;
   gap: 6px;
   padding: 10px 20px;
-  border-radius: 100px;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
   transition: background 0.15s, transform 0.1s;
@@ -482,7 +482,7 @@ textarea {
 .meeting-hero-chip {
   background: rgba(255, 255, 255, 0.4);
   color: #4A4238;
-  border-radius: 100px;
+  border-radius: 8px;
   padding: 6px 14px;
   font-size: 0.85rem;
   font-weight: 600;
@@ -608,7 +608,7 @@ textarea {
   gap: 8px;
   margin-bottom: 24px;
   background: var(--surface-alt);
-  border-radius: 100px;
+  border-radius: 12px;
   padding: 4px;
 }
 
@@ -619,7 +619,7 @@ textarea {
   justify-content: center;
   gap: 6px;
   padding: 10px 12px;
-  border-radius: 100px;
+  border-radius: 8px;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-sub);
@@ -688,7 +688,7 @@ textarea {
   transform: translateX(-50%) translateY(10px);
   background: var(--text);
   color: #fff;
-  border-radius: 100px;
+  border-radius: 8px;
   padding: 10px 20px;
   font-size: 0.85rem;
   font-weight: 500;

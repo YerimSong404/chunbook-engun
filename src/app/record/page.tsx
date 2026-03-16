@@ -38,7 +38,7 @@ function AbsentSelector({
                         onClick={() => toggle(m.id)}
                         style={{
                             padding: '6px 14px',
-                            borderRadius: 100,
+                            borderRadius: 8,
                             border: `1.5px solid ${checked ? 'var(--accent)' : 'var(--border)'}`,
                             background: checked ? 'var(--accent-light)' : 'var(--surface)',
                             cursor: 'pointer',
@@ -200,28 +200,26 @@ export default function RecordPage() {
                                     <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)', marginBottom: 20 }}>
                                         기록할 발제를 선택해주세요.
                                     </p>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                    <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 8 }}>
                                         {selectedMeeting.topics.map((t, idx) => (
                                             <div
                                                 key={idx}
-                                                className="card"
                                                 style={{
                                                     cursor: 'pointer',
-                                                    display: 'flex', gap: 14, alignItems: 'flex-start',
-                                                    transition: 'all 0.15s ease',
-                                                    border: '1px solid var(--border)',
-                                                    padding: '20px',
-                                                    borderRadius: 'var(--radius)'
+                                                    display: 'flex', gap: 16, alignItems: 'flex-start',
+                                                    transition: 'background 0.15s ease',
+                                                    padding: '18px 20px',
+                                                    borderBottom: idx < selectedMeeting.topics.length - 1 ? '1px solid var(--border)' : 'none',
                                                 }}
                                                 onClick={() => setSelectedTopicIndex(idx)}
-                                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                                                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none' }}
+                                                onMouseOver={(e) => { e.currentTarget.style.background = 'var(--surface-alt)' }}
+                                                onMouseOut={(e) => { e.currentTarget.style.background = 'transparent' }}
                                             >
                                                 <span style={{
-                                                    color: 'var(--primary)', fontWeight: 800, fontSize: '0.95rem',
-                                                    background: 'var(--primary-light)', width: 26, height: 26,
-                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                                    flexShrink: 0, marginTop: -2
+                                                    color: 'var(--text-sub)', fontWeight: 700, fontSize: '0.9rem',
+                                                    background: 'var(--surface-alt)', width: 26, height: 26,
+                                                    borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    flexShrink: 0, marginTop: 0
                                                 }}>
                                                     {idx + 1}
                                                 </span>
@@ -275,7 +273,7 @@ export default function RecordPage() {
                             <span style={{
                                 color: '#fff', fontWeight: 800, fontSize: '1rem',
                                 background: 'var(--primary)', width: 28, height: 28,
-                                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 flexShrink: 0, marginTop: -2, boxShadow: 'var(--shadow)'
                             }}>
                                 {selectedTopicIndex + 1}
@@ -289,7 +287,7 @@ export default function RecordPage() {
                                 className="btn btn-primary"
                                 disabled={saving === `topic_${selectedTopicIndex}`}
                                 onClick={() => handleTopicSave(selectedTopicIndex)}
-                                style={{ padding: '10px 24px', fontSize: '0.95rem', borderRadius: 100, boxShadow: 'var(--shadow-hover)' }}
+                                style={{ padding: '10px 24px', fontSize: '0.95rem', borderRadius: 8, boxShadow: 'var(--shadow-hover)' }}
                             >
                                 {saving === `topic_${selectedTopicIndex}` ? '저장 중…' : '현재 발제 답변 모두 저장'}
                             </button>
@@ -300,9 +298,9 @@ export default function RecordPage() {
                         {presentMembers.map((mb) => {
                             const val = answers[mb.id]?.[selectedTopicIndex] ?? '';
                             return (
-                                <div key={mb.id} className="card" style={{ marginBottom: 16, padding: '20px', borderRadius: '16px' }}>
+                                <div key={mb.id} className="card" style={{ marginBottom: 16, padding: '20px', borderRadius: 12 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
                                                 <User size={16} color="var(--text-sub)" />
                                         </div>
                                         <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{mb.name}</div>

@@ -116,7 +116,7 @@ export default function EditMeetingPage() {
                 </button>
             </div>
 
-            <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 12, background: 'var(--surface)', marginBottom: 24 }}>
+            <div style={{ padding: 16, border: '1px solid var(--border)', borderRadius: 8, background: 'var(--surface)', marginBottom: 24 }}>
                 <div className="section-title" style={{ marginTop: 0, fontSize: '1.2rem', color: 'var(--text)', textTransform: 'none' }}>모임 수정</div>
                 
                 <div className="form-group" style={{ marginTop: 20 }}>
@@ -194,7 +194,7 @@ export default function EditMeetingPage() {
                     {form.topics.map((t, i) => (
                         <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                             <span style={{
-                                width: 22, height: 22, borderRadius: '50%', background: 'var(--primary-light)',
+                                width: 22, height: 22, borderRadius: 8, background: 'var(--primary-light)',
                                 color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 700,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 10
                             }}>{i + 1}</span>
@@ -210,7 +210,7 @@ export default function EditMeetingPage() {
                 <div style={{ marginTop: 24 }}>
                     <button 
                         className="btn btn-primary" 
-                        style={{ width: '100%', borderRadius: 12, padding: '14px 0', fontWeight: 700, fontSize: '1.05rem' }} 
+                        style={{ width: '100%', borderRadius: 8, padding: '14px 0', fontWeight: 700, fontSize: '1.05rem' }} 
                         onClick={handleSubmitMeeting}
                         disabled={submitting}
                     >

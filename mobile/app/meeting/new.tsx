@@ -206,7 +206,7 @@ const styles = StyleSheet.create({
     pageTitle: { fontSize: 22, fontWeight: '700', color: '#111' },
     card: {
         backgroundColor: '#fff',
-        borderRadius: 16,
+        borderRadius: 12,
         padding: 24,
         marginBottom: 24,
         borderWidth: 1,
@@ -222,21 +222,21 @@ const styles = StyleSheet.create({
     label: { fontSize: 13, fontWeight: '600', color: '#444', marginBottom: 6 },
     labelHint: { fontSize: 12, color: '#888', marginLeft: 6 },
     input: {
-        backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 8, padding: 12, fontSize: 15,
+        backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 12, fontSize: 15,
     },
     coverInputRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
     coverPreviewContainer: {
-        width: 64, height: 88, borderRadius: 8, overflow: 'hidden', borderWidth: 1, borderColor: '#eee', backgroundColor: '#f9f9f9'
+        width: 64, height: 88, borderRadius: 6, overflow: 'hidden', borderWidth: 1, borderColor: '#eee', backgroundColor: '#f9f9f9'
     },
     coverPreview: { width: '100%', height: '100%' },
     hintText: { fontSize: 11, color: '#888', marginTop: 8 },
-    pickerWrap: { borderWidth: 1, borderColor: '#ddd', borderRadius: 8, overflow: 'hidden', backgroundColor: '#fff' },
+    pickerWrap: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, overflow: 'hidden', backgroundColor: '#fff' },
     webSelect: { width: '100%', padding: 12, fontSize: 15, borderWidth: 0, backgroundColor: 'transparent' },
     picker: { width: '100%', height: 50 },
     submitBtn: {
         backgroundColor: '#0070f3',
         paddingVertical: 16,
-        borderRadius: 12,
+        borderRadius: 6,
         alignItems: 'center',
         marginTop: 10,
     },

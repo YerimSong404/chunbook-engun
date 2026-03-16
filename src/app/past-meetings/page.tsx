@@ -7,6 +7,7 @@ import { getMeetings, getMembers } from '@/lib/db';
 import { Meeting, Member } from '@/lib/types';
 import AppShell from '@/components/AppShell';
 import Link from 'next/link';
+import { Search } from 'lucide-react';
 
 function formatDate(ts: number) {
     const d = new Date(ts);
@@ -23,6 +24,7 @@ export default function PastMeetingsPage() {
     const [yearFilter, setYearFilter] = useState<string>('ALL');
     const [presenterFilter, setPresenterFilter] = useState<string>('ALL');
     const [sortOrder, setSortOrder] = useState<'DESC' | 'ASC'>('DESC');
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -53,11 +55,20 @@ export default function PastMeetingsPage() {
         if (presenterFilter !== 'ALL') {
             result = result.filter(m => m.presenterMemberId === presenterFilter);
         }
+        
+        if (searchTerm.trim() !== '') {
+            const term = searchTerm.toLowerCase();
+            result = result.filter(m => 
+                m.book.toLowerCase().includes(term) || 
+                (m.author && m.author.toLowerCase().includes(term)) ||
+                m.topics.some(t => t.toLowerCase().includes(term))
+            );
+        }
 
         result.sort((a, b) => sortOrder === 'DESC' ? b.date - a.date : a.date - b.date);
 
         return result;
-    }, [meetings, yearFilter, presenterFilter, sortOrder]);
+    }, [meetings, yearFilter, presenterFilter, sortOrder, searchTerm]);
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
 
@@ -65,6 +76,29 @@ export default function PastMeetingsPage() {
         <AppShell>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
                 <h1 className="page-title" style={{ margin: 0 }}>내서재</h1>
+            </div>
+
+            {/* Search Area */}
+            <div style={{ position: 'relative', marginBottom: 12 }}>
+                <Search size={18} color="var(--text-sub)" style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)' }} />
+                <input 
+                    type="text" 
+                    placeholder="책 제목, 저자, 발제 주제 검색..." 
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '14px 16px 14px 44px',
+                        fontSize: '0.95rem',
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius-sm)',
+                        backgroundColor: 'var(--surface)',
+                        color: 'var(--text)',
+                        outline: 'none',
+                        boxShadow: 'var(--shadow)',
+                        fontFamily: 'var(--font)'
+                    }}
+                />
             </div>
 
             {/* Filters Area */}
@@ -80,7 +114,7 @@ export default function PastMeetingsPage() {
                             background: yearFilter === 'ALL' ? 'var(--surface)' : 'var(--primary)',
                             color: yearFilter === 'ALL' ? 'var(--text)' : '#fff',
                             border: `1px solid ${yearFilter === 'ALL' ? 'var(--border)' : 'var(--primary)'}`,
-                            borderRadius: 100, padding: '8px 32px 8px 16px', fontSize: '0.85rem', fontWeight: 600,
+                            borderRadius: 8, padding: '8px 32px 8px 16px', fontSize: '0.85rem', fontWeight: 600,
                             cursor: 'pointer', boxShadow: 'var(--shadow)'
                         }}
                     >
@@ -99,7 +133,7 @@ export default function PastMeetingsPage() {
                             background: presenterFilter === 'ALL' ? 'var(--surface)' : 'var(--primary)',
                             color: presenterFilter === 'ALL' ? 'var(--text)' : '#fff',
                             border: `1px solid ${presenterFilter === 'ALL' ? 'var(--border)' : 'var(--primary)'}`,
-                            borderRadius: 100, padding: '8px 32px 8px 16px', fontSize: '0.85rem', fontWeight: 600,
+                            borderRadius: 8, padding: '8px 32px 8px 16px', fontSize: '0.85rem', fontWeight: 600,
                             cursor: 'pointer', boxShadow: 'var(--shadow)'
                         }}
                     >
@@ -159,7 +193,7 @@ export default function PastMeetingsPage() {
                                                 <span style={{
                                                     fontSize: '0.7rem', fontWeight: 700,
                                                     background: 'var(--primary-light)', color: 'var(--primary)',
-                                                    borderRadius: 100, padding: '2px 8px', flexShrink: 0,
+                                                    borderRadius: 8, padding: '2px 8px', flexShrink: 0,
                                                 }}>제{m.meetingNumber}회</span>
                                             )}
                                             <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text)' }}>
@@ -168,7 +202,7 @@ export default function PastMeetingsPage() {
                                         </div>
                                         <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)', display: 'flex', gap: 8, alignItems: 'center' }}>
                                             <span>{formatDate(m.date)}</span>
-                                            <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--border)' }}></span>
+                                            <span style={{ width: 3, height: 3, borderRadius: 8, background: 'var(--border)' }}></span>
                                             <span>발제: <span style={{ color: 'var(--text)', fontWeight: 500 }}>{getMemberName(m.presenterMemberId)}</span></span>
                                         </div>
                                     </div>

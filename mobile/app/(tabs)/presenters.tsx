@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
         alignSelf: 'flex-start',
         paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 20,
+        borderRadius: 6,
         marginBottom: 24,
     },
     roundBadgeText: {
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 20,
+        borderRadius: 6,
         padding: 24,
         marginBottom: 28,
         elevation: 6,
@@ -284,7 +284,7 @@ const styles = StyleSheet.create({
     badge: {
         paddingVertical: 6,
         paddingHorizontal: 14,
-        borderRadius: 12,
+        borderRadius: 6,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',

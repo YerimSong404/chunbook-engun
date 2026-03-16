@@ -127,7 +127,7 @@ export default function AdminPage() {
                                                 <span style={{
                                                     fontSize: '0.72rem', fontWeight: 700,
                                                     background: 'var(--primary-light)', color: 'var(--primary)',
-                                                    borderRadius: 100, padding: '2px 8px', flexShrink: 0,
+                                                    borderRadius: 8, padding: '2px 8px', flexShrink: 0,
                                                 }}>제{m.meetingNumber}회</span>
                                             )}
                                             <span style={{ fontWeight: 600 }}>『{m.book}』</span>

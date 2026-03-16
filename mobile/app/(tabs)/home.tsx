@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#8C7D6B',
         paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 20,
+        borderRadius: 6,
     },
     newBtnText: {
         color: '#FFF',
@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     },
     card: {
         backgroundColor: '#FFFFFF',
-        borderRadius: 20,
+        borderRadius: 6,
         overflow: 'hidden',
         elevation: 6,
         shadowColor: '#3A3125',
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
         right: 24,
         width: 90,
         height: 130,
-        borderRadius: 8,
+        borderRadius: 6,
         overflow: 'hidden',
         backgroundColor: '#FAFAFA',
         elevation: 8,
@@ -221,7 +221,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#F9F6F0',
         paddingVertical: 8,
         paddingHorizontal: 14,
-        borderRadius: 12,
+        borderRadius: 6,
     },
     tagPrimary: {
         backgroundColor: '#F0EBE1',

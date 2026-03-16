@@ -168,10 +168,10 @@ export default function MeetingDetailPage() {
                         </div>
 
                         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface-alt)', color: 'var(--text-sub)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface-alt)', color: 'var(--text-sub)', borderRadius: 8, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
                                 <Calendar size={14} /> {formatDate(meeting.date)}
                             </span>
-                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 8, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
                                 <Mic size={14} /> 발제자: {getMemberName(meeting.presenterMemberId)}
                             </span>
                         </div>
@@ -188,7 +188,7 @@ export default function MeetingDetailPage() {
                             발제 키워드
                         </span>
                         {!isEditingTopics && meeting.status === 'upcoming' && (
-                            <button className="btn btn-ghost btn-sm" onClick={startEditTopics} style={{ borderRadius: 100 }}>
+                            <button className="btn btn-ghost btn-sm" onClick={startEditTopics} style={{ borderRadius: 8 }}>
                                 {meeting.topics.length === 0 ? '+ 발제 등록' : '수정'}
                             </button>
                         )}
@@ -206,7 +206,7 @@ export default function MeetingDetailPage() {
                                 {editingTopics.map((t, i) => (
                                     <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                                         <span style={{
-                                            width: 28, height: 28, borderRadius: '50%', background: 'var(--primary-light)',
+                                            width: 28, height: 28, borderRadius: 8, background: 'var(--primary-light)',
                                             color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700,
                                             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 8
                                         }}>{i + 1}</span>
@@ -235,28 +235,26 @@ export default function MeetingDetailPage() {
                             </div>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        <div className="card" style={{ padding: 0, overflow: 'hidden', borderRadius: 8 }}>
                             {meeting.topics.map((t, idx) => (
                                 <div
                                     key={idx}
-                                    className="card"
                                     style={{
                                         cursor: 'pointer',
-                                        display: 'flex', gap: 14, alignItems: 'flex-start',
-                                        transition: 'all 0.15s ease',
-                                        border: '1px solid var(--border)',
-                                        padding: '20px',
-                                        borderRadius: 'var(--radius)'
+                                        display: 'flex', gap: 16, alignItems: 'flex-start',
+                                        transition: 'background 0.15s ease',
+                                        padding: '18px 20px',
+                                        borderBottom: idx < meeting.topics.length - 1 ? '1px solid var(--border)' : 'none',
                                     }}
                                     onClick={() => setSelectedTopicIndex(idx)}
-                                    onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
-                                    onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none' }}
+                                    onMouseOver={(e) => { e.currentTarget.style.background = 'var(--surface-alt)' }}
+                                    onMouseOut={(e) => { e.currentTarget.style.background = 'transparent' }}
                                 >
                                     <span style={{
-                                        color: 'var(--primary)', fontWeight: 800, fontSize: '0.95rem',
-                                        background: 'var(--primary-light)', width: 26, height: 26,
-                                        borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        flexShrink: 0, marginTop: -2
+                                        color: 'var(--text-sub)', fontWeight: 700, fontSize: '0.9rem',
+                                        background: 'var(--surface-alt)', width: 26, height: 26,
+                                        borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        flexShrink: 0, marginTop: 0
                                     }}>
                                         {idx + 1}
                                     </span>
@@ -282,7 +280,7 @@ export default function MeetingDetailPage() {
                             <span style={{
                                 color: '#fff', fontWeight: 800, fontSize: '1rem',
                                 background: 'var(--primary)', width: 28, height: 28,
-                                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
                                 flexShrink: 0, marginTop: -2, boxShadow: 'var(--shadow)'
                             }}>
                                 {selectedTopicIndex + 1}
@@ -307,9 +305,9 @@ export default function MeetingDetailPage() {
                                     const hasAnswer = Boolean(answer?.trim());
 
                                     return (
-                                        <div key={m.id} className="card" style={{ padding: '20px', borderRadius: '16px' }}>
+                                        <div key={m.id} className="card" style={{ padding: '20px', borderRadius: 12 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                                                <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                                                <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
                                                     <User size={16} color="var(--text-sub)" />
                                                 </div>
                                                 <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{m.name}</div>
