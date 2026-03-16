@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { getMeetings, getMembers } from '../../lib/db';
 import { Meeting, Member } from '../../lib/types';
-import { Picker } from '@react-native-picker/picker'; // Needs installation later if Picker is used, or a custom one. Let's use simple Custom Filters for React Native to avoid extra dependencies for now, or just basic UI.
+import { Feather } from '@expo/vector-icons';
 
 function formatDate(ts: number) {
     const d = new Date(ts);
@@ -18,7 +18,6 @@ export default function PastMeetingsScreen() {
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // Simple state for filters (Native Picker is complex to style across platforms without a lib, so we simplify for MVP or just show all for now, but let's implement basic sort toggle)
     const [sortOrder, setSortOrder] = useState<'DESC' | 'ASC'>('DESC');
 
     useEffect(() => {
@@ -43,8 +42,8 @@ export default function PastMeetingsScreen() {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#0070f3" />
-                <Text style={{ marginTop: 10, color: '#666' }}>불러오는 중…</Text>
+                <ActivityIndicator size="large" color="#8C7D6B" />
+                <Text style={{ marginTop: 10, color: '#7A7265' }}>불러오는 중…</Text>
             </View>
         );
     }
@@ -52,13 +51,13 @@ export default function PastMeetingsScreen() {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <Text style={styles.pageTitle}>내서재</Text>
+                <Text style={styles.pageTitle}>기록</Text>
                 <TouchableOpacity 
                     style={styles.sortBtn}
                     onPress={() => setSortOrder(prev => prev === 'DESC' ? 'ASC' : 'DESC')}
                 >
                     <Text style={styles.sortBtnText}>
-                        {sortOrder === 'DESC' ? '최신순 ▼' : '오래된순 ▲'}
+                        {sortOrder === 'DESC' ? '최신순 ▾' : '오래된순 ▴'}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -66,7 +65,8 @@ export default function PastMeetingsScreen() {
             <ScrollView contentContainerStyle={styles.content}>
                 {filteredMeetings.length === 0 ? (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>조건에 맞는 모임이 없어요.</Text>
+                        <Feather name="inbox" size={48} color="#C1B7A7" style={{ marginBottom: 16 }} />
+                        <Text style={styles.emptyText}>아직 완료된 모임이 없어요.</Text>
                     </View>
                 ) : (
                     filteredMeetings.map((m) => (
@@ -81,7 +81,7 @@ export default function PastMeetingsScreen() {
                                     {m.coverImageUrl ? (
                                         <Image source={{ uri: m.coverImageUrl }} style={styles.coverImage} />
                                     ) : (
-                                        <Text style={{ fontSize: 24, opacity: 0.5 }}>📓</Text>
+                                        <Feather name="book" size={24} color="#C1B7A7" />
                                     )}
                                 </View>
                                 
@@ -119,75 +119,77 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FAFAFA'
+        backgroundColor: '#FDFBF7'
     },
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
+        backgroundColor: '#FDFBF7',
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: 20,
-        backgroundColor: '#FAFAFA',
-        borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        padding: 24,
+        paddingBottom: 16,
+        backgroundColor: '#FDFBF7',
     },
     pageTitle: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#111',
+        fontSize: 26,
+        fontWeight: '600',
+        color: '#2C2724',
+        letterSpacing: -0.5,
     },
     sortBtn: {
-        paddingHorizontal: 12,
-        paddingVertical: 6,
-        backgroundColor: '#eee',
-        borderRadius: 100,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        backgroundColor: '#F9F6F0',
+        borderRadius: 20,
     },
     sortBtnText: {
         fontSize: 13,
-        fontWeight: '600',
-        color: '#555',
+        fontWeight: '500',
+        color: '#7A7265',
     },
     content: {
-        padding: 20,
-        paddingBottom: 40,
+        padding: 24,
+        paddingTop: 8,
+        paddingBottom: 80,
     },
     emptyContainer: {
-        padding: 40,
+        padding: 60,
         alignItems: 'center',
+        justifyContent: 'center',
     },
     emptyText: {
         fontSize: 15,
-        color: '#888',
+        color: '#7A7265',
     },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        marginBottom: 12,
-        borderWidth: 1,
-        borderColor: '#eee',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
+        marginBottom: 16,
         elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
+        shadowColor: '#3A3125',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
     },
     cardInner: {
         flexDirection: 'row',
-        padding: 16,
+        padding: 20,
         alignItems: 'center',
         gap: 16,
     },
     coverWrapper: {
-        width: 48,
-        height: 68,
+        width: 52,
+        height: 76,
         borderRadius: 6,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#FAFAFA',
         justifyContent: 'center',
         alignItems: 'center',
         overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: '#F0EBE1',
     },
     coverImage: {
         width: '100%',
@@ -200,24 +202,25 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
-        marginBottom: 6,
+        marginBottom: 8,
     },
     badge: {
-        backgroundColor: '#e6f4fe',
+        backgroundColor: '#F0EBE1',
         paddingHorizontal: 8,
-        paddingVertical: 2,
+        paddingVertical: 4,
         borderRadius: 100,
     },
     badgeText: {
-        fontSize: 10,
-        fontWeight: '700',
-        color: '#0070f3',
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#695D4A',
     },
     bookTitle: {
-        fontSize: 16,
-        fontWeight: '700',
-        color: '#111',
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#2C2724',
         flex: 1,
+        letterSpacing: -0.3,
     },
     metaRow: {
         flexDirection: 'row',
@@ -226,14 +229,14 @@ const styles = StyleSheet.create({
     },
     metaText: {
         fontSize: 13,
-        color: '#666',
+        color: '#7A7265',
     },
     metaDot: {
         fontSize: 13,
-        color: '#ccc',
+        color: '#C1B7A7',
     },
     metaHighlight: {
-        color: '#333',
-        fontWeight: '600',
+        color: '#4A4238',
+        fontWeight: '500',
     }
 });

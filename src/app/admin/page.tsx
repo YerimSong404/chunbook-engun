@@ -1,40 +1,31 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
     getMembers, addMember, deleteMember,
-    getMeetings, addMeeting, updateMeeting, deleteMeeting,
+    getMeetings, addMeeting, deleteMeeting,
     getSettings, updateSettings,
 } from '@/lib/db';
 import { Member, Meeting, AppSettings } from '@/lib/types';
 import AppShell from '@/components/AppShell';
+import { Calendar, Users, Settings } from 'lucide-react';
 
 function formatDate(ts: number) {
     return new Date(ts).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-const emptyForm = {
-    date: '',
-    book: '',
-    author: '',
-    presenterMemberId: '',
-    status: 'upcoming' as 'upcoming' | 'done',
-    topics: ['', '', ''],
-    coverImageUrl: '',
-    meetingNumber: '',
-    absentMemberIds: [] as string[],
-};
+
 
 type Tab = 'meetings' | 'members' | 'settings';
 
 export default function AdminPage() {
+    const router = useRouter();
     const [tab, setTab] = useState<Tab>('meetings');
     const [members, setMembers] = useState<Member[]>([]);
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [settings, setSettings] = useState<AppSettings>({ firstMeetingNumber: 1 });
     const [newName, setNewName] = useState('');
-    const [form, setForm] = useState(emptyForm);
-    const [editId, setEditId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [memberLoading, setMemberLoading] = useState(false);
     const [settingsSaving, setSettingsSaving] = useState(false);
@@ -86,72 +77,7 @@ export default function AdminPage() {
         alert('저장됐어요!');
     };
 
-    // ── Meetings ──
-    const handleTopicChange = (i: number, val: string) => {
-        setForm((prev) => {
-            const topics = [...prev.topics];
-            topics[i] = val;
-            return { ...prev, topics };
-        });
-    };
-    const addTopicSlot = () => {
-        if (form.topics.length >= 10) return;
-        setForm((prev) => ({ ...prev, topics: [...prev.topics, ''] }));
-    };
-    const removeTopicSlot = (i: number) => {
-        if (form.topics.length <= 3) return;
-        setForm((prev) => ({ ...prev, topics: prev.topics.filter((_, idx) => idx !== i) }));
-    };
 
-    const handleEditMeeting = (m: Meeting) => {
-        setEditId(m.id);
-        setForm({
-            date: new Date(m.date).toISOString().slice(0, 10),
-            book: m.book,
-            author: m.author,
-            presenterMemberId: m.presenterMemberId,
-            status: m.status,
-            topics: m.topics.length >= 3 ? m.topics : [...m.topics, ...Array(3 - m.topics.length).fill('')],
-            coverImageUrl: m.coverImageUrl ?? '',
-            meetingNumber: m.meetingNumber != null ? String(m.meetingNumber) : '',
-            absentMemberIds: m.absentMemberIds ?? [],
-        });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const toggleAbsent = (id: string) => {
-        setForm((p) => ({
-            ...p,
-            absentMemberIds: p.absentMemberIds.includes(id)
-                ? p.absentMemberIds.filter((x) => x !== id)
-                : [...p.absentMemberIds, id],
-        }));
-    };
-
-    const handleSubmitMeeting = async () => {
-        if (!editId) return;
-        if (!form.date || !form.book) return alert('날짜와 책 제목은 필수입니다.');
-        const meetingNumberVal = form.meetingNumber.trim()
-            ? parseInt(form.meetingNumber)
-            : undefined;
-
-        const data = {
-            date: new Date(form.date).getTime(),
-            book: form.book.trim(),
-            author: form.author.trim(),
-            presenterMemberId: form.presenterMemberId,
-            topics: form.topics.map((t) => t.trim()).filter(Boolean),
-            status: form.status,
-            absentMemberIds: form.absentMemberIds,
-            ...(form.coverImageUrl.trim() ? { coverImageUrl: form.coverImageUrl.trim() } : {}),
-            ...(meetingNumberVal != null ? { meetingNumber: meetingNumberVal } : {}),
-        };
-        await updateMeeting(editId, data);
-        setMeetings((prev) => prev.map((m) => m.id === editId ? { ...m, ...data } : m));
-
-        setForm(emptyForm);
-        setEditId(null);
-    };
 
     const handleDeleteMeeting = async (id: string) => {
         if (!confirm('모임을 삭제할까요?')) return;
@@ -168,128 +94,26 @@ export default function AdminPage() {
             {/* ── 탭 ── */}
             <div className="admin-tabs">
                 <button className={`admin-tab-btn ${tab === 'meetings' ? 'active' : ''}`} onClick={() => setTab('meetings')}>
-                    📅 모임 관리
+                    <Calendar size={16} /> 모임 관리
                 </button>
                 <button className={`admin-tab-btn ${tab === 'members' ? 'active' : ''}`} onClick={() => setTab('members')}>
-                    👥 멤버 관리
+                    <Users size={16} /> 멤버 관리
                 </button>
                 <button className={`admin-tab-btn ${tab === 'settings' ? 'active' : ''}`} onClick={() => setTab('settings')}>
-                    ⚙️ 설정
+                    <Settings size={16} /> 설정
                 </button>
             </div>
 
             {/* ── 모임 관리 탭 ── */}
             {tab === 'meetings' && (
                 <>
-                    {editId && (
-                        <div style={{ marginBottom: 24, padding: 16, border: '1px solid var(--accent)', borderRadius: 12, background: 'var(--surface)' }}>
-                            <div className="section-title" style={{ marginTop: 0 }}>모임 수정</div>
-                            {/* 모임 번호 */}
-                            <div className="form-group">
-                                <label className="form-label">모임 번호</label>
-                                <input
-                                    className="form-input"
-                                    type="number"
-                                    min={1}
-                                    placeholder="번호 입력"
-                                    value={form.meetingNumber}
-                                    onChange={(e) => setForm((p) => ({ ...p, meetingNumber: e.target.value }))}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">모임 날짜 *</label>
-                                <input type="date" className="form-input" value={form.date}
-                                    onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">책 제목 *</label>
-                                <input className="form-input" placeholder="예: 채식주의자" value={form.book}
-                                    onChange={(e) => setForm((p) => ({ ...p, book: e.target.value }))} />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">저자</label>
-                                <input className="form-input" placeholder="예: 한강" value={form.author}
-                                    onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} />
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">책 표지 이미지 URL <span style={{ fontWeight: 400, opacity: 0.6 }}>(선택)</span></label>
-                                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                                    <input
-                                        className="form-input"
-                                        style={{ flex: 1 }}
-                                        placeholder="https://image.yes24.com/..."
-                                        value={form.coverImageUrl}
-                                        onChange={(e) => setForm((p) => ({ ...p, coverImageUrl: e.target.value }))}
-                                    />
-                                    {form.coverImageUrl.trim() && (
-                                        <div style={{
-                                            flexShrink: 0, width: 64, height: 88,
-                                            borderRadius: 8, overflow: 'hidden',
-                                            border: '1.5px solid var(--border)',
-                                            background: 'var(--surface-alt)',
-                                        }}>
-                                            <img
-                                                src={form.coverImageUrl}
-                                                alt="표지 미리보기"
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                                <p style={{ fontSize: '0.75rem', color: 'var(--text-sub)', marginTop: 6 }}>
-                                    💡 알라딘/예스24 책 상세페이지에서 표지 이미지 우클릭 → "이미지 주소 복사"
-                                </p>
-                            </div>
-                            <div className="form-group">
-                                <label className="form-label">발제자</label>
-                                <select className="form-input" value={form.presenterMemberId}
-                                    onChange={(e) => setForm((p) => ({ ...p, presenterMemberId: e.target.value }))}>
-                                    <option value="">— 선택 안 함 —</option>
-                                    {members.map((m) => <option key={m.id} value={m.id}>{m.name}</option>)}
-                                </select>
-                            </div>
 
-                            <div className="form-group">
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                    <label className="form-label" style={{ margin: 0 }}>발제 주제 ({form.topics.length}/10)</label>
-                                    {form.topics.length < 10 && (
-                                        <button className="btn btn-ghost btn-sm" onClick={addTopicSlot}>+ 추가</button>
-                                    )}
-                                </div>
-                                {form.topics.map((t, i) => (
-                                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                                        <span style={{
-                                            width: 22, height: 22, borderRadius: '50%', background: 'var(--primary-light)',
-                                            color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 700,
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 10
-                                        }}>{i + 1}</span>
-                                        <input className="form-input" placeholder={`주제 ${i + 1}`} value={t}
-                                            onChange={(e) => handleTopicChange(i, e.target.value)} style={{ flex: 1 }} />
-                                        {form.topics.length > 3 && (
-                                            <button className="btn btn-ghost btn-sm" onClick={() => removeTopicSlot(i)}
-                                                style={{ color: 'var(--accent)', flexShrink: 0 }}>✕</button>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                            <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-                                <button className="btn btn-primary" style={{ flex: 1, borderRadius: 12, padding: '14px 0', fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap' }} onClick={handleSubmitMeeting}>
-                                    수정 완료
-                                </button>
-                                <button className="btn btn-ghost" style={{ flex: 1, borderRadius: 12, padding: '14px 0', fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap', border: '1px solid var(--border)' }}
-                                    onClick={() => { setEditId(null); setForm(emptyForm); }}>
-                                    취소
-                                </button>
-                            </div>
-                        </div>
-                    )}
 
                     <div className="section-title">등록된 모임 ({meetings.length})</div>
                     {meetings.length === 0 ? (
                         <div className="card">
                             <div className="empty">
-                                <div className="empty-icon">📅</div>
+                                <Calendar size={40} color="var(--border)" style={{ marginBottom: 16 }} />
                                 <div className="empty-text">등록된 모임이 없어요</div>
                             </div>
                         </div>
@@ -322,7 +146,7 @@ export default function AdminPage() {
                                     </span>
                                 </div>
                                 <div style={{ display: 'flex', gap: 6, marginTop: 12 }}>
-                                    <button className="btn btn-ghost btn-sm" onClick={() => handleEditMeeting(m)}>편집</button>
+                                    <button className="btn btn-ghost btn-sm" onClick={() => router.push(`/admin/meeting/${m.id}`)}>편집</button>
                                     <button className="btn btn-danger btn-sm" onClick={() => handleDeleteMeeting(m.id)}>삭제</button>
                                 </div>
                             </div>
@@ -349,7 +173,7 @@ export default function AdminPage() {
                     <div className="card">
                         {members.length === 0 ? (
                             <div className="empty">
-                                <div className="empty-icon">👥</div>
+                                <Users size={40} color="var(--border)" style={{ marginBottom: 16 }} />
                                 <div className="empty-text">등록된 멤버가 없어요</div>
                             </div>
                         ) : (

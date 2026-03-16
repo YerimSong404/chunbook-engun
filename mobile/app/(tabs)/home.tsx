@@ -4,7 +4,8 @@ import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { getMeetings, getMembers } from '../../lib/db';
 import { Meeting, Member } from '../../lib/types';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 function formatDate(ts: number) {
     const d = new Date(ts);
@@ -32,8 +33,8 @@ export default function HomeScreen() {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#0070f3" />
-                <Text style={{ marginTop: 10, color: '#666' }}>불러오는 중…</Text>
+                <ActivityIndicator size="large" color="#8C7D6B" />
+                <Text style={{ marginTop: 10, color: '#7A7265' }}>불러오는 중…</Text>
             </View>
         );
     }
@@ -46,12 +47,13 @@ export default function HomeScreen() {
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             <View style={styles.header}>
-                <Text style={styles.pageTitle}>모임 정보</Text>
+                <Text style={styles.pageTitle}>다가오는 모임</Text>
                 <TouchableOpacity 
                     style={styles.newBtn} 
                     onPress={() => router.push('/meeting/new')}
                 >
-                    <Text style={styles.newBtnText}>+ 새 독서모임</Text>
+                    <Feather name="plus" size={16} color="#FFF" style={{ marginRight: 4 }} />
+                    <Text style={styles.newBtnText}>새 모임</Text>
                 </TouchableOpacity>
             </View>
 
@@ -61,12 +63,15 @@ export default function HomeScreen() {
                     activeOpacity={0.8}
                     onPress={() => router.push(`/meeting/${next.id}`)}
                 >
-                    <View style={styles.cardHeader}>
+                    <LinearGradient
+                        colors={['#EBE5D9', '#E2D9C8']}
+                        style={styles.cardHeader}
+                    >
                         <Text style={styles.meetingNumber}>
-                            {next.meetingNumber != null ? `제${next.meetingNumber}회 모임` : '다음 모임'}
+                            {next.meetingNumber != null ? `제${next.meetingNumber}회 독서모임` : '다음 모임'}
                         </Text>
                         <Text style={styles.bookTitle}>『{next.book}』</Text>
-                    </View>
+                    </LinearGradient>
 
                     <View style={styles.cardContent}>
                         {next.coverImageUrl && (
@@ -82,11 +87,13 @@ export default function HomeScreen() {
                         
                         <View style={styles.tagsRow}>
                             <View style={styles.tag}>
-                                <Text style={styles.tagText}>📅 {formatDate(next.date)}</Text>
+                                <Feather name="calendar" size={14} color="#7A7265" style={{ marginRight: 4 }} />
+                                <Text style={styles.tagText}>{formatDate(next.date)}</Text>
                             </View>
                             <View style={[styles.tag, styles.tagPrimary]}>
+                                <Feather name="mic" size={14} color="#695D4A" style={{ marginRight: 4 }} />
                                 <Text style={[styles.tagText, styles.tagPrimaryText]}>
-                                    🎤 {getMemberName(next.presenterMemberId)}
+                                    {getMemberName(next.presenterMemberId)} 발제
                                 </Text>
                             </View>
                         </View>
@@ -94,8 +101,9 @@ export default function HomeScreen() {
                 </TouchableOpacity>
             ) : (
                 <View style={[styles.card, styles.emptyCard]}>
-                    <Text style={{ fontSize: 40, marginBottom: 10 }}>📅</Text>
-                    <Text style={{ fontSize: 16, color: '#666' }}>예정된 모임이 없어요</Text>
+                    <Feather name="book-open" size={48} color="#C1B7A7" style={{ marginBottom: 16 }} />
+                    <Text style={styles.emptyTitle}>예정된 모임이 없어요</Text>
+                    <Text style={styles.emptySub}>새로운 독서 모임을 기획해 보세요.</Text>
                 </View>
             )}
         </ScrollView>
@@ -107,85 +115,90 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FAFAFA'
+        backgroundColor: '#FDFBF7'
     },
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
+        backgroundColor: '#FDFBF7',
     },
     content: {
-        padding: 20,
+        padding: 24,
         paddingBottom: 40,
     },
     header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 24,
     },
     pageTitle: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#111',
+        fontSize: 26,
+        fontWeight: '600',
+        color: '#2C2724',
+        letterSpacing: -0.5,
     },
     newBtn: {
-        backgroundColor: '#0070f3',
-        paddingVertical: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#8C7D6B',
+        paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 8,
+        borderRadius: 20,
     },
     newBtnText: {
-        color: '#fff',
-        fontWeight: '600',
+        color: '#FFF',
+        fontWeight: '500',
         fontSize: 14,
     },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
         overflow: 'hidden',
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 12,
-        marginBottom: 20,
+        elevation: 6,
+        shadowColor: '#3A3125',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.08,
+        shadowRadius: 24,
+        marginBottom: 24,
     },
     cardHeader: {
-        backgroundColor: '#FFDE59',
-        padding: 24,
-        paddingBottom: 24,
+        padding: 28,
+        paddingBottom: 32,
     },
     meetingNumber: {
-        fontSize: 14,
-        fontWeight: '700',
-        color: 'rgba(0,0,0,0.6)',
-        marginBottom: 8,
+        fontSize: 13,
+        fontWeight: '600',
+        color: '#7A7265',
+        marginBottom: 10,
+        letterSpacing: 0.5,
     },
     bookTitle: {
         fontSize: 24,
-        fontWeight: '800',
-        color: '#111',
+        fontWeight: '700',
+        color: '#2C2724',
         paddingRight: 80, 
+        lineHeight: 32,
+        letterSpacing: -0.5,
     },
     cardContent: {
-        padding: 24,
-        paddingTop: 30,
+        padding: 28,
+        paddingTop: 32,
         position: 'relative',
     },
     coverWrapper: {
         position: 'absolute',
-        top: -60,
-        right: 20,
-        width: 86,
-        height: 124,
-        borderRadius: 6,
+        top: -70,
+        right: 24,
+        width: 90,
+        height: 130,
+        borderRadius: 8,
         overflow: 'hidden',
-        backgroundColor: '#fff',
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+        backgroundColor: '#FAFAFA',
+        elevation: 8,
+        shadowColor: '#3A3125',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
     },
     coverImage: {
         width: '100%',
@@ -193,35 +206,54 @@ const styles = StyleSheet.create({
     },
     author: {
         fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 16,
+        fontWeight: '500',
+        color: '#4A4238',
+        marginBottom: 20,
     },
     tagsRow: {
         flexDirection: 'row',
-        gap: 8,
+        gap: 10,
         flexWrap: 'wrap',
     },
     tag: {
-        backgroundColor: '#f5f5f5',
-        paddingVertical: 6,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#F9F6F0',
+        paddingVertical: 8,
         paddingHorizontal: 14,
-        borderRadius: 100,
+        borderRadius: 12,
     },
     tagPrimary: {
-        backgroundColor: '#e6f4fe',
+        backgroundColor: '#F0EBE1',
     },
     tagText: {
         fontSize: 13,
-        fontWeight: '600',
-        color: '#666',
+        fontWeight: '500',
+        color: '#7A7265',
     },
     tagPrimaryText: {
-        color: '#0070f3',
+        color: '#695D4A',
+        fontWeight: '600',
     },
     emptyCard: {
-        padding: 40,
+        padding: 48,
         alignItems: 'center',
         justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+        borderWidth: 1,
+        borderColor: '#EBE5D9',
+        borderStyle: 'dashed',
+        shadowOpacity: 0,
+        elevation: 0,
+    },
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#4A4238',
+        marginBottom: 8,
+    },
+    emptySub: {
+        fontSize: 14,
+        color: '#7A7265',
     }
 });

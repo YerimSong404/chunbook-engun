@@ -6,6 +6,7 @@ import { useMember } from '@/context/MemberContext';
 import { getMeetings, getMembers, getAnswers, saveAnswer, updateMeeting } from '@/lib/db';
 import { Meeting, Member } from '@/lib/types';
 import AppShell from '@/components/AppShell';
+import { Edit3, FileText, User } from 'lucide-react';
 
 function formatDate(ts: number) {
     return new Date(ts).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
@@ -178,7 +179,7 @@ export default function RecordPage() {
                     {!selectedMeeting ? (
                         <div className="card">
                             <div className="empty">
-                                <div className="empty-icon">✏️</div>
+                                <Edit3 size={40} color="var(--border)" style={{ marginBottom: 16 }} />
                                 <div className="empty-text">모임을 선택하면 기록을 입력할 수 있어요</div>
                             </div>
                         </div>
@@ -187,7 +188,7 @@ export default function RecordPage() {
                             {selectedMeeting.topics.length === 0 ? (
                                 <div className="card" style={{ marginBottom: 16 }}>
                                     <div className="empty">
-                                        <div className="empty-icon">📝</div>
+                                        <FileText size={40} color="var(--border)" style={{ marginBottom: 16 }} />
                                         <div className="empty-text">아직 발제 주제가 등록되지 않았어요</div>
                                     </div>
                                 </div>
@@ -269,7 +270,7 @@ export default function RecordPage() {
                         </button>
                     </div>
 
-                    <div className="card" style={{ marginBottom: 24, border: 'none', background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--surface) 100%)', padding: '24px 20px' }}>
+                    <div style={{ marginBottom: 24, padding: '12px 0' }}>
                         <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                             <span style={{
                                 color: '#fff', fontWeight: 800, fontSize: '1rem',
@@ -302,7 +303,7 @@ export default function RecordPage() {
                                 <div key={mb.id} className="card" style={{ marginBottom: 16, padding: '20px', borderRadius: '16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                                         <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
-                                            👤
+                                                <User size={16} color="var(--text-sub)" />
                                         </div>
                                         <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{mb.name}</div>
                                     </div>

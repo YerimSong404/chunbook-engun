@@ -7,6 +7,8 @@ import { getMeeting, getMembers, getAnswers, updateMeeting } from '@/lib/db';
 import { Meeting, Member, Answer } from '@/lib/types';
 import AppShell from '@/components/AppShell';
 
+import { Calendar, Mic, BookOpen, User } from 'lucide-react';
+
 function formatDate(ts: number) {
     const d = new Date(ts);
     return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
@@ -150,7 +152,7 @@ export default function MeetingDetailPage() {
                         </div>
                     ) : (
                         <div style={{ width: 140, height: 200, borderRadius: 8, background: 'var(--border)', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <span style={{ fontSize: '3rem' }}>📓</span>
+                            <BookOpen size={48} color="var(--text-sub)" />
                         </div>
                     )}
 
@@ -166,11 +168,11 @@ export default function MeetingDetailPage() {
                         </div>
 
                         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-                            <span style={{ background: 'var(--surface-alt)', color: 'var(--text-sub)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
-                                📅 {formatDate(meeting.date)}
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface-alt)', color: 'var(--text-sub)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
+                                <Calendar size={14} /> {formatDate(meeting.date)}
                             </span>
-                            <span style={{ background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
-                                🎤 발제자: {getMemberName(meeting.presenterMemberId)}
+                            <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 100, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
+                                <Mic size={14} /> 발제자: {getMemberName(meeting.presenterMemberId)}
                             </span>
                         </div>
                     </div>
@@ -191,10 +193,6 @@ export default function MeetingDetailPage() {
                             </button>
                         )}
                     </div>
-
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)', marginBottom: 20 }}>
-                        공감되는 발제를 선택해 멤버들의 답변을 확인해보세요.
-                    </p>
 
                     {isEditingTopics ? (
                         <div className="card" style={{ marginBottom: 20 }}>
@@ -279,7 +277,7 @@ export default function MeetingDetailPage() {
                         </button>
                     </div>
 
-                    <div className="card" style={{ marginBottom: 24, border: 'none', background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--surface) 100%)', padding: '24px 20px' }}>
+                    <div style={{ marginBottom: 24, padding: '12px 0' }}>
                         <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                             <span style={{
                                 color: '#fff', fontWeight: 800, fontSize: '1rem',
@@ -312,7 +310,7 @@ export default function MeetingDetailPage() {
                                         <div key={m.id} className="card" style={{ padding: '20px', borderRadius: '16px' }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                                                 <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
-                                                    👤
+                                                    <User size={16} color="var(--text-sub)" />
                                                 </div>
                                                 <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{m.name}</div>
                                             </div>

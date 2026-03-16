@@ -6,6 +6,7 @@ import { useMember } from '@/context/MemberContext';
 import { getMembers, getMeetings } from '@/lib/db';
 import { Member, Meeting } from '@/lib/types';
 import AppShell from '@/components/AppShell';
+import { Users } from 'lucide-react';
 
 function formatDate(ts: number) {
     const d = new Date(ts);
@@ -88,7 +89,7 @@ export default function PresentersPage() {
             <div className="card" style={{ marginBottom: 20 }}>
                 {members.length === 0 ? (
                     <div className="empty">
-                        <div className="empty-icon">👥</div>
+                        <Users size={40} color="var(--border)" style={{ marginBottom: 16 }} />
                         <div className="empty-text">등록된 멤버가 없어요</div>
                     </div>
                 ) : (
@@ -99,24 +100,21 @@ export default function PresentersPage() {
                                 <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, letterSpacing: '0.05em' }}>
                                     대기 중
                                 </div>
-                                {pendingThisRound.map((m) => (
-                                    <div key={m.id} className="presenter-row">
+                                {pendingThisRound.map((m, i) => (
+                                    <div key={m.id} className="presenter-row" style={i === pendingThisRound.length - 1 && doneThisRound.length > 0 ? { borderBottom: 'none', paddingBottom: 24 } : {}}>
                                         <div>
                                             <div className="presenter-name">{m.name}</div>
                                         </div>
                                         <span className="badge badge-accent">미발제</span>
                                     </div>
                                 ))}
-                                {doneThisRound.length > 0 && (
-                                    <div style={{ height: 1, background: 'var(--border)', margin: '12px 0' }} />
-                                )}
                             </>
                         )}
 
                         {/* 이미 한 멤버 */}
                         {doneThisRound.length > 0 && (
                             <>
-                                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, letterSpacing: '0.05em' }}>
+                                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, letterSpacing: '0.05em', marginTop: pendingThisRound.length > 0 ? 0 : 0 }}>
                                     완료
                                 </div>
                                 {doneThisRound.map((m) => {

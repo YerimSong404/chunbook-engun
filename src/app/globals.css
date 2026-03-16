@@ -1,23 +1,24 @@
 /* ── Design Tokens ─────────────────────────────────── */
 :root {
-  --bg: #FAFAFB;
+  --bg: #FDFBF7;
   --surface: #FFFFFF;
-  --surface-alt: #F4F5F7;
-  --border: #E8EAED;
-  --text: #202124;
-  --text-sub: #7D8087;
-  --primary: #9D48B4;
-  --primary-light: #F8EFFF;
-  --primary-hover: #813296;
-  --brand-yellow: #FFDE59;
-  --accent: #FF5A5F;
-  --accent-light: #FFEFEF;
-  --success: #00A67E;
-  --success-light: #E6F6F2;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.12);
+  --surface-alt: #F9F6F0;
+  --border: #EBE5D9;
+  --text: #2C2724;
+  --text-sub: #7A7265;
+  --primary: #8C7D6B;
+  --primary-light: #F0EBE1;
+  --primary-hover: #695D4A;
+  --brand-yellow: #E2D9C8;
+  --accent: #D4A373;
+  --accent-light: #FAEDDF;
+  --success: #6B8E7D;
+  --success-light: #EBF2EE;
+  --radius: 20px;
+  --radius-sm: 12px;
+  --shadow: 0 4px 20px rgba(58, 49, 37, 0.05);
+  --shadow-md: 0 8px 24px rgba(58, 49, 37, 0.08);
+  --shadow-lg: 0 12px 36px rgba(58, 49, 37, 0.12);
   --font: 'Noto Sans KR', sans-serif;
 }
 
@@ -437,8 +438,8 @@ textarea {
 
 /* ── Meeting Card ────────────────────────────────────── */
 .meeting-hero {
-  background: linear-gradient(135deg, #424242 0%, #111111 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #EBE5D9 0%, #E2D9C8 100%);
+  color: #2C2724;
   border-radius: var(--radius);
   padding: 32px 24px;
   margin-bottom: 24px;
@@ -448,26 +449,28 @@ textarea {
 }
 
 .meeting-hero-label {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   opacity: 0.8;
   margin-bottom: 12px;
-  color: var(--brand-yellow);
+  color: #695D4A;
 }
 
 .meeting-hero-book {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 700;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
   line-height: 1.4;
   word-break: keep-all;
+  letter-spacing: -0.5px;
 }
 
 .meeting-hero-author {
-  font-size: 0.9rem;
+  font-size: 1rem;
   opacity: 0.8;
   margin-bottom: 24px;
+  color: #4A4238;
 }
 
 .meeting-hero-meta {
@@ -477,10 +480,11 @@ textarea {
 }
 
 .meeting-hero-chip {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.4);
+  color: #4A4238;
   border-radius: 100px;
   padding: 6px 14px;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 600;
   backdrop-filter: blur(4px);
 }
@@ -610,6 +614,10 @@ textarea {
 
 .admin-tab-btn {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   padding: 10px 12px;
   border-radius: 100px;
   font-size: 0.88rem;

@@ -5,6 +5,7 @@ import { useMember } from '../../context/MemberContext';
 import { getMeetings, getMembers, getAnswers, saveAnswer, updateMeeting } from '../../lib/db';
 import { Meeting, Member } from '../../lib/types';
 import { Picker } from '@react-native-picker/picker';
+import { Feather } from '@expo/vector-icons';
 
 function formatDate(ts: number) {
     return new Date(ts).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
@@ -36,8 +37,9 @@ function AbsentSelector({
                         onPress={() => toggle(m.id)}
                         style={[styles.absentBtn, checked && styles.absentBtnChecked]}
                     >
+                        {checked && <Feather name="x" size={14} color="#B07D4F" style={{ marginRight: 4 }} />}
                         <Text style={[styles.absentBtnText, checked && styles.absentBtnCheckedText]}>
-                            {checked ? '✗ ' : ''}{m.name}
+                            {m.name}
                         </Text>
                     </TouchableOpacity>
                 );
@@ -130,7 +132,7 @@ export default function RecordScreen() {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#0070f3" />
+                <ActivityIndicator size="large" color="#8C7D6B" />
             </View>
         );
     }
@@ -187,7 +189,7 @@ export default function RecordScreen() {
                         {!selectedMeeting ? (
                             <View style={styles.card}>
                                 <View style={styles.empty}>
-                                    <Text style={styles.emptyIcon}>✏️</Text>
+                                    <Feather name="edit-3" size={32} color="#C1B7A7" style={{ marginBottom: 12 }} />
                                     <Text style={styles.emptyText}>모임을 선택하면 기록을 입력할 수 있어요</Text>
                                 </View>
                             </View>
@@ -196,7 +198,7 @@ export default function RecordScreen() {
                                 {selectedMeeting.topics.length === 0 ? (
                                     <View style={styles.card}>
                                         <View style={styles.empty}>
-                                            <Text style={styles.emptyIcon}>📝</Text>
+                                            <Feather name="file-text" size={32} color="#C1B7A7" style={{ marginBottom: 12 }} />
                                             <Text style={styles.emptyText}>아직 발제 주제가 등록되지 않았어요</Text>
                                         </View>
                                     </View>
@@ -249,7 +251,8 @@ export default function RecordScreen() {
                 ) : selectedMeeting && (
                     <View>
                         <TouchableOpacity style={styles.backBtn} onPress={() => setSelectedTopicIndex(null)}>
-                            <Text style={styles.backBtnText}>← 리스트로</Text>
+                            <Feather name="arrow-left" size={18} color="#695D4A" style={{ marginRight: 6 }} />
+                            <Text style={styles.backBtnText}>리스트로</Text>
                         </TouchableOpacity>
 
                         <View style={styles.topicDetailCard}>
@@ -280,7 +283,7 @@ export default function RecordScreen() {
                                     <View key={mb.id} style={styles.answerCard}>
                                         <View style={styles.answerMemberRow}>
                                             <View style={styles.avatar}>
-                                                <Text style={styles.avatarEmoji}>👤</Text>
+                                                <Feather name="user" size={16} color="#7A7265" />
                                             </View>
                                             <Text style={styles.answerMemberName}>{mb.name}</Text>
                                         </View>
@@ -288,6 +291,7 @@ export default function RecordScreen() {
                                             style={styles.textarea}
                                             multiline
                                             placeholder={`${mb.name}의 답변을 입력하세요`}
+                                            placeholderTextColor="#C1B7A7"
                                             value={val}
                                             onChangeText={(text) => handleChange(mb.id, selectedTopicIndex, text)}
                                             textAlignVertical="top"
@@ -304,141 +308,143 @@ export default function RecordScreen() {
 }
 
 const styles = StyleSheet.create({
-    center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAFAFA' },
-    container: { flex: 1, backgroundColor: '#FAFAFA' },
-    content: { padding: 20, paddingBottom: 60 },
-    pageTitle: { fontSize: 24, fontWeight: '700', color: '#111', marginBottom: 20 },
-    formGroup: { marginBottom: 24 },
-    label: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8 },
+    center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FDFBF7' },
+    container: { flex: 1, backgroundColor: '#FDFBF7' },
+    content: { padding: 24, paddingBottom: 60 },
+    pageTitle: { fontSize: 26, fontWeight: '600', color: '#2C2724', marginBottom: 20, letterSpacing: -0.5 },
+    formGroup: { marginBottom: 28 },
+    label: { fontSize: 13, fontWeight: '600', color: '#7A7265', marginBottom: 8, letterSpacing: 0.5 },
     pickerContainer: {
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
+        borderColor: '#F0EBE1',
+        borderRadius: 12,
         overflow: 'hidden',
     },
     webSelect: {
         width: '100%',
-        padding: 12,
+        padding: 14,
         fontSize: 16,
         borderWidth: 0,
         backgroundColor: 'transparent',
     },
     picker: {
         width: '100%',
-        height: 50,
+        height: 54,
     },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: '#eee',
-        elevation: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 3,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 24,
+        elevation: 6,
+        shadowColor: '#3A3125',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
     },
-    empty: { alignItems: 'center', padding: 20 },
-    emptyIcon: { fontSize: 32, marginBottom: 8 },
-    emptyText: { fontSize: 14, color: '#666' },
-    section: { marginBottom: 24 },
-    sectionTitle: { fontSize: 16, fontWeight: '700', color: '#111', marginBottom: 4 },
-    sectionSubtitle: { fontSize: 14, color: '#666', marginBottom: 16 },
+    empty: { alignItems: 'center', padding: 24 },
+    emptyText: { fontSize: 15, color: '#7A7265' },
+    section: { marginBottom: 28 },
+    sectionTitle: { fontSize: 18, fontWeight: '600', color: '#2C2724', marginBottom: 4 },
+    sectionSubtitle: { fontSize: 14, color: '#7A7265', marginBottom: 20 },
     topicCardCard: {
         flexDirection: 'row',
-        padding: 20,
-        backgroundColor: '#fff',
-        borderRadius: 12,
+        padding: 24,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 16,
         borderWidth: 1,
-        borderColor: '#eee',
-        marginBottom: 12,
+        borderColor: '#F0EBE1',
+        marginBottom: 16,
         alignItems: 'flex-start',
     },
     topicNumberWrap: {
-        width: 26,
-        height: 26,
-        borderRadius: 13,
-        backgroundColor: '#e6f4fe',
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#F9F6F0',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: 16,
     },
-    topicNumber: { color: '#0070f3', fontSize: 13, fontWeight: '700' },
-    topicText: { fontSize: 16, color: '#111', flex: 1, lineHeight: 24, fontWeight: '500' },
-    absentHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 },
-    absentTitle: { fontSize: 13, fontWeight: '600', color: '#666' },
-    savingText: { fontSize: 12, color: '#0070f3' },
-    emptyTextSub: { fontSize: 14, color: '#888' },
-    absentContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    topicNumber: { color: '#695D4A', fontSize: 13, fontWeight: '700' },
+    topicText: { fontSize: 16, color: '#2C2724', flex: 1, lineHeight: 26, fontWeight: '500' },
+    absentHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+    absentTitle: { fontSize: 14, fontWeight: '600', color: '#7A7265', letterSpacing: 0.5 },
+    savingText: { fontSize: 13, color: '#8C7D6B' },
+    emptyTextSub: { fontSize: 14, color: '#A0968A' },
+    absentContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
     absentBtn: {
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 100,
+        paddingHorizontal: 16,
+        paddingVertical: 10,
+        borderRadius: 20,
         borderWidth: 1,
-        borderColor: '#eee',
-        backgroundColor: '#f9f9f9',
+        borderColor: '#EBE5D9',
+        backgroundColor: '#FAFAFA',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     absentBtnChecked: {
-        borderColor: '#ffcccb',
-        backgroundColor: '#fff0f0',
+        borderColor: '#E8D5C4',
+        backgroundColor: '#FAEDDF',
     },
-    absentBtnText: { fontSize: 14, color: '#333' },
-    absentBtnCheckedText: { color: '#d32f2f', fontWeight: '600' },
-    absentList: { fontSize: 12, color: '#d32f2f', marginTop: 12 },
-    backBtn: { alignSelf: 'flex-start', paddingVertical: 8, paddingRight: 16, marginBottom: 16 },
-    backBtnText: { color: '#0070f3', fontSize: 15, fontWeight: '600' },
+    absentBtnText: { fontSize: 14, color: '#4A4238', fontWeight: '500' },
+    absentBtnCheckedText: { color: '#B07D4F', fontWeight: '600' },
+    absentList: { fontSize: 13, color: '#B07D4F', marginTop: 16, lineHeight: 20 },
+    backBtn: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-start', paddingVertical: 12, paddingRight: 16, marginBottom: 12 },
+    backBtnText: { color: '#695D4A', fontSize: 15, fontWeight: '600' },
     topicDetailCard: {
-        backgroundColor: '#e6f4fe',
-        borderRadius: 16,
-        padding: 24,
-        marginBottom: 24,
+        backgroundColor: '#F9F6F0',
+        borderRadius: 20,
+        padding: 32,
+        marginBottom: 32,
     },
-    topicDetailHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 20 },
+    topicDetailHeader: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 24 },
     topicDetailNumberWrap: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        backgroundColor: '#0070f3',
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: '#695D4A',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: 16,
         marginTop: 2,
     },
-    topicDetailNumber: { color: '#fff', fontSize: 14, fontWeight: '700' },
-    topicDetailText: { fontSize: 18, fontWeight: '700', color: '#111', flex: 1, lineHeight: 26 },
+    topicDetailNumber: { color: '#FFFFFF', fontSize: 14, fontWeight: '700' },
+    topicDetailText: { fontSize: 18, fontWeight: '600', color: '#2C2724', flex: 1, lineHeight: 28 },
     saveAllBtn: {
-        backgroundColor: '#0070f3',
+        backgroundColor: '#695D4A',
         alignSelf: 'flex-end',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
+        paddingHorizontal: 24,
+        paddingVertical: 14,
         borderRadius: 100,
     },
-    saveAllBtnDisabled: { backgroundColor: '#a0c8ff' },
-    saveAllBtnText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+    saveAllBtnDisabled: { backgroundColor: '#C1B7A7' },
+    saveAllBtnText: { color: '#FFFFFF', fontWeight: '600', fontSize: 14 },
     answersContainer: {},
     answerCard: {
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 20,
+        elevation: 4,
+        shadowColor: '#3A3125',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
+    },
+    answerMemberRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
+    avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F9F6F0', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+    answerMemberName: { fontSize: 16, fontWeight: '600', color: '#2C2724' },
+    textarea: {
+        minHeight: 140,
+        backgroundColor: '#FAFAFA',
+        borderWidth: 1,
+        borderColor: '#EBE5D9',
         borderRadius: 16,
         padding: 20,
-        marginBottom: 16,
-        borderWidth: 1,
-        borderColor: '#eee',
-    },
-    answerMemberRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-    avatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#f0f0f0', justifyContent: 'center', alignItems: 'center', marginRight: 10 },
-    avatarEmoji: { fontSize: 16 },
-    answerMemberName: { fontSize: 16, fontWeight: '600', color: '#111' },
-    textarea: {
-        minHeight: 120,
-        backgroundColor: '#f9f9f9',
-        borderWidth: 1,
-        borderColor: '#eee',
-        borderRadius: 12,
-        padding: 16,
         fontSize: 15,
-        color: '#333',
+        color: '#2C2724',
+        lineHeight: 24,
     },
 });

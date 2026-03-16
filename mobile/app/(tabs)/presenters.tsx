@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { getMembers, getMeetings } from '../../lib/db';
 import { Member, Meeting } from '../../lib/types';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 
 function formatDate(ts: number) {
     const d = new Date(ts);
@@ -32,8 +32,8 @@ export default function PresentersScreen() {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#0070f3" />
-                <Text style={{ marginTop: 10, color: '#666' }}>불러오는 중…</Text>
+                <ActivityIndicator size="large" color="#8C7D6B" />
+                <Text style={{ marginTop: 10, color: '#7A7265' }}>불러오는 중…</Text>
             </View>
         );
     }
@@ -68,10 +68,11 @@ export default function PresentersScreen() {
 
     return (
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-            <Text style={styles.pageTitle}>발제자 현황</Text>
+            <Text style={styles.pageTitle}>멤버</Text>
 
             <View style={styles.roundBadge}>
-                <Text style={styles.roundBadgeText}>🔄 {currentRound}회차 진행 중 </Text>
+                <Feather name="refresh-cw" size={14} color="#695D4A" style={{ marginRight: 6 }} />
+                <Text style={styles.roundBadgeText}>{currentRound}회차 진행 중 </Text>
                 <Text style={styles.roundBadgeSubtext}>({doneThisRound.length}/{memberCount}명 완료)</Text>
             </View>
 
@@ -79,7 +80,7 @@ export default function PresentersScreen() {
             <View style={styles.card}>
                 {members.length === 0 ? (
                     <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyIcon}>👥</Text>
+                        <Feather name="users" size={40} color="#C1B7A7" style={{ marginBottom: 12 }} />
                         <Text style={styles.emptyText}>등록된 멤버가 없어요</Text>
                     </View>
                 ) : (
@@ -120,6 +121,7 @@ export default function PresentersScreen() {
                                                 )}
                                             </View>
                                             <View style={[styles.badge, styles.badgeSuccess]}>
+                                                <Feather name="check" size={12} color="#4A6A55" style={{ marginRight: 2 }} />
                                                 <Text style={styles.badgeSuccessText}>완료</Text>
                                             </View>
                                         </View>
@@ -131,7 +133,7 @@ export default function PresentersScreen() {
                 )}
             </View>
 
-            <Text style={styles.sectionTitle}>전체 발제 횟수</Text>
+            <Text style={styles.sectionTitle}>전체 참여 현황</Text>
             <View style={styles.card}>
                 {members.length === 0 ? (
                     <Text style={styles.emptyTextSub}>등록된 멤버가 없어요</Text>
@@ -168,103 +170,97 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#FAFAFA'
+        backgroundColor: '#FDFBF7'
     },
     container: {
         flex: 1,
-        backgroundColor: '#FAFAFA',
+        backgroundColor: '#FDFBF7',
     },
     content: {
-        padding: 20,
+        padding: 24,
         paddingBottom: 40,
     },
     pageTitle: {
-        fontSize: 24,
-        fontWeight: '700',
-        color: '#111',
-        marginBottom: 16,
+        fontSize: 26,
+        fontWeight: '600',
+        color: '#2C2724',
+        marginBottom: 20,
+        letterSpacing: -0.5,
     },
     roundBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#e6f4fe',
+        backgroundColor: '#F0EBE1',
         alignSelf: 'flex-start',
-        paddingVertical: 8,
+        paddingVertical: 10,
         paddingHorizontal: 16,
-        borderRadius: 100,
+        borderRadius: 20,
         marginBottom: 24,
     },
     roundBadgeText: {
-        color: '#0070f3',
-        fontWeight: '700',
+        color: '#695D4A',
+        fontWeight: '600',
         fontSize: 14,
     },
     roundBadgeSubtext: {
-        color: '#0070f3',
-        opacity: 0.75,
+        color: '#8C7D6B',
         fontSize: 14,
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: '700',
-        color: '#333',
-        marginBottom: 12,
+        fontWeight: '600',
+        color: '#2C2724',
+        marginBottom: 16,
         marginTop: 8,
     },
     card: {
-        backgroundColor: '#fff',
-        borderRadius: 16,
-        padding: 20,
-        marginBottom: 24,
-        borderWidth: 1,
-        borderColor: '#eee',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 24,
+        marginBottom: 28,
+        elevation: 6,
+        shadowColor: '#3A3125',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
     },
     emptyContainer: {
         alignItems: 'center',
-        padding: 24,
-    },
-    emptyIcon: {
-        fontSize: 32,
-        marginBottom: 8,
+        padding: 32,
     },
     emptyText: {
         fontSize: 15,
-        color: '#666',
+        color: '#7A7265',
         fontWeight: '500',
     },
     emptyTextSub: {
         fontSize: 14,
-        color: '#888',
+        color: '#A0968A',
         textAlign: 'center',
         padding: 16,
     },
     groupSection: {
-        marginBottom: 8,
+        marginBottom: 4,
     },
     groupLabel: {
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: '600',
-        color: '#888',
+        color: '#A0968A',
         letterSpacing: 0.5,
-        marginBottom: 12,
+        marginBottom: 16,
     },
     divider: {
         height: 1,
-        backgroundColor: '#f0f0f0',
-        marginVertical: 16,
+        backgroundColor: '#EBE5D9',
+        marginVertical: 20,
     },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 10,
+        paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#f5f5f5',
+        borderBottomColor: '#FDFBF7',
         marginBottom: 4,
     },
     rowContent: {
@@ -274,46 +270,47 @@ const styles = StyleSheet.create({
     name: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#333',
-        marginBottom: 4,
+        color: '#2C2724',
+        marginBottom: 6,
     },
     nameFaded: {
-        opacity: 0.55,
+        color: '#7A7265',
     },
     countText: {
         fontSize: 13,
-        color: '#777',
+        color: '#7A7265',
         lineHeight: 18,
     },
     badge: {
-        paddingVertical: 4,
-        paddingHorizontal: 12,
-        borderRadius: 100,
-        justifyContent: 'center',
+        paddingVertical: 6,
+        paddingHorizontal: 14,
+        borderRadius: 12,
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
     },
     badgeAccent: {
-        backgroundColor: '#ffebeb',
+        backgroundColor: '#FAEDDF',
     },
     badgeAccentText: {
-        color: '#d32f2f',
+        color: '#B07D4F',
         fontSize: 12,
         fontWeight: '600',
     },
     badgeSuccess: {
-        backgroundColor: '#e6ffe6',
+        backgroundColor: '#EBF2EE',
     },
     badgeSuccessText: {
-        color: '#2e7d32',
+        color: '#4A6A55',
         fontSize: 12,
         fontWeight: '600',
     },
     badgeGray: {
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#F9F6F0',
     },
     badgeGrayText: {
-        color: '#555',
-        fontSize: 12,
+        color: '#7A7265',
+        fontSize: 13,
         fontWeight: '600',
     },
 });

@@ -5,6 +5,7 @@ import { useMember } from '../../context/MemberContext';
 import { getMeeting, getMembers, getAnswers, updateMeeting } from '../../lib/db';
 import { Meeting, Member, Answer } from '../../lib/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Feather } from '@expo/vector-icons';
 
 export default function MeetingDetailScreen() {
     const { currentMemberId } = useMember();
@@ -52,8 +53,8 @@ export default function MeetingDetailScreen() {
         if (!meetingId) return;
         Alert.alert('모임 완료', '모임을 완료 처리하시겠습니까?', [
             { text: '취소', style: 'cancel' },
-            { 
-                text: '완료', 
+            {
+                text: '완료',
                 onPress: async () => {
                     try {
                         await updateMeeting(meetingId, { status: 'done' });
@@ -72,8 +73,8 @@ export default function MeetingDetailScreen() {
         if (!meetingId) return;
         Alert.alert('완료 취소', '모임 완료를 취소하시겠습니까?', [
             { text: '아니오', style: 'cancel' },
-            { 
-                text: '예', 
+            {
+                text: '예',
                 onPress: async () => {
                     try {
                         await updateMeeting(meetingId, { status: 'upcoming' });
@@ -128,7 +129,7 @@ export default function MeetingDetailScreen() {
             </View>
         );
     }
-    
+
     if (!meeting) {
         return (
             <View style={styles.center}>
@@ -162,7 +163,7 @@ export default function MeetingDetailScreen() {
                 </View>
             )}
 
-            <ScrollView 
+            <ScrollView
                 contentContainerStyle={selectedTopicIndex === null ? styles.contentWithHero : styles.contentNormal}
                 showsVerticalScrollIndicator={false}
             >
@@ -170,14 +171,14 @@ export default function MeetingDetailScreen() {
                     <View style={styles.heroContent}>
                         {meeting.coverImageUrl ? (
                             <View style={styles.coverImageContainer}>
-                                <Image 
-                                    source={{ uri: meeting.coverImageUrl }} 
+                                <Image
+                                    source={{ uri: meeting.coverImageUrl }}
                                     style={styles.coverImage}
                                 />
                             </View>
                         ) : (
                             <View style={styles.coverPlaceholder}>
-                                <Text style={styles.coverPlaceholderIcon}>📓</Text>
+                                <Feather name="book-open" size={40} color="#aaa" />
                             </View>
                         )}
 
@@ -190,11 +191,13 @@ export default function MeetingDetailScreen() {
 
                             <View style={styles.heroMetaRow}>
                                 <View style={styles.heroMetaBadge}>
-                                    <Text style={styles.heroMetaBadgeText}>📅 {formatDate(meeting.date)}</Text>
+                                    <Feather name="calendar" size={14} color="#555" />
+                                    <Text style={styles.heroMetaBadgeText}>{formatDate(meeting.date)}</Text>
                                 </View>
                                 <View style={[styles.heroMetaBadge, styles.heroMetaBadgePrimary]}>
+                                    <Feather name="mic" size={14} color="#0070f3" />
                                     <Text style={[styles.heroMetaBadgeText, styles.heroMetaBadgePrimaryText]}>
-                                        🎤 발제자: {getMemberName(meeting.presenterMemberId)}
+                                        발제자: {getMemberName(meeting.presenterMemberId)}
                                     </Text>
                                 </View>
                             </View>
@@ -214,10 +217,6 @@ export default function MeetingDetailScreen() {
                                 </TouchableOpacity>
                             )}
                         </View>
-
-                        <Text style={styles.sectionDesc}>
-                            공감되는 발제를 선택해 멤버들의 답변을 확인해보세요.
-                        </Text>
 
                         {isEditingTopics ? (
                             <View style={styles.editCard}>
@@ -250,9 +249,9 @@ export default function MeetingDetailScreen() {
                                 ))}
 
                                 <View style={styles.editActionsRow}>
-                                    <TouchableOpacity 
-                                        style={[styles.btn, styles.btnPrimary, savingTopics && styles.btnDisabled]} 
-                                        onPress={handleSaveTopics} 
+                                    <TouchableOpacity
+                                        style={[styles.btn, styles.btnPrimary, savingTopics && styles.btnDisabled]}
+                                        onPress={handleSaveTopics}
                                         disabled={savingTopics}
                                     >
                                         <Text style={styles.btnPrimaryText}>{savingTopics ? '저장 중…' : '저장 완료'}</Text>
@@ -269,8 +268,8 @@ export default function MeetingDetailScreen() {
                         ) : (
                             <View style={styles.topicsContainer}>
                                 {meeting.topics.map((t, idx) => (
-                                    <TouchableOpacity 
-                                        key={idx} 
+                                    <TouchableOpacity
+                                        key={idx}
                                         style={styles.topicCardCard}
                                         activeOpacity={0.7}
                                         onPress={() => setSelectedTopicIndex(idx)}
@@ -319,7 +318,7 @@ export default function MeetingDetailScreen() {
                                             <View key={m.id} style={styles.answerCard}>
                                                 <View style={styles.answerHeaderRow}>
                                                     <View style={styles.answerAvatar}>
-                                                        <Text style={styles.answerAvatarIcon}>👤</Text>
+                                                        <Feather name="user" size={16} color="#888" />
                                                     </View>
                                                     <Text style={styles.answerName}>{m.name}</Text>
                                                 </View>
@@ -344,7 +343,7 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAFAFA' },
     container: { flex: 1, backgroundColor: '#FAFAFA' },
     emptyText: { fontSize: 16, color: '#666' },
-    
+
     // Hero Section
     heroBackground: {
         backgroundColor: '#9D48B4', // Fallback
@@ -381,11 +380,11 @@ const styles = StyleSheet.create({
         borderRadius: 8,
     },
     revertBtnText: { color: '#fff', fontSize: 13, fontWeight: '600' },
-    
+
     // Content Layouts
     contentWithHero: { paddingTop: 60, paddingBottom: 60 },
     contentNormal: { paddingHorizontal: 20, paddingBottom: 60 },
-    
+
     heroContent: {
         alignItems: 'center',
         paddingHorizontal: 20,
@@ -425,7 +424,7 @@ const styles = StyleSheet.create({
     heroTitle: { fontSize: 24, fontWeight: '800', color: '#111', textAlign: 'center', marginBottom: 6 },
     heroAuthor: { fontSize: 14, color: '#666', marginBottom: 16 },
     heroMetaRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
-    heroMetaBadge: { backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 100 },
+    heroMetaBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 100 },
     heroMetaBadgeText: { fontSize: 12, fontWeight: '600', color: '#555' },
     heroMetaBadgePrimary: { backgroundColor: '#e6f4fe' },
     heroMetaBadgePrimaryText: { color: '#0070f3' },
@@ -437,7 +436,7 @@ const styles = StyleSheet.create({
     editTopicsBtn: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 100, backgroundColor: '#f0f0f0' },
     editTopicsBtnText: { fontSize: 12, fontWeight: '600', color: '#333' },
     sectionDesc: { fontSize: 13, color: '#666', marginBottom: 20 },
-    
+
     // Topics Edit
     editCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#eee', marginBottom: 20 },
     editHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },

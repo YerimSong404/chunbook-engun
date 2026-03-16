@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
 import { getMembers } from '@/lib/db';
 import { Member } from '@/lib/types';
+import { BookOpen, Edit3 } from 'lucide-react';
 
 export default function SelectMemberPage() {
   const { currentMemberId, setCurrentMemberId, nickname, setNickname } = useMember();
@@ -56,7 +57,7 @@ export default function SelectMemberPage() {
   if (step === 'nickname') {
     return (
       <div className="member-select-page">
-        <div className="member-select-logo">✏️</div>
+        <div className="member-select-logo"><Edit3 size={48} color="var(--primary)" /></div>
         <h1 className="member-select-title" style={{ fontSize: '1.1rem', marginBottom: 6 }}>
           반가워요, <span style={{ color: 'var(--primary)' }}>{selectedName}</span>님!
         </h1>
@@ -101,7 +102,7 @@ export default function SelectMemberPage() {
   // ── 멤버 선택 화면 ──
   return (
     <div className="member-select-page">
-      <div className="member-select-logo">📚</div>
+      <div className="member-select-logo"><BookOpen size={48} color="var(--primary)" /></div>
       <h1 className="member-select-title">천북인권</h1>
       <p className="member-select-sub">나는 누구?</p>
 
