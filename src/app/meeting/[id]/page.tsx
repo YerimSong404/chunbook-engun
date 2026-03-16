@@ -68,6 +68,20 @@ export default function MeetingDetailPage() {
         }
     };
 
+    const handleRevertComplete = async () => {
+        if (!meetingId) return;
+        if (confirm('모임 완료를 취소하시겠습니까?')) {
+            try {
+                await updateMeeting(meetingId, { status: 'upcoming' });
+                setMeeting(prev => prev ? { ...prev, status: 'upcoming' } : null);
+                alert('완료가 취소되었습니다.');
+            } catch (e) {
+                console.error(e);
+                alert('완료 취소 중 오류가 발생했습니다.');
+            }
+        }
+    };
+
     const startEditTopics = () => {
         const initialTopics = meeting?.topics.length ? meeting.topics : [];
         setEditingTopics(initialTopics.length >= 3 ? initialTopics : [...initialTopics, ...Array(3 - initialTopics.length).fill('')]);
@@ -113,6 +127,11 @@ export default function MeetingDetailPage() {
                         {meeting.status === 'upcoming' && (
                             <button onClick={handleComplete} className="btn btn-sm" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
                                 모임 완료 처리
+                            </button>
+                        )}
+                        {meeting.status === 'done' && (
+                            <button onClick={handleRevertComplete} className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none' }}>
+                                완료 취소
                             </button>
                         )}
                     </div>

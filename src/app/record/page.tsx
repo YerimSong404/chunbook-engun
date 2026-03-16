@@ -68,6 +68,7 @@ export default function RecordPage() {
     const [loading, setLoading] = useState(true);
     const [absentIds, setAbsentIds] = useState<string[]>([]);
     const [absentSaving, setAbsentSaving] = useState(false);
+    const [selectedTopicIndex, setSelectedTopicIndex] = useState<number | null>(null);
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -91,6 +92,7 @@ export default function RecordPage() {
 
     useEffect(() => {
         if (!selectedMeetingId) return;
+        setSelectedTopicIndex(null);
         getAnswers(selectedMeetingId).then((ans) => {
             const map: Record<string, Record<string, string>> = {};
             ans.forEach((a) => {
@@ -152,109 +154,170 @@ export default function RecordPage() {
 
     return (
         <AppShell>
-            <h1 className="page-title">서기 기록</h1>
-
-            {/* 모임 선택 */}
-            <div className="form-group">
-                <label className="form-label">모임 선택</label>
-                <select
-                    className="form-input"
-                    value={selectedMeetingId ?? ''}
-                    onChange={(e) => setSelectedMeetingId(e.target.value || null)}
-                >
-                    <option value="">— 모임을 선택하세요 —</option>
-                    {meetings.map((m) => (
-                        <option key={m.id} value={m.id}>
-                            {m.meetingNumber != null ? `제${m.meetingNumber}회 · ` : ''}{formatDate(m.date)} 『{m.book}』
-                        </option>
-                    ))}
-                </select>
-            </div>
-
-            {!selectedMeeting && (
-                <div className="card">
-                    <div className="empty">
-                        <div className="empty-icon">✏️</div>
-                        <div className="empty-text">모임을 선택하면 기록을 입력할 수 있어요</div>
-                    </div>
-                </div>
-            )}
-
-            {selectedMeeting && (
+            {selectedTopicIndex === null ? (
                 <>
-                    {/* 불참자 선택 */}
-                    <div className="card" style={{ marginBottom: 16 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-                            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-sub)' }}>
-                                불참자 기록
-                            </span>
-                            {absentSaving && (
-                                <span style={{ fontSize: '0.75rem', color: 'var(--text-sub)' }}>저장 중…</span>
-                            )}
-                        </div>
-                        {members.length === 0 ? (
-                            <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)' }}>등록된 멤버가 없어요</p>
-                        ) : (
-                            <AbsentSelector
-                                members={members}
-                                absentIds={absentIds}
-                                onChange={handleAbsentChange}
-                            />
-                        )}
-                        {absentIds.length > 0 && (
-                            <p style={{ fontSize: '0.75rem', color: 'var(--accent)', marginTop: 10 }}>
-                                불참: {absentIds.map(id => getMemberName(id)).join(', ')} — 답변 입력에서 제외됩니다
-                            </p>
-                        )}
+                    <h1 className="page-title">서기 기록</h1>
+
+                    {/* 모임 선택 */}
+                    <div className="form-group">
+                        <label className="form-label">모임 선택</label>
+                        <select
+                            className="form-input"
+                            value={selectedMeetingId ?? ''}
+                            onChange={(e) => setSelectedMeetingId(e.target.value || null)}
+                        >
+                            <option value="">— 모임을 선택하세요 —</option>
+                            {meetings.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                    {m.meetingNumber != null ? `제${m.meetingNumber}회 · ` : ''}{formatDate(m.date)} 『{m.book}』
+                                </option>
+                            ))}
+                        </select>
                     </div>
 
-                    {selectedMeeting.topics.length === 0 ? (
+                    {!selectedMeeting ? (
                         <div className="card">
                             <div className="empty">
-                                <div className="empty-icon">📝</div>
-                                <div className="empty-text">아직 발제 주제가 등록되지 않았어요</div>
+                                <div className="empty-icon">✏️</div>
+                                <div className="empty-text">모임을 선택하면 기록을 입력할 수 있어요</div>
                             </div>
                         </div>
                     ) : (
-                        selectedMeeting.topics.map((topic, topicIdx) => (
-                            <div className="card" key={topicIdx} style={{ marginBottom: 16 }}>
-                                <div className="record-topic-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                                    <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                                        <div className="record-topic-num">{topicIdx + 1}</div>
-                                        <div className="record-topic-text">{topic}</div>
+                        <>
+                            {selectedMeeting.topics.length === 0 ? (
+                                <div className="card" style={{ marginBottom: 16 }}>
+                                    <div className="empty">
+                                        <div className="empty-icon">📝</div>
+                                        <div className="empty-text">아직 발제 주제가 등록되지 않았어요</div>
                                     </div>
-                                    <button
-                                        className="btn btn-primary btn-sm"
-                                        style={{ flexShrink: 0 }}
-                                        disabled={saving === `topic_${topicIdx}`}
-                                        onClick={() => handleTopicSave(topicIdx)}
-                                    >
-                                        {saving === `topic_${topicIdx}` ? '저장 중…' : '주제 답변 모두 저장'}
-                                    </button>
                                 </div>
-                                <div className="record-answers">
-                                    {presentMembers.map((mb) => {
-                                        const val = answers[mb.id]?.[topicIdx] ?? '';
-                                        return (
-                                            <div key={mb.id} className="record-answer-row" style={{ marginBottom: 10 }}>
-                                                <div className="record-answer-label" style={{ minWidth: '60px' }}>{mb.name}</div>
-                                                <div style={{ flex: 1 }}>
-                                                    <textarea
-                                                        className="form-textarea"
-                                                        style={{ minHeight: 60, width: '100%' }}
-                                                        placeholder={`${mb.name}의 답변을 입력하세요`}
-                                                        value={val}
-                                                        onChange={(e) => handleChange(mb.id, topicIdx, e.target.value)}
-                                                    />
-                                                </div>
+                            ) : (
+                                <div style={{ marginBottom: 24 }}>
+                                    <div className="section-title" style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', marginBottom: 16, textTransform: 'none', letterSpacing: '0' }}>
+                                        발제문
+                                    </div>
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)', marginBottom: 20 }}>
+                                        기록할 발제를 선택해주세요.
+                                    </p>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                        {selectedMeeting.topics.map((t, idx) => (
+                                            <div
+                                                key={idx}
+                                                className="card"
+                                                style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex', gap: 14, alignItems: 'flex-start',
+                                                    transition: 'all 0.15s ease',
+                                                    border: '1px solid var(--border)',
+                                                    padding: '20px',
+                                                    borderRadius: 'var(--radius)'
+                                                }}
+                                                onClick={() => setSelectedTopicIndex(idx)}
+                                                onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--primary)'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+                                                onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.transform = 'none' }}
+                                            >
+                                                <span style={{
+                                                    color: 'var(--primary)', fontWeight: 800, fontSize: '0.95rem',
+                                                    background: 'var(--primary-light)', width: 26, height: 26,
+                                                    borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                    flexShrink: 0, marginTop: -2
+                                                }}>
+                                                    {idx + 1}
+                                                </span>
+                                                <span style={{ fontSize: '1rem', fontWeight: 500, color: 'var(--text)', lineHeight: 1.5, wordBreak: 'keep-all' }}>
+                                                    {t}
+                                                </span>
                                             </div>
-                                        );
-                                    })}
+                                        ))}
+                                    </div>
                                 </div>
+                            )}
+
+                            {/* 불참자 선택 */}
+                            <div className="card" style={{ marginBottom: 16 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+                                    <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-sub)' }}>
+                                        불참자 기록
+                                    </span>
+                                    {absentSaving && (
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-sub)' }}>저장 중…</span>
+                                    )}
+                                </div>
+                                {members.length === 0 ? (
+                                    <p style={{ fontSize: '0.85rem', color: 'var(--text-sub)' }}>등록된 멤버가 없어요</p>
+                                ) : (
+                                    <AbsentSelector
+                                        members={members}
+                                        absentIds={absentIds}
+                                        onChange={handleAbsentChange}
+                                    />
+                                )}
+                                {absentIds.length > 0 && (
+                                    <p style={{ fontSize: '0.75rem', color: 'var(--accent)', marginTop: 10 }}>
+                                        불참: {absentIds.map(id => getMemberName(id)).join(', ')} — 답변 입력에서 제외됩니다
+                                    </p>
+                                )}
                             </div>
-                        ))
+                        </>
                     )}
                 </>
+            ) : selectedMeeting && (
+                <div>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
+                        <button onClick={() => setSelectedTopicIndex(null)} className="btn btn-ghost" style={{ padding: '8px' }}>
+                            ← 리스트로
+                        </button>
+                    </div>
+
+                    <div className="card" style={{ marginBottom: 24, border: 'none', background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--surface) 100%)', padding: '24px 20px' }}>
+                        <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                            <span style={{
+                                color: '#fff', fontWeight: 800, fontSize: '1rem',
+                                background: 'var(--primary)', width: 28, height: 28,
+                                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                flexShrink: 0, marginTop: -2, boxShadow: 'var(--shadow)'
+                            }}>
+                                {selectedTopicIndex + 1}
+                            </span>
+                            <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, lineHeight: 1.5, color: 'var(--text)', wordBreak: 'keep-all' }}>
+                                {selectedMeeting.topics[selectedTopicIndex]}
+                            </h2>
+                        </div>
+                        <div style={{ marginTop: 20, display: 'flex', justifyContent: 'flex-end' }}>
+                            <button
+                                className="btn btn-primary"
+                                disabled={saving === `topic_${selectedTopicIndex}`}
+                                onClick={() => handleTopicSave(selectedTopicIndex)}
+                                style={{ padding: '10px 24px', fontSize: '0.95rem', borderRadius: 100, boxShadow: 'var(--shadow-hover)' }}
+                            >
+                                {saving === `topic_${selectedTopicIndex}` ? '저장 중…' : '현재 발제 답변 모두 저장'}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="record-answers">
+                        {presentMembers.map((mb) => {
+                            const val = answers[mb.id]?.[selectedTopicIndex] ?? '';
+                            return (
+                                <div key={mb.id} className="card" style={{ marginBottom: 16, padding: '20px', borderRadius: '16px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
+                                            👤
+                                        </div>
+                                        <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{mb.name}</div>
+                                    </div>
+                                    <textarea
+                                        className="form-textarea"
+                                        style={{ minHeight: 100, width: '100%', fontSize: '0.95rem', lineHeight: 1.6 }}
+                                        placeholder={`${mb.name}의 답변을 입력하세요`}
+                                        value={val}
+                                        onChange={(e) => handleChange(mb.id, selectedTopicIndex, e.target.value)}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
             )}
 
             {/* Toast */}
