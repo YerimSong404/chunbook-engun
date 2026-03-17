@@ -1,45 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
-import { getMeetings, getMembers } from '@/lib/db';
-import { Meeting, Member } from '@/lib/types';
+import { useData } from '@/context/DataContext';
+import { formatDate, getMemberName } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
 import Link from 'next/link';
 import { Calendar, Mic, Plus, BookOpen } from 'lucide-react';
 
-function formatDate(ts: number) {
-    const d = new Date(ts);
-    return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-}
-
 export default function HomePage() {
     const { currentMemberId } = useMember();
+    const { members, meetings, loading, error } = useData();
     const router = useRouter();
-    const [meetings, setMeetings] = useState<Meeting[]>([]);
-    const [members, setMembers] = useState<Member[]>([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!currentMemberId) {
-            setLoading(false);
             router.replace('/');
-            return;
         }
-        Promise.all([getMeetings(), getMembers()])
-            .then(([m, mb]) => { setMeetings(m); setMembers(mb); })
-            .finally(() => setLoading(false));
     }, [currentMemberId, router]);
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (error) return <AppShell><div className="empty">{error}</div></AppShell>;
 
-    const now = Date.now();
     const upcoming = meetings.filter((m) => m.status === 'upcoming').sort((a, b) => a.date - b.date);
-    const past = meetings.filter((m) => m.status === 'done').sort((a, b) => b.date - a.date);
     const next = upcoming[0] ?? null;
-
-    const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? '미정';
 
     return (
         <AppShell>
@@ -107,14 +92,14 @@ export default function HomePage() {
                                     background: 'var(--surface-alt)', color: 'var(--text-sub)', 
                                     borderRadius: 8, padding: '8px 14px', fontSize: '0.85rem', fontWeight: 500 
                                 }}>
-                                    <Calendar size={14} /> {formatDate(next.date)}
+                                    <Calendar size={14} /> {formatDate(next.date, 'full')}
                                 </span>
                                 <span style={{ 
                                     display: 'flex', alignItems: 'center', gap: 6,
                                     background: 'var(--primary-light)', color: '#695D4A', 
                                     borderRadius: 8, padding: '8px 14px', fontSize: '0.85rem', fontWeight: 600 
                                 }}>
-                                    <Mic size={14} /> {getMemberName(next.presenterMemberId)} 발제
+                                    <Mic size={14} /> {getMemberName(members, next.presenterMemberId)} 발제
                                 </span>
                             </div>
                         </div>

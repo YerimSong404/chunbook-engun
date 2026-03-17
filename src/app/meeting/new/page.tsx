@@ -3,8 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
-import { getMembers, addMeeting, getSettings, getMeetings } from '@/lib/db';
-import { Member, AppSettings } from '@/lib/types';
+import { useData } from '@/context/DataContext';
+import { useToast } from '@/context/ToastContext';
+import { addMeeting, getSettings } from '@/lib/db';
+import { AppSettings } from '@/lib/types';
 import AppShell from '@/components/AppShell';
 
 const emptyForm = {
@@ -20,32 +22,33 @@ const emptyForm = {
 
 export default function NewMeetingPage() {
     const { currentMemberId } = useMember();
+    const { members, meetings, loading: dataLoading, refetch } = useData();
+    const { showToast, showError } = useToast();
     const router = useRouter();
 
-    const [members, setMembers] = useState<Member[]>([]);
     const [settings, setSettings] = useState<AppSettings>({ firstMeetingNumber: 1 });
-    const [meetingsCount, setMeetingsCount] = useState(0);
     const [form, setForm] = useState(emptyForm);
-    const [loading, setLoading] = useState(true);
+    const [settingsLoading, setSettingsLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (!currentMemberId) {
             router.replace('/');
             return;
         }
-        Promise.all([getMembers(), getSettings(), getMeetings()])
-            .then(([mb, st, mt]) => {
-                setMembers(mb);
-                setSettings(st);
-                setMeetingsCount(mt.length);
-            })
-            .finally(() => setLoading(false));
-    }, [currentMemberId, router]);
+        getSettings()
+            .then(setSettings)
+            .catch(() => showError('설정을 불러오지 못했어요.'))
+            .finally(() => setSettingsLoading(false));
+    }, [currentMemberId, router, showError]);
 
-    const nextMeetingNumber = settings.firstMeetingNumber + meetingsCount;
+    const nextMeetingNumber = settings.firstMeetingNumber + meetings.length;
 
     const handleSubmitMeeting = async () => {
-        if (!form.date || !form.book) return alert('날짜와 책 제목은 필수입니다.');
+        if (!form.date || !form.book) {
+            showError('날짜와 책 제목은 필수예요.');
+            return;
+        }
         const meetingNumberVal = form.meetingNumber.trim()
             ? parseInt(form.meetingNumber)
             : nextMeetingNumber;
@@ -62,12 +65,20 @@ export default function NewMeetingPage() {
             ...(meetingNumberVal != null ? { meetingNumber: meetingNumberVal } : {}),
         };
 
-        await addMeeting(data);
-        alert('모임이 등록되었습니다!');
-        router.push('/home');
+        setSubmitting(true);
+        try {
+            await addMeeting(data);
+            await refetch();
+            showToast('모임이 등록되었어요');
+            router.push('/home');
+        } catch {
+            showError('모임 등록에 실패했어요.');
+        } finally {
+            setSubmitting(false);
+        }
     };
 
-    if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (dataLoading || settingsLoading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
 
     return (
         <AppShell>
@@ -149,8 +160,8 @@ export default function NewMeetingPage() {
                     </select>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="btn btn-primary btn-lg" onClick={handleSubmitMeeting} style={{ width: '100%' }}>
-                        모임 등록 완료
+                    <button className="btn btn-primary btn-lg" onClick={handleSubmitMeeting} disabled={submitting} style={{ width: '100%' }}>
+                        {submitting ? '등록 중…' : '모임 등록 완료'}
                     </button>
                 </div>
             </div>

@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
-import { getMeetings, getMembers, getAnswers, saveAnswer, updateMeeting } from '@/lib/db';
+import { useData } from '@/context/DataContext';
+import { useToast } from '@/context/ToastContext';
+import { getAnswers, saveAnswer, updateMeeting } from '@/lib/db';
 import { Meeting, Member } from '@/lib/types';
+import { formatDate, getMemberName } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
 import { Edit3, FileText, User } from 'lucide-react';
-
-function formatDate(ts: number) {
-    return new Date(ts).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' });
-}
 
 function AbsentSelector({
     members,
@@ -59,49 +58,56 @@ function AbsentSelector({
 
 export default function RecordPage() {
     const { currentMemberId } = useMember();
+    const { members, meetings, loading, error, refetch } = useData();
+    const { showToast, showError } = useToast();
     const router = useRouter();
-    const [meetings, setMeetings] = useState<Meeting[]>([]);
-    const [members, setMembers] = useState<Member[]>([]);
+
     const [selectedMeetingId, setSelectedMeetingId] = useState<string | null>(null);
     const [answers, setAnswers] = useState<Record<string, Record<string, string>>>({});
     const [saving, setSaving] = useState<string | null>(null);
-    const [toast, setToast] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [absentIds, setAbsentIds] = useState<string[]>([]);
     const [absentSaving, setAbsentSaving] = useState(false);
     const [selectedTopicIndex, setSelectedTopicIndex] = useState<number | null>(null);
 
     useEffect(() => {
         if (!currentMemberId) {
-            setLoading(false);
             router.replace('/');
             return;
         }
-        Promise.all([getMeetings(), getMembers()])
-            .then(([mt, mb]) => {
-                setMeetings(mt);
-                setMembers(mb);
-                const upcoming = mt.filter(m => m.status === 'upcoming').sort((a, b) => a.date - b.date);
-                const first = upcoming[0] ?? mt[0] ?? null;
-                if (first) {
-                    setSelectedMeetingId(first.id);
-                    setAbsentIds(first.absentMemberIds ?? []);
-                }
-            })
-            .finally(() => setLoading(false));
     }, [currentMemberId, router]);
 
+    // 초기 선택: 다음 모임을 기본으로 (한 번만)
+    const hasInitialized = useRef(false);
+    useEffect(() => {
+        if (!currentMemberId || meetings.length === 0 || hasInitialized.current) return;
+        const upcoming = meetings.filter((m) => m.status === 'upcoming').sort((a, b) => a.date - b.date);
+        const first = upcoming[0] ?? meetings[0] ?? null;
+        if (first) {
+            hasInitialized.current = true;
+            setSelectedMeetingId(first.id);
+            setAbsentIds(first.absentMemberIds ?? []);
+        }
+    }, [currentMemberId, meetings]);
+
+    // 선택된 모임이 바뀔 때만 답변 로드 (meetings 제거로 불필요한 재요청 방지)
     useEffect(() => {
         if (!selectedMeetingId) return;
         setSelectedTopicIndex(null);
-        getAnswers(selectedMeetingId).then((ans) => {
-            const map: Record<string, Record<string, string>> = {};
-            ans.forEach((a) => {
-                if (!map[a.memberId]) map[a.memberId] = {};
-                map[a.memberId][a.topicIndex] = a.answer;
-            });
-            setAnswers(map);
-        });
+        getAnswers(selectedMeetingId)
+            .then((ans) => {
+                const map: Record<string, Record<string, string>> = {};
+                ans.forEach((a) => {
+                    if (!map[a.memberId]) map[a.memberId] = {};
+                    map[a.memberId][a.topicIndex] = a.answer;
+                });
+                setAnswers(map);
+            })
+            .catch(() => showError('답변을 불러오지 못했어요.'));
+    }, [selectedMeetingId, showError]);
+
+    // 선택된 모임의 불참자 목록 동기화 (모임 변경 또는 목록 갱신 시)
+    useEffect(() => {
+        if (!selectedMeetingId) return;
         const mt = meetings.find((m) => m.id === selectedMeetingId);
         setAbsentIds(mt?.absentMemberIds ?? []);
     }, [selectedMeetingId, meetings]);
@@ -109,16 +115,20 @@ export default function RecordPage() {
     const handleTopicSave = async (topicIndex: number) => {
         if (!selectedMeetingId) return;
         setSaving(`topic_${topicIndex}`);
-
-        const presentMembers = members.filter((m) => !absentIds.includes(m.id));
-        const promises = presentMembers.map((mb) => {
-            const val = answers[mb.id]?.[topicIndex] ?? '';
-            return saveAnswer(selectedMeetingId, mb.id, topicIndex, val);
-        });
-
-        await Promise.all(promises);
-        setSaving(null);
-        showToast();
+        try {
+            const presentMembers = members.filter((m) => !absentIds.includes(m.id));
+            await Promise.all(
+                presentMembers.map((mb) => {
+                    const val = answers[mb.id]?.[topicIndex] ?? '';
+                    return saveAnswer(selectedMeetingId, mb.id, topicIndex, val);
+                })
+            );
+            showToast('저장되었어요');
+        } catch {
+            showError('저장에 실패했어요.');
+        } finally {
+            setSaving(null);
+        }
     };
 
     const handleChange = (memberId: string, topicIndex: number, value: string) => {
@@ -128,27 +138,25 @@ export default function RecordPage() {
         }));
     };
 
-    const showToast = () => {
-        setToast(true);
-        setTimeout(() => setToast(false), 1800);
-    };
-
     const handleAbsentChange = async (ids: string[]) => {
         setAbsentIds(ids);
         if (!selectedMeetingId) return;
         setAbsentSaving(true);
-        await updateMeeting(selectedMeetingId, { absentMemberIds: ids });
-        setMeetings((prev) =>
-            prev.map((m) => m.id === selectedMeetingId ? { ...m, absentMemberIds: ids } : m)
-        );
-        setAbsentSaving(false);
-        showToast();
+        try {
+            await updateMeeting(selectedMeetingId, { absentMemberIds: ids });
+            await refetch();
+            showToast('저장되었어요');
+        } catch {
+            showError('불참자 저장에 실패했어요.');
+        } finally {
+            setAbsentSaving(false);
+        }
     };
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (error) return <AppShell><div className="empty">{error}</div></AppShell>;
 
     const selectedMeeting = meetings.find((m) => m.id === selectedMeetingId) ?? null;
-    const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? id;
 
     // 불참자 제외한 참석 멤버만 답변 입력
     const presentMembers = members.filter((m) => !absentIds.includes(m.id));
@@ -170,7 +178,7 @@ export default function RecordPage() {
                             <option value="">— 모임을 선택하세요 —</option>
                             {meetings.map((m) => (
                                 <option key={m.id} value={m.id}>
-                                    {m.meetingNumber != null ? `제${m.meetingNumber}회 · ` : ''}{formatDate(m.date)} 『{m.book}』
+                                    {m.meetingNumber != null ? `제${m.meetingNumber}회 · ` : ''}{formatDate(m.date, 'short')} 『{m.book}』
                                 </option>
                             ))}
                         </select>
@@ -253,7 +261,7 @@ export default function RecordPage() {
                                 )}
                                 {absentIds.length > 0 && (
                                     <p style={{ fontSize: '0.75rem', color: 'var(--accent)', marginTop: 10 }}>
-                                        불참: {absentIds.map(id => getMemberName(id)).join(', ')} — 답변 입력에서 제외됩니다
+                                        불참: {absentIds.map(id => getMemberName(members, id)).join(', ')} — 답변 입력에서 제외됩니다
                                     </p>
                                 )}
                             </div>
@@ -319,8 +327,6 @@ export default function RecordPage() {
                 </div>
             )}
 
-            {/* Toast */}
-            <div className={`toast ${toast ? 'show' : ''}`}>저장되었어요 ✓</div>
         </AppShell>
     );
 }

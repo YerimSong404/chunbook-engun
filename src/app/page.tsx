@@ -3,15 +3,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
-import { getMembers } from '@/lib/db';
+import { useData } from '@/context/DataContext';
 import { Member } from '@/lib/types';
 import { BookOpen, Edit3 } from 'lucide-react';
 
 export default function SelectMemberPage() {
   const { currentMemberId, setCurrentMemberId, nickname, setNickname } = useMember();
+  const { members, loading } = useData();
   const router = useRouter();
-  const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
 
   // 별명 입력 단계
   const [step, setStep] = useState<'select' | 'nickname'>('select');
@@ -22,11 +21,7 @@ export default function SelectMemberPage() {
   useEffect(() => {
     if (currentMemberId) {
       router.replace('/home');
-      return;
     }
-    getMembers()
-      .then(setMembers)
-      .finally(() => setLoading(false));
   }, [currentMemberId, router]);
 
   // 멤버 선택 → 별명 입력 단계로

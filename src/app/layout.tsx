@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { MemberProvider } from '@/context/MemberContext';
+import { DataProvider } from '@/context/DataContext';
+import { ToastProvider } from '@/context/ToastContext';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -19,7 +21,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <MemberProvider>{children}</MemberProvider>
+        <MemberProvider>
+          <DataProvider>
+            <ToastProvider>{children}</ToastProvider>
+          </DataProvider>
+        </MemberProvider>
       </body>
     </html>
   );

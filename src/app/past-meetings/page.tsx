@@ -1,25 +1,23 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
-import { getMeetings, getMembers } from '@/lib/db';
-import { Meeting, Member } from '@/lib/types';
+import { useData } from '@/context/DataContext';
+import { formatDate, getMemberName } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
 import Link from 'next/link';
 import { Search } from 'lucide-react';
 
-function formatDate(ts: number) {
-    const d = new Date(ts);
-    return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-}
-
 export default function PastMeetingsPage() {
     const { currentMemberId } = useMember();
+    const { members, meetings: allMeetings, loading, error } = useData();
     const router = useRouter();
-    const [meetings, setMeetings] = useState<Meeting[]>([]);
-    const [members, setMembers] = useState<Member[]>([]);
-    const [loading, setLoading] = useState(true);
+
+    const meetings = useMemo(
+        () => allMeetings.filter((m) => m.status === 'done'),
+        [allMeetings]
+    );
 
     const [yearFilter, setYearFilter] = useState<string>('ALL');
     const [presenterFilter, setPresenterFilter] = useState<string>('ALL');
@@ -28,16 +26,12 @@ export default function PastMeetingsPage() {
 
     useEffect(() => {
         if (!currentMemberId) {
-            setLoading(false);
             router.replace('/');
-            return;
         }
-        Promise.all([getMeetings(), getMembers()])
-            .then(([m, mb]) => { setMeetings(m.filter(m => m.status === 'done')); setMembers(mb); })
-            .finally(() => setLoading(false));
     }, [currentMemberId, router]);
 
-    const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? '미정';
+    if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (error) return <AppShell><div className="empty">{error}</div></AppShell>;
 
     const years = useMemo(() => {
         const y = new Set<string>();
@@ -69,8 +63,6 @@ export default function PastMeetingsPage() {
 
         return result;
     }, [meetings, yearFilter, presenterFilter, sortOrder, searchTerm]);
-
-    if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
 
     return (
         <AppShell>
@@ -201,9 +193,9 @@ export default function PastMeetingsPage() {
                                             </span>
                                         </div>
                                         <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)', display: 'flex', gap: 8, alignItems: 'center' }}>
-                                            <span>{formatDate(m.date)}</span>
+                                            <span>{formatDate(m.date, 'full')}</span>
                                             <span style={{ width: 3, height: 3, borderRadius: 8, background: 'var(--border)' }}></span>
-                                            <span>발제: <span style={{ color: 'var(--text)', fontWeight: 500 }}>{getMemberName(m.presenterMemberId)}</span></span>
+                                            <span>발제: <span style={{ color: 'var(--text)', fontWeight: 500 }}>{getMemberName(members, m.presenterMemberId)}</span></span>
                                         </div>
                                     </div>
                                 </div>

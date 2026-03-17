@@ -1,37 +1,27 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
-import { getMembers, getMeetings } from '@/lib/db';
-import { Member, Meeting } from '@/lib/types';
+import { useData } from '@/context/DataContext';
+import type { Meeting } from '@/lib/types';
+import { formatDate } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
 import { Users } from 'lucide-react';
 
-function formatDate(ts: number) {
-    const d = new Date(ts);
-    return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
-}
-
 export default function PresentersPage() {
     const { currentMemberId } = useMember();
+    const { members, meetings, loading, error } = useData();
     const router = useRouter();
-    const [members, setMembers] = useState<Member[]>([]);
-    const [meetings, setMeetings] = useState<Meeting[]>([]);
-    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!currentMemberId) {
-            setLoading(false);
             router.replace('/');
-            return;
         }
-        Promise.all([getMembers(), getMeetings()])
-            .then(([mb, mt]) => { setMembers(mb); setMeetings(mt); })
-            .finally(() => setLoading(false));
     }, [currentMemberId, router]);
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (error) return <AppShell><div className="empty">{error}</div></AppShell>;
 
     // ── 회차 계산 ──────────────────────────────────────────
     // 완료된 모임만 발제 이력으로 인정, 날짜 오름차순
@@ -125,7 +115,7 @@ export default function PresentersPage() {
                                                 <div className="presenter-name" style={{ opacity: 0.55 }}>{m.name}</div>
                                                 {mt && (
                                                     <div className="presenter-count">
-                                                        『{mt.book}』({formatDate(mt.date)})
+                                                        『{mt.book}』({formatDate(mt.date, 'short')})
                                                     </div>
                                                 )}
                                             </div>

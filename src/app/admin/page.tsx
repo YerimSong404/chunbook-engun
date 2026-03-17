@@ -3,44 +3,41 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-    getMembers, addMember, deleteMember,
-    getMeetings, addMeeting, deleteMeeting,
+    addMember, deleteMember,
+    deleteMeeting,
     getSettings, updateSettings,
 } from '@/lib/db';
 import { Member, Meeting, AppSettings } from '@/lib/types';
+import { useData } from '@/context/DataContext';
+import { useToast } from '@/context/ToastContext';
+import { formatDate, getMemberName } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
 import { Calendar, Users, Settings } from 'lucide-react';
-
-function formatDate(ts: number) {
-    return new Date(ts).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
-}
-
-
 
 type Tab = 'meetings' | 'members' | 'settings';
 
 export default function AdminPage() {
     const router = useRouter();
+    const { members, meetings, loading, error, refetch } = useData();
+    const { showToast, showError } = useToast();
+
     const [tab, setTab] = useState<Tab>('meetings');
-    const [members, setMembers] = useState<Member[]>([]);
-    const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [settings, setSettings] = useState<AppSettings>({ firstMeetingNumber: 1 });
     const [newName, setNewName] = useState('');
-    const [loading, setLoading] = useState(true);
+    const [settingsLoading, setSettingsLoading] = useState(true);
     const [memberLoading, setMemberLoading] = useState(false);
     const [settingsSaving, setSettingsSaving] = useState(false);
     const [firstNumInput, setFirstNumInput] = useState('1');
 
     useEffect(() => {
-        Promise.all([getMembers(), getMeetings(), getSettings()])
-            .then(([mb, mt, st]) => {
-                setMembers(mb);
-                setMeetings(mt.sort((a, b) => b.date - a.date));
+        getSettings()
+            .then((st) => {
                 setSettings(st);
                 setFirstNumInput(String(st.firstMeetingNumber));
             })
-            .finally(() => setLoading(false));
-    }, []);
+            .catch(() => showError('설정을 불러오지 못했어요.'))
+            .finally(() => setSettingsLoading(false));
+    }, [showError]);
 
     // 다음 모임 번호 자동 계산
     const nextMeetingNumber = settings.firstMeetingNumber + meetings.length;
@@ -50,11 +47,12 @@ export default function AdminPage() {
         if (!newName.trim()) return;
         setMemberLoading(true);
         try {
-            const m = await addMember(newName.trim());
-            if (m) setMembers((prev) => [...prev, m]);
+            await addMember(newName.trim());
             setNewName('');
-        } catch (e) {
-            console.error(e);
+            await refetch();
+            showToast('멤버가 추가되었어요');
+        } catch {
+            showError('멤버 추가에 실패했어요.');
         } finally {
             setMemberLoading(false);
         }
@@ -62,30 +60,47 @@ export default function AdminPage() {
 
     const handleDeleteMember = async (id: string) => {
         if (!confirm('멤버를 삭제할까요?')) return;
-        await deleteMember(id);
-        setMembers((prev) => prev.filter((m) => m.id !== id));
+        try {
+            await deleteMember(id);
+            await refetch();
+            showToast('삭제되었어요');
+        } catch {
+            showError('삭제에 실패했어요.');
+        }
     };
 
     // ── Settings ──
     const handleSaveSettings = async () => {
         const num = parseInt(firstNumInput);
-        if (isNaN(num) || num < 1) return alert('1 이상의 숫자를 입력해주세요.');
+        if (isNaN(num) || num < 1) {
+            showError('1 이상의 숫자를 입력해주세요.');
+            return;
+        }
         setSettingsSaving(true);
-        await updateSettings({ firstMeetingNumber: num });
-        setSettings({ firstMeetingNumber: num });
-        setSettingsSaving(false);
-        alert('저장됐어요!');
+        try {
+            await updateSettings({ firstMeetingNumber: num });
+            setSettings({ firstMeetingNumber: num });
+            showToast('저장됐어요');
+        } catch {
+            showError('설정 저장에 실패했어요.');
+        } finally {
+            setSettingsSaving(false);
+        }
     };
-
-
 
     const handleDeleteMeeting = async (id: string) => {
         if (!confirm('모임을 삭제할까요?')) return;
-        await deleteMeeting(id);
-        setMeetings((prev) => prev.filter((m) => m.id !== id));
+        try {
+            await deleteMeeting(id);
+            await refetch();
+            showToast('삭제되었어요');
+        } catch {
+            showError('삭제에 실패했어요.');
+        }
     };
 
-    if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (loading || settingsLoading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (error) return <AppShell><div className="empty">{error}</div></AppShell>;
 
     return (
         <AppShell>
@@ -133,11 +148,11 @@ export default function AdminPage() {
                                             <span style={{ fontWeight: 600 }}>『{m.book}』</span>
                                         </div>
                                         <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)' }}>
-                                            {formatDate(m.date)} · {members.find(mb => mb.id === m.presenterMemberId)?.name ?? '발제자 미정'}
+                                            {formatDate(m.date, 'dateOnly')} · {getMemberName(members, m.presenterMemberId, '발제자 미정')}
                                         </div>
                                         {m.absentMemberIds && m.absentMemberIds.length > 0 && (
                                             <div style={{ fontSize: '0.78rem', marginTop: 4, color: 'var(--accent)' }}>
-                                                불참: {m.absentMemberIds.map(id => members.find(mb => mb.id === id)?.name).filter(Boolean).join(', ')}
+                                                불참: {m.absentMemberIds.map(id => getMemberName(members, id)).filter(Boolean).join(', ')}
                                             </div>
                                         )}
                                     </div>

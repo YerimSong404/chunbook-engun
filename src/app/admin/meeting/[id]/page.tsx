@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { getMembers, getMeeting, updateMeeting } from '@/lib/db';
+import { getMeeting, updateMeeting } from '@/lib/db';
 import { Member, Meeting } from '@/lib/types';
+import { useData } from '@/context/DataContext';
+import { useToast } from '@/context/ToastContext';
 import AppShell from '@/components/AppShell';
 
 const emptyForm = {
@@ -21,11 +23,12 @@ const emptyForm = {
 export default function EditMeetingPage() {
     const router = useRouter();
     const params = useParams();
+    const { members } = useData();
+    const { showToast, showError } = useToast();
     const meetingId = params.id as string;
 
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [members, setMembers] = useState<Member[]>([]);
     const [form, setForm] = useState(emptyForm);
 
     useEffect(() => {
@@ -34,14 +37,13 @@ export default function EditMeetingPage() {
             return;
         }
 
-        Promise.all([getMeeting(meetingId), getMembers()])
-            .then(([m, mb]) => {
+        getMeeting(meetingId)
+            .then((m) => {
                 if (!m) {
-                    alert('모임을 찾을 수 없습니다.');
+                    showError('모임을 찾을 수 없어요.');
                     router.back();
                     return;
                 }
-                setMembers(mb);
                 setForm({
                     date: new Date(m.date).toISOString().slice(0, 10),
                     book: m.book,
@@ -54,8 +56,9 @@ export default function EditMeetingPage() {
                     absentMemberIds: m.absentMemberIds ?? [],
                 });
             })
+            .catch(() => showError('모임 정보를 불러오지 못했어요.'))
             .finally(() => setLoading(false));
-    }, [meetingId, router]);
+    }, [meetingId, router, showError]);
 
     const handleTopicChange = (i: number, val: string) => {
         setForm((prev) => {
@@ -96,11 +99,10 @@ export default function EditMeetingPage() {
 
         try {
             await updateMeeting(meetingId, data);
-            alert('모임 정보가 수정되었습니다.');
+            showToast('수정되었어요');
             router.back();
-        } catch (e) {
-            console.error(e);
-            alert('수정 중 오류가 발생했습니다.');
+        } catch {
+            showError('수정 중 오류가 발생했어요.');
         } finally {
             setSubmitting(false);
         }

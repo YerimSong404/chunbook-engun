@@ -3,25 +3,23 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
-import { getMeeting, getMembers, getAnswers, updateMeeting } from '@/lib/db';
-import { Meeting, Member, Answer } from '@/lib/types';
+import { useData } from '@/context/DataContext';
+import { getMeeting, getAnswers, updateMeeting } from '@/lib/db';
+import { Meeting, Answer } from '@/lib/types';
+import { formatDate, getMemberName } from '@/lib/utils';
+import { useToast } from '@/context/ToastContext';
 import AppShell from '@/components/AppShell';
-
 import { Calendar, Mic, BookOpen, User } from 'lucide-react';
-
-function formatDate(ts: number) {
-    const d = new Date(ts);
-    return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
-}
 
 export default function MeetingDetailPage() {
     const { currentMemberId } = useMember();
+    const { members } = useData();
+    const { showToast, showError } = useToast();
     const router = useRouter();
     const params = useParams();
     const meetingId = params.id as string;
 
     const [meeting, setMeeting] = useState<Meeting | null>(null);
-    const [members, setMembers] = useState<Member[]>([]);
     const [answers, setAnswers] = useState<Answer[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedTopicIndex, setSelectedTopicIndex] = useState<number | null>(null);
@@ -32,55 +30,47 @@ export default function MeetingDetailPage() {
 
     useEffect(() => {
         if (!currentMemberId) {
-            setLoading(false);
             router.replace('/');
             return;
         }
-
         if (!meetingId) {
             router.back();
             return;
         }
 
-        Promise.all([getMeeting(meetingId), getMembers(), getAnswers(meetingId)])
-            .then(([mt, mb, ans]) => {
+        Promise.all([getMeeting(meetingId), getAnswers(meetingId)])
+            .then(([mt, ans]) => {
                 setMeeting(mt);
-                setMembers(mb);
                 setAnswers(ans);
             })
+            .catch(() => showError('모임 정보를 불러오지 못했어요.'))
             .finally(() => setLoading(false));
-    }, [currentMemberId, meetingId, router]);
+    }, [currentMemberId, meetingId, router, showError]);
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
     if (!meeting) return <AppShell><div className="empty">모임을 찾을 수 없어요.</div></AppShell>;
 
-    const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? id;
-
     const handleComplete = async () => {
         if (!meetingId) return;
-        if (confirm('모임을 완료 처리하시겠습니까?')) {
-            try {
-                await updateMeeting(meetingId, { status: 'done' });
-                setMeeting(prev => prev ? { ...prev, status: 'done' } : null);
-                alert('완료 처리되었습니다.');
-            } catch (e) {
-                console.error(e);
-                alert('완료 처리 중 오류가 발생했습니다.');
-            }
+        if (!confirm('모임을 완료 처리하시겠습니까?')) return;
+        try {
+            await updateMeeting(meetingId, { status: 'done' });
+            setMeeting((prev) => (prev ? { ...prev, status: 'done' } : null));
+            showToast('완료 처리되었어요');
+        } catch {
+            showError('완료 처리 중 오류가 발생했어요.');
         }
     };
 
     const handleRevertComplete = async () => {
         if (!meetingId) return;
-        if (confirm('모임 완료를 취소하시겠습니까?')) {
-            try {
-                await updateMeeting(meetingId, { status: 'upcoming' });
-                setMeeting(prev => prev ? { ...prev, status: 'upcoming' } : null);
-                alert('완료가 취소되었습니다.');
-            } catch (e) {
-                console.error(e);
-                alert('완료 취소 중 오류가 발생했습니다.');
-            }
+        if (!confirm('모임 완료를 취소하시겠습니까?')) return;
+        try {
+            await updateMeeting(meetingId, { status: 'upcoming' });
+            setMeeting((prev) => (prev ? { ...prev, status: 'upcoming' } : null));
+            showToast('완료가 취소되었어요');
+        } catch {
+            showError('완료 취소 중 오류가 발생했어요.');
         }
     };
 
@@ -104,14 +94,14 @@ export default function MeetingDetailPage() {
     const handleSaveTopics = async () => {
         if (!meetingId) return;
         setSavingTopics(true);
-        const filteredTopics = editingTopics.map(t => t.trim()).filter(Boolean);
+        const filteredTopics = editingTopics.map((t) => t.trim()).filter(Boolean);
         try {
             await updateMeeting(meetingId, { topics: filteredTopics });
-            setMeeting(prev => prev ? { ...prev, topics: filteredTopics } : null);
+            setMeeting((prev) => (prev ? { ...prev, topics: filteredTopics } : null));
             setIsEditingTopics(false);
-        } catch (e) {
-            console.error(e);
-            alert('발제 저장 중 오류가 발생했습니다.');
+            showToast('저장되었어요');
+        } catch {
+            showError('발제 저장 중 오류가 발생했어요.');
         } finally {
             setSavingTopics(false);
         }
@@ -169,10 +159,10 @@ export default function MeetingDetailPage() {
 
                         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
                             <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface-alt)', color: 'var(--text-sub)', borderRadius: 8, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
-                                <Calendar size={14} /> {formatDate(meeting.date)}
+                                <Calendar size={14} /> {formatDate(meeting.date, 'full')}
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 8, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
-                                <Mic size={14} /> 발제자: {getMemberName(meeting.presenterMemberId)}
+                                <Mic size={14} /> 발제자: {getMemberName(members, meeting.presenterMemberId)}
                             </span>
                         </div>
                     </div>
