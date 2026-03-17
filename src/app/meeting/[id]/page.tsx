@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import { useMember } from '@/context/MemberContext';
 import { useData } from '@/context/DataContext';
 import { getMeeting, getAnswers, updateMeeting } from '@/lib/db';
 import { Meeting, Answer } from '@/lib/types';
-import { formatDate, getMemberName } from '@/lib/utils';
+import { formatDate, getMemberName, getDDay } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
 import { useIsAdmin } from '@/lib/hooks';
 import AppShell from '@/components/AppShell';
-import { Calendar, Mic, BookOpen, User } from 'lucide-react';
+import { Calendar, Mic, BookOpen, User, Pencil } from 'lucide-react';
 
 export default function MeetingDetailPage() {
     const { currentMemberId } = useMember();
@@ -117,20 +118,30 @@ export default function MeetingDetailPage() {
                         <button onClick={() => router.back()} className="btn btn-ghost">
                             ← 뒤로가기
                         </button>
-                        {isAdmin && (
-                            <>
-                                {meeting.status === 'upcoming' && (
-                                    <button onClick={handleComplete} className="btn btn-sm">
-                                        모임 완료 처리
-                                    </button>
-                                )}
-                                {meeting.status === 'done' && (
-                                    <button onClick={handleRevertComplete} className="btn btn-ghost btn-sm">
-                                        완료 취소
-                                    </button>
-                                )}
-                            </>
-                        )}
+                        <div className="meeting-hero-actions">
+                            {isAdmin && (
+                                <Link
+                                    href={`/admin/meeting/${meetingId}`}
+                                    className="btn btn-ghost btn-sm meeting-edit-btn"
+                                >
+                                    <Pencil size={16} /> 수정
+                                </Link>
+                            )}
+                            {isAdmin && (
+                                <>
+                                    {meeting.status === 'upcoming' && (
+                                        <button onClick={handleComplete} className="meeting-hero-btn">
+                                            모임 완료 처리
+                                        </button>
+                                    )}
+                                    {meeting.status === 'done' && (
+                                        <button onClick={handleRevertComplete} className="meeting-hero-btn">
+                                            완료 취소
+                                        </button>
+                                    )}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
@@ -165,6 +176,9 @@ export default function MeetingDetailPage() {
                         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
                             <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--surface-alt)', color: 'var(--text-sub)', borderRadius: 8, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
                                 <Calendar size={14} /> {formatDate(meeting.date, 'full')}
+                                {meeting.status === 'upcoming' && (
+                                    <span className="meeting-d-day">{getDDay(meeting.date)}</span>
+                                )}
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 8, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
                                 <Mic size={14} /> 발제자: {getMemberName(members, meeting.presenterMemberId)}

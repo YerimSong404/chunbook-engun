@@ -131,7 +131,6 @@ export function BookCoverSection({
               >
                 <Upload size={18} /> 사진 선택 (갤러리·카메라)
               </button>
-              <p className="book-cover-upload-hint">선택한 이미지는 자동으로 축소돼 저장돼요.</p>
               {uploadError && <p className="book-cover-search-error">{uploadError}</p>}
               {hasCover && (
                 <div className="cover-preview-thumb" style={{ marginTop: 12 }}>

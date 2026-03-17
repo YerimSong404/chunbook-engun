@@ -30,6 +30,24 @@ export function formatDate(
 }
 
 /**
+ * 모임일 기준 D-day 문자열 (로컬 날짜 기준)
+ * - 오늘과 같으면 "D-Day"
+ * - 미래면 "D-3", "D-1" 등
+ * - 과거면 "D+1" 등
+ */
+export function getDDay(meetingDateTs: number): string {
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const meeting = new Date(meetingDateTs);
+  const meetingDay = new Date(meeting.getFullYear(), meeting.getMonth(), meeting.getDate()).getTime();
+  const diffMs = meetingDay - today;
+  const diffDays = Math.round(diffMs / (24 * 60 * 60 * 1000));
+  if (diffDays === 0) return 'D-Day';
+  if (diffDays > 0) return `D-${diffDays}`;
+  return `D+${-diffDays}`;
+}
+
+/**
  * 멤버 ID로 이름 찾기. 없으면 fallback 반환.
  */
 export function getMemberName(
