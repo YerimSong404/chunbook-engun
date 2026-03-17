@@ -76,16 +76,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         <Link
                             key={tab.href}
                             href={tab.href}
-                            className="tab-item"
-                            style={{ 
-                                color: isActive ? 'var(--text)' : 'var(--text-sub)', 
-                                padding: '8px 16px',
-                                gap: 6,
-                                transition: 'color 0.2s ease',
-                            }}
+                            className={`tab-item ${isActive ? 'active' : ''}`}
                         >
                             <span className="tab-icon">{tab.icon}</span>
-                            <span style={{ fontSize: '0.75rem', fontWeight: isActive ? 600 : 500 }}>{tab.label}</span>
+                            <span>{tab.label}</span>
                         </Link>
                     );
                 })}

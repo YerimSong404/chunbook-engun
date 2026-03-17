@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { getMeeting, updateMeeting } from '@/lib/db';
 import { Member, Meeting } from '@/lib/types';
 import { useData } from '@/context/DataContext';
+import { useIsAdmin } from '@/lib/hooks';
 import { useToast } from '@/context/ToastContext';
 import AppShell from '@/components/AppShell';
 
@@ -23,6 +24,7 @@ const emptyForm = {
 export default function EditMeetingPage() {
     const router = useRouter();
     const params = useParams();
+    const isAdmin = useIsAdmin();
     const { members } = useData();
     const { showToast, showError } = useToast();
     const meetingId = params.id as string;
@@ -36,7 +38,6 @@ export default function EditMeetingPage() {
             router.back();
             return;
         }
-
         getMeeting(meetingId)
             .then((m) => {
                 if (!m) {
@@ -59,6 +60,10 @@ export default function EditMeetingPage() {
             .catch(() => showError('모임 정보를 불러오지 못했어요.'))
             .finally(() => setLoading(false));
     }, [meetingId, router, showError]);
+
+    useEffect(() => {
+        if (!loading && !isAdmin) router.replace('/admin');
+    }, [loading, isAdmin, router]);
 
     const handleTopicChange = (i: number, val: string) => {
         setForm((prev) => {
@@ -109,6 +114,7 @@ export default function EditMeetingPage() {
     };
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (!isAdmin) return null;
 
     return (
         <AppShell>

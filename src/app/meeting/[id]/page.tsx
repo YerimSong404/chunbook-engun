@@ -8,12 +8,14 @@ import { getMeeting, getAnswers, updateMeeting } from '@/lib/db';
 import { Meeting, Answer } from '@/lib/types';
 import { formatDate, getMemberName } from '@/lib/utils';
 import { useToast } from '@/context/ToastContext';
+import { useIsAdmin } from '@/lib/hooks';
 import AppShell from '@/components/AppShell';
 import { Calendar, Mic, BookOpen, User } from 'lucide-react';
 
 export default function MeetingDetailPage() {
     const { currentMemberId } = useMember();
     const { members } = useData();
+    const isAdmin = useIsAdmin();
     const { showToast, showError } = useToast();
     const router = useRouter();
     const params = useParams();
@@ -110,21 +112,24 @@ export default function MeetingDetailPage() {
     return (
         <AppShell>
             {selectedTopicIndex === null && (
-                <div style={{ margin: '-24px -20px 32px -20px', background: 'linear-gradient(135deg, #9D48B4 0%, #FFDE59 100%)', padding: '24px 20px 60px 20px', color: '#fff' }}>
-                    {/* Header / Back Button Inside Hero */}
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                        <button onClick={() => router.back()} className="btn btn-ghost" style={{ padding: '8px', background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none' }}>
+                <div className="meeting-hero-header">
+                    <div className="meeting-hero-back">
+                        <button onClick={() => router.back()} className="btn btn-ghost">
                             ← 뒤로가기
                         </button>
-                        {meeting.status === 'upcoming' && (
-                            <button onClick={handleComplete} className="btn btn-sm" style={{ background: 'var(--surface)', color: 'var(--text)' }}>
-                                모임 완료 처리
-                            </button>
-                        )}
-                        {meeting.status === 'done' && (
-                            <button onClick={handleRevertComplete} className="btn btn-sm" style={{ background: 'rgba(255,255,255,0.2)', color: '#fff', border: 'none' }}>
-                                완료 취소
-                            </button>
+                        {isAdmin && (
+                            <>
+                                {meeting.status === 'upcoming' && (
+                                    <button onClick={handleComplete} className="btn btn-sm">
+                                        모임 완료 처리
+                                    </button>
+                                )}
+                                {meeting.status === 'done' && (
+                                    <button onClick={handleRevertComplete} className="btn btn-ghost btn-sm">
+                                        완료 취소
+                                    </button>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
@@ -177,7 +182,7 @@ export default function MeetingDetailPage() {
                         <span style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text)', textTransform: 'none', letterSpacing: '0' }}>
                             발제 키워드
                         </span>
-                        {!isEditingTopics && meeting.status === 'upcoming' && (
+                        {!isEditingTopics && meeting.status === 'upcoming' && isAdmin && (
                             <button className="btn btn-ghost btn-sm" onClick={startEditTopics} style={{ borderRadius: 8 }}>
                                 {meeting.topics.length === 0 ? '+ 발제 등록' : '수정'}
                             </button>

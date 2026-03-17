@@ -111,14 +111,17 @@ export async function saveAnswer(
 // ─── Settings ──────────────────────────────────────────
 const SETTINGS_DOC = 'settings/general';
 
+const DEFAULT_SETTINGS: AppSettings = { firstMeetingNumber: 1, adminMemberIds: [] };
+
 export async function getSettings(): Promise<AppSettings> {
-    if (!isReady()) return { firstMeetingNumber: 1 };
+    if (!isReady()) return DEFAULT_SETTINGS;
     try {
         const snap = await getDoc(doc(db!, SETTINGS_DOC));
-        if (!snap.exists()) return { firstMeetingNumber: 1 };
-        return snap.data() as AppSettings;
+        if (!snap.exists()) return DEFAULT_SETTINGS;
+        const data = snap.data() as AppSettings;
+        return { ...DEFAULT_SETTINGS, ...data };
     } catch {
-        return { firstMeetingNumber: 1 };
+        return DEFAULT_SETTINGS;
     }
 }
 

@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
 import { useData } from '@/context/DataContext';
 import { useToast } from '@/context/ToastContext';
-import { addMeeting, getSettings } from '@/lib/db';
-import { AppSettings } from '@/lib/types';
+import { useIsAdmin } from '@/lib/hooks';
+import { addMeeting } from '@/lib/db';
 import AppShell from '@/components/AppShell';
 
 const emptyForm = {
@@ -22,13 +22,12 @@ const emptyForm = {
 
 export default function NewMeetingPage() {
     const { currentMemberId } = useMember();
-    const { members, meetings, loading: dataLoading, refetch } = useData();
+    const isAdmin = useIsAdmin();
+    const { members, meetings, settings, loading: dataLoading, refetch } = useData();
     const { showToast, showError } = useToast();
     const router = useRouter();
 
-    const [settings, setSettings] = useState<AppSettings>({ firstMeetingNumber: 1 });
     const [form, setForm] = useState(emptyForm);
-    const [settingsLoading, setSettingsLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
@@ -36,11 +35,13 @@ export default function NewMeetingPage() {
             router.replace('/');
             return;
         }
-        getSettings()
-            .then(setSettings)
-            .catch(() => showError('설정을 불러오지 못했어요.'))
-            .finally(() => setSettingsLoading(false));
-    }, [currentMemberId, router, showError]);
+    }, [currentMemberId, router]);
+
+    useEffect(() => {
+        if (!dataLoading && currentMemberId && !isAdmin) {
+            router.replace('/home');
+        }
+    }, [dataLoading, currentMemberId, isAdmin, router]);
 
     const nextMeetingNumber = settings.firstMeetingNumber + meetings.length;
 
@@ -78,7 +79,8 @@ export default function NewMeetingPage() {
         }
     };
 
-    if (dataLoading || settingsLoading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (dataLoading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    if (currentMemberId && !isAdmin) return null;
 
     return (
         <AppShell>

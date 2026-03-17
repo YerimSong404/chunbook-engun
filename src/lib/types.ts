@@ -29,4 +29,5 @@ export interface Answer {
 
 export interface AppSettings {
     firstMeetingNumber: number; // 첫 번째 모임의 번호 (기본값 1)
+    adminMemberIds?: string[];  // 관리자로 지정된 멤버 ID 목록
 }

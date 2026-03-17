@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMember } from '@/context/MemberContext';
 import { useData } from '@/context/DataContext';
+import { useIsAdmin } from '@/lib/hooks';
 import { formatDate, getMemberName } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
 import Link from 'next/link';
@@ -11,6 +12,7 @@ import { Calendar, Mic, Plus, BookOpen } from 'lucide-react';
 
 export default function HomePage() {
     const { currentMemberId } = useMember();
+    const isAdmin = useIsAdmin();
     const { members, meetings, loading, error } = useData();
     const router = useRouter();
 
@@ -28,16 +30,13 @@ export default function HomePage() {
 
     return (
         <AppShell>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                <h1 className="page-title" style={{ margin: 0, fontSize: '1.6rem', color: 'var(--text)', letterSpacing: '-0.5px' }}>다가오는 모임</h1>
-                <Link href="/meeting/new" style={{ 
-                    display: 'flex', alignItems: 'center', gap: 6,
-                    background: 'var(--primary)', color: '#FFF', 
-                    padding: '10px 16px', borderRadius: 8, 
-                    fontSize: '0.9rem', fontWeight: 500, textDecoration: 'none' 
-                }}>
-                    <Plus size={16} /> 새 모임
-                </Link>
+            <div className="page-header-row">
+                <h1 className="page-title page-title-lg">다가오는 모임</h1>
+                {isAdmin && (
+                    <Link href="/meeting/new" className="btn btn-primary btn-new-meeting">
+                        <Plus size={16} /> 새 모임
+                    </Link>
+                )}
             </div>
 
             {next ? (

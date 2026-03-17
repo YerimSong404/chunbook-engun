@@ -2,42 +2,38 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
     addMember, deleteMember,
     deleteMeeting,
-    getSettings, updateSettings,
+    updateSettings,
 } from '@/lib/db';
-import { Member, Meeting, AppSettings } from '@/lib/types';
+import type { AppSettings } from '@/lib/types';
 import { useData } from '@/context/DataContext';
+import { useIsAdmin } from '@/lib/hooks';
 import { useToast } from '@/context/ToastContext';
 import { formatDate, getMemberName } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
-import { Calendar, Users, Settings } from 'lucide-react';
+import { Calendar, Users, Settings, ShieldAlert } from 'lucide-react';
 
 type Tab = 'meetings' | 'members' | 'settings';
 
 export default function AdminPage() {
     const router = useRouter();
-    const { members, meetings, loading, error, refetch } = useData();
+    const isAdmin = useIsAdmin();
+    const { members, meetings, settings, loading, error, refetch } = useData();
     const { showToast, showError } = useToast();
 
     const [tab, setTab] = useState<Tab>('meetings');
-    const [settings, setSettings] = useState<AppSettings>({ firstMeetingNumber: 1 });
     const [newName, setNewName] = useState('');
-    const [settingsLoading, setSettingsLoading] = useState(true);
     const [memberLoading, setMemberLoading] = useState(false);
     const [settingsSaving, setSettingsSaving] = useState(false);
-    const [firstNumInput, setFirstNumInput] = useState('1');
+    const [adminSaving, setAdminSaving] = useState(false);
+    const [firstNumInput, setFirstNumInput] = useState(String(settings.firstMeetingNumber));
 
     useEffect(() => {
-        getSettings()
-            .then((st) => {
-                setSettings(st);
-                setFirstNumInput(String(st.firstMeetingNumber));
-            })
-            .catch(() => showError('설정을 불러오지 못했어요.'))
-            .finally(() => setSettingsLoading(false));
-    }, [showError]);
+        setFirstNumInput(String(settings.firstMeetingNumber));
+    }, [settings.firstMeetingNumber]);
 
     // 다음 모임 번호 자동 계산
     const nextMeetingNumber = settings.firstMeetingNumber + meetings.length;
@@ -79,7 +75,7 @@ export default function AdminPage() {
         setSettingsSaving(true);
         try {
             await updateSettings({ firstMeetingNumber: num });
-            setSettings({ firstMeetingNumber: num });
+            await refetch();
             showToast('저장됐어요');
         } catch {
             showError('설정 저장에 실패했어요.');
@@ -99,8 +95,38 @@ export default function AdminPage() {
         }
     };
 
-    if (loading || settingsLoading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
+    const toggleAdmin = (memberId: string) => {
+        const current = settings.adminMemberIds ?? [];
+        const next = current.includes(memberId)
+            ? current.filter((id) => id !== memberId)
+            : [...current, memberId];
+        setAdminSaving(true);
+        updateSettings({ adminMemberIds: next })
+            .then(() => refetch().then(() => showToast('저장됐어요')))
+            .catch(() => showError('저장에 실패했어요.'))
+            .finally(() => setAdminSaving(false));
+    };
+
+    if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
     if (error) return <AppShell><div className="empty">{error}</div></AppShell>;
+
+    if (!isAdmin) {
+        return (
+            <AppShell>
+                <div className="card empty-state-card">
+                    <ShieldAlert size={48} color="var(--text-sub)" style={{ marginBottom: 16 }} />
+                    <h2 className="page-title" style={{ marginBottom: 8 }}>관리자 전용</h2>
+                    <p className="empty-text" style={{ marginBottom: 24 }}>
+                        이 메뉴는 관리자만 이용할 수 있어요.<br />
+                        관리자 지정은 설정 탭에서 할 수 있어요.
+                    </p>
+                    <Link href="/home" className="btn btn-primary">
+                        홈으로
+                    </Link>
+                </div>
+            </AppShell>
+        );
+    }
 
     return (
         <AppShell>
@@ -233,13 +259,38 @@ export default function AdminPage() {
                                 </button>
                             </div>
                         </div>
-                        <div style={{
-                            background: 'var(--primary-light)', borderRadius: 10,
-                            padding: '12px 16px', fontSize: '0.85rem', color: 'var(--primary)', fontWeight: 500,
-                        }}>
+                        <div className="settings-info-box">
                             현재 설정: 제{settings.firstMeetingNumber}회부터 시작<br />
                             다음 등록할 모임: <strong>제{nextMeetingNumber}회</strong>
                         </div>
+                    </div>
+
+                    <div className="section-title">관리자 지정</div>
+                    <div className="card">
+                        <p className="form-label" style={{ marginBottom: 12 }}>
+                            모임 등록·완료 처리·설정 변경은 관리자만 할 수 있어요. 멤버를 선택해 주세요.
+                        </p>
+                        {members.length === 0 ? (
+                            <p className="empty-text">등록된 멤버가 없어요</p>
+                        ) : (
+                            <div className="admin-member-list">
+                                {members.map((m) => {
+                                    const isAdminMember = (settings.adminMemberIds ?? []).includes(m.id);
+                                    return (
+                                        <label key={m.id} className="admin-member-check">
+                                            <input
+                                                type="checkbox"
+                                                checked={isAdminMember}
+                                                onChange={() => toggleAdmin(m.id)}
+                                                disabled={adminSaving}
+                                            />
+                                            <span className="presenter-name">{m.name}</span>
+                                            {isAdminMember && <span className="badge badge-primary">관리자</span>}
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
                 </>
             )}
