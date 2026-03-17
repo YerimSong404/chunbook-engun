@@ -13,6 +13,7 @@ export default function RootLayout() {
         <Stack.Screen name="member/[id]" />
         <Stack.Screen name="meeting/new" />
         <Stack.Screen name="meeting/[id]" />
+        <Stack.Screen name="meeting/edit/[id]" />
       </Stack>
       </AlertProvider>
     </MemberProvider>

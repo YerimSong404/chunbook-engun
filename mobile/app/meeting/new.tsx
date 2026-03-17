@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { useAlert } from '../../context/AlertContext';
@@ -7,6 +7,7 @@ import { getMembers, addMeeting, getSettings, getMeetings } from '../../lib/db';
 import { Member, AppSettings } from '../../lib/types';
 import { Picker } from '@react-native-picker/picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { BookCoverSection } from '../../components/BookCoverSection';
 
 const emptyForm = {
     date: '',
@@ -47,7 +48,7 @@ export default function NewMeetingScreen() {
     const nextMeetingNumber = settings.firstMeetingNumber + meetingsCount;
 
     const handleSubmitMeeting = async () => {
-        if (!form.date || !form.book) return showAlert('오류', '날짜와 책 제목은 필수입니다.');
+        if (!form.date) return showAlert('오류', '모임 날짜는 필수입니다.');
         const meetingNumberVal = form.meetingNumber.trim()
             ? parseInt(form.meetingNumber)
             : nextMeetingNumber;
@@ -118,7 +119,7 @@ export default function NewMeetingScreen() {
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={styles.label}>책 제목 *</Text>
+                            <Text style={styles.label}>책 제목 <Text style={{ fontWeight: '400', color: '#888' }}>(선택)</Text></Text>
                             <TextInput
                                 style={styles.input}
                                 placeholder="예: 채식주의자"
@@ -138,26 +139,12 @@ export default function NewMeetingScreen() {
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={styles.label}>책 표지 이미지 URL (선택)</Text>
-                            <View style={styles.coverInputRow}>
-                                <TextInput
-                                    style={[styles.input, { flex: 1, marginBottom: 0 }]}
-                                    placeholder="https://image.yes24.com/..."
-                                    value={form.coverImageUrl}
-                                    onChangeText={(t) => setForm((p) => ({ ...p, coverImageUrl: t }))}
-                                />
-                                {form.coverImageUrl.trim() ? (
-                                    <View style={styles.coverPreviewContainer}>
-                                        <Image
-                                            source={{ uri: form.coverImageUrl }}
-                                            style={styles.coverPreview}
-                                        />
-                                    </View>
-                                ) : null}
-                            </View>
-                            <Text style={styles.hintText}>
-                                💡 알라딘/예스24 책 상세페이지에서 표지 이미지 우클릭 → "이미지 주소 복사"
-                            </Text>
+                            <BookCoverSection
+                                bookTitle={form.book}
+                                author={form.author}
+                                coverImageUrl={form.coverImageUrl}
+                                onChange={(url) => setForm(p => ({ ...p, coverImageUrl: url }))}
+                            />
                         </View>
 
                         <View style={styles.formGroup}>
@@ -226,17 +213,11 @@ const styles = StyleSheet.create({
     input: {
         backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 12, fontSize: 15,
     },
-    coverInputRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
-    coverPreviewContainer: {
-        width: 64, height: 88, borderRadius: 6, overflow: 'hidden', borderWidth: 1, borderColor: '#eee', backgroundColor: '#f9f9f9'
-    },
-    coverPreview: { width: '100%', height: '100%' },
-    hintText: { fontSize: 11, color: '#888', marginTop: 8 },
     pickerWrap: { borderWidth: 1, borderColor: '#ddd', borderRadius: 6, overflow: 'hidden', backgroundColor: '#fff' },
     webSelect: { width: '100%', padding: 12, fontSize: 15, borderWidth: 0, backgroundColor: 'transparent' },
     picker: { width: '100%', height: 50 },
     submitBtn: {
-        backgroundColor: '#0070f3',
+        backgroundColor: '#8C7D6B',
         paddingVertical: 16,
         borderRadius: 6,
         alignItems: 'center',

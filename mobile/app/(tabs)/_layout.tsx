@@ -26,9 +26,12 @@ export default function TabLayout() {
           borderBottomWidth: 1,
           borderBottomColor: '#EBE5D9',
         },
+        headerTitle: '천북인권',
+        headerTitleAlign: 'center',
         headerTitleStyle: {
           color: '#2C2724',
-          fontWeight: '600',
+          fontWeight: '700',
+          fontSize: 18,
         },
         headerRight: () =>
           currentMemberId ? (
