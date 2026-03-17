@@ -309,9 +309,20 @@ export default function RecordPage() {
                                 <div key={mb.id} className="card" style={{ marginBottom: 16, padding: '20px', borderRadius: 12 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                                         <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--surface-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem' }}>
-                                                <User size={16} color="var(--text-sub)" />
+                                            <User size={16} color="var(--text)" strokeWidth={2.5} />
                                         </div>
-                                        <div style={{ fontWeight: 700, color: 'var(--text)', fontSize: '0.95rem' }}>{mb.name}</div>
+                                        <span
+                                            style={{
+                                                fontWeight: 700,
+                                                color: 'var(--text)',
+                                                fontSize: '0.95rem',
+                                                background: mb.color?.trim() || '#C7CEEA',
+                                                padding: '4px 12px',
+                                                borderRadius: 'var(--radius-sm)',
+                                            }}
+                                        >
+                                            {mb.name}
+                                        </span>
                                     </div>
                                     <textarea
                                         className="form-textarea"

@@ -2,9 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 import { useMember } from '@/context/MemberContext';
-import { Home, BookOpen, Users, Edit2, Settings } from 'lucide-react';
+import { Home, BookOpen, Users, Edit2, Settings, User } from 'lucide-react';
 
 const tabs = [
     { href: '/home', label: '홈', icon: <Home size={24} /> },
@@ -16,19 +15,7 @@ const tabs = [
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const { currentMemberId, setCurrentMemberId, nickname, setNickname } = useMember();
-    const [editingNick, setEditingNick] = useState(false);
-    const [nickInput, setNickInput] = useState('');
-
-    const startEditNick = () => {
-        setNickInput(nickname ?? '');
-        setEditingNick(true);
-    };
-
-    const saveNick = () => {
-        setNickname(nickInput.trim() || null);
-        setEditingNick(false);
-    };
+    const { currentMemberId, setCurrentMemberId } = useMember();
 
     return (
         <div className="page">
@@ -39,32 +26,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         <span style={{ fontWeight: 800 }}>천북인권</span>
                     </span>
                     {currentMemberId && (
-                        <div className="nav-member">
-                            {editingNick ? (
-                                <>
-                                    <input
-                                        className="nav-nick-input"
-                                        value={nickInput}
-                                        onChange={(e) => setNickInput(e.target.value)}
-                                        onKeyDown={(e) => { if (e.key === 'Enter') saveNick(); if (e.key === 'Escape') setEditingNick(false); }}
-                                        maxLength={12}
-                                        autoFocus
-                                        placeholder="별명 입력"
-                                    />
-                                    <button className="nav-nick-save" style={{ background: 'var(--primary)', color: '#FFF' }} onClick={saveNick}>저장</button>
-                                    <button className="nav-nick-cancel" onClick={() => setEditingNick(false)}>✕</button>
-                                </>
-                            ) : (
-                                <>
-                                    <span className="nav-member-name" onClick={startEditNick} title="클릭해서 별명 변경">
-                                        {nickname ?? '별명없음'} <Edit2 size={14} style={{ marginLeft: 4, marginBottom: -2 }} />
-                                    </span>
-                                    <span className="nav-member-change" style={{ color: 'var(--primary)' }} onClick={() => setCurrentMemberId(null)}>
-                                        변경
-                                    </span>
-                                </>
-                            )}
-                        </div>
+                        <Link href="/mypage" className="nav-member-mypage-btn">
+                            <User size={14} color="#000" strokeWidth={2.5} /> 마이페이지
+                        </Link>
                     )}
                 </div>
             </nav>

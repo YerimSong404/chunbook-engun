@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { getMembers, getMeetings } from '../../lib/db';
@@ -91,7 +91,9 @@ export default function PresentersScreen() {
                                 {pendingThisRound.map((m) => (
                                     <View key={m.id} style={styles.row}>
                                         <View style={styles.rowContent}>
-                                            <Text style={styles.name}>{m.name}</Text>
+                                            <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
+                                                <Text style={styles.name}>{m.name}</Text>
+                                            </TouchableOpacity>
                                         </View>
                                         <View style={[styles.badge, styles.badgeAccent]}>
                                             <Text style={styles.badgeAccentText}>미발제</Text>
@@ -113,10 +115,12 @@ export default function PresentersScreen() {
                                     return (
                                         <View key={m.id} style={styles.row}>
                                             <View style={styles.rowContent}>
-                                                <Text style={[styles.name, styles.nameFaded]}>{m.name}</Text>
+                                                <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
+                                                    <Text style={[styles.name, styles.nameFaded]}>{m.name}</Text>
+                                                </TouchableOpacity>
                                                 {mt && (
                                                     <Text style={styles.countText}>
-                                                        『{mt.book}』({formatDate(mt.date)})
+                                                        『{mt.book || '책 미정'}』({formatDate(mt.date)})
                                                     </Text>
                                                 )}
                                             </View>
@@ -146,10 +150,12 @@ export default function PresentersScreen() {
                             return (
                                 <View key={m.id} style={[styles.row, isLast && { borderBottomWidth: 0, paddingBottom: 0, marginBottom: 0 }]}>
                                     <View style={styles.rowContent}>
-                                        <Text style={styles.name}>{m.name}</Text>
+                                        <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
+                                            <Text style={styles.name}>{m.name}</Text>
+                                        </TouchableOpacity>
                                         {list.length > 0 && (
                                             <Text style={styles.countText}>
-                                                {list.map((mt) => `『${mt.book}』`).join(' · ')}
+                                                {list.map((mt) => `『${mt.book || '책 미정'}』`).join(' · ')}
                                             </Text>
                                         )}
                                     </View>

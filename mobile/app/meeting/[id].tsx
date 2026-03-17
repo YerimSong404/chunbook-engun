@@ -49,6 +49,18 @@ export default function MeetingDetailScreen() {
         return new Date(ts).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
     };
 
+    const getDDay = (meetingDateTs: number) => {
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const meeting = new Date(meetingDateTs);
+        const meetingDay = new Date(meeting.getFullYear(), meeting.getMonth(), meeting.getDate()).getTime();
+        const diffMs = meetingDay - today;
+        const diffDays = Math.round(diffMs / (24 * 60 * 60 * 1000));
+        if (diffDays === 0) return 'D-Day';
+        if (diffDays > 0) return `D-${diffDays}`;
+        return `D+${-diffDays}`;
+    };
+
     const handleComplete = async () => {
         if (!meetingId) return;
         Alert.alert('모임 완료', '모임을 완료 처리하시겠습니까?', [
@@ -186,20 +198,26 @@ export default function MeetingDetailScreen() {
                             <Text style={styles.heroMeetingNumber}>
                                 {meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : '독서모임'}
                             </Text>
-                            <Text style={styles.heroTitle}>{meeting.book}</Text>
+                            <Text style={styles.heroTitle}>{meeting.book || '책 미정'}</Text>
                             <Text style={styles.heroAuthor}>{meeting.author}</Text>
 
                             <View style={styles.heroMetaRow}>
                                 <View style={styles.heroMetaBadge}>
                                     <Feather name="calendar" size={14} color="#555" />
                                     <Text style={styles.heroMetaBadgeText}>{formatDate(meeting.date)}</Text>
+                                    {meeting.status === 'upcoming' && (
+                                        <Text style={styles.dday}>{getDDay(meeting.date)}</Text>
+                                    )}
                                 </View>
-                                <View style={[styles.heroMetaBadge, styles.heroMetaBadgePrimary]}>
+                                <TouchableOpacity
+                                    style={[styles.heroMetaBadge, styles.heroMetaBadgePrimary]}
+                                    onPress={() => router.push(`/member/${meeting.presenterMemberId}`)}
+                                >
                                     <Feather name="mic" size={14} color="#0070f3" />
                                     <Text style={[styles.heroMetaBadgeText, styles.heroMetaBadgePrimaryText]}>
                                         발제자: {getMemberName(meeting.presenterMemberId)}
                                     </Text>
-                                </View>
+                                </TouchableOpacity>
                             </View>
                         </View>
                     </View>
@@ -428,6 +446,7 @@ const styles = StyleSheet.create({
     heroMetaBadgeText: { fontSize: 12, fontWeight: '600', color: '#555' },
     heroMetaBadgePrimary: { backgroundColor: '#e6f4fe' },
     heroMetaBadgePrimaryText: { color: '#0070f3' },
+    dday: { marginLeft: 6, fontSize: 11, fontWeight: '700', color: '#FFF', backgroundColor: '#8C7D6B', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
 
     // Topics Section
     topicsSection: { paddingHorizontal: 20 },

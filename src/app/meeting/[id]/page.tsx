@@ -181,7 +181,10 @@ export default function MeetingDetailPage() {
                                 )}
                             </span>
                             <span style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'var(--primary-light)', color: 'var(--primary)', borderRadius: 8, padding: '6px 14px', fontSize: '0.8rem', fontWeight: 600 }}>
-                                <Mic size={14} /> 발제자: {getMemberName(members, meeting.presenterMemberId)}
+                                <Mic size={14} /> 발제자:{' '}
+                                <Link href={`/member/${meeting.presenterMemberId}`} style={{ color: 'inherit', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: 2 }}>
+                                    {getMemberName(members, meeting.presenterMemberId)}
+                                </Link>
                             </span>
                         </div>
                     </div>

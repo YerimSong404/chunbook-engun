@@ -1,10 +1,11 @@
 const MAX_WIDTH = 400;
+const AVATAR_MAX_SIZE = 200;
 const JPEG_QUALITY = 0.78;
 
-/**
- * 이미지 파일을 리사이즈·압축해 data URL로 반환 (Firestore 저장용 크기 제한 고려).
- */
-export function compressImageToDataUrl(file: File): Promise<string> {
+function compressToDataUrl(
+  file: File,
+  maxSize: number
+): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     const url = URL.createObjectURL(file);
@@ -12,9 +13,9 @@ export function compressImageToDataUrl(file: File): Promise<string> {
       URL.revokeObjectURL(url);
       const canvas = document.createElement('canvas');
       let { width, height } = img;
-      if (width > MAX_WIDTH) {
-        height = (height * MAX_WIDTH) / width;
-        width = MAX_WIDTH;
+      if (width > maxSize) {
+        height = (height * maxSize) / width;
+        width = maxSize;
       }
       canvas.width = width;
       canvas.height = height;
@@ -37,4 +38,18 @@ export function compressImageToDataUrl(file: File): Promise<string> {
     };
     img.src = url;
   });
+}
+
+/**
+ * 이미지 파일을 리사이즈·압축해 data URL로 반환 (Firestore 저장용 크기 제한 고려).
+ */
+export function compressImageToDataUrl(file: File): Promise<string> {
+  return compressToDataUrl(file, MAX_WIDTH);
+}
+
+/**
+ * 프로필/아바타용 작은 이미지로 압축해 data URL 반환.
+ */
+export function compressImageToDataUrlForAvatar(file: File): Promise<string> {
+  return compressToDataUrl(file, AVATAR_MAX_SIZE);
 }

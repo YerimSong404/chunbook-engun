@@ -3,6 +3,12 @@ export interface Member {
     id: string;
     name: string;
     joinedAt: number;
+    /** 상태 메시지 (마이페이지) */
+    statusMessage?: string;
+    /** 프로필 이미지 URL (data URL 또는 외부 URL) */
+    profileImageUrl?: string;
+    /** 대표 컬러 hex (파스텔 등) */
+    color?: string;
 }
 
 export interface Meeting {

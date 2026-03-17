@@ -1,10 +1,11 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { useMember } from '../../context/MemberContext';
 import { Text, TouchableOpacity, View } from 'react-native';
 
 export default function TabLayout() {
-  const { currentMemberId, nickname, setCurrentMemberId } = useMember();
+  const { currentMemberId } = useMember();
+  const router = useRouter();
 
   return (
     <Tabs
@@ -29,15 +30,18 @@ export default function TabLayout() {
           color: '#2C2724',
           fontWeight: '600',
         },
-        headerRight: () => (
+        headerRight: () =>
           currentMemberId ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
-              <TouchableOpacity onPress={() => setCurrentMemberId(null)}>
-                <Text style={{ color: '#8C7D6B', fontSize: 13, fontWeight: '500' }}>변경</Text>
+              <TouchableOpacity
+                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0EBE1', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 }}
+                onPress={() => router.push('/mypage')}
+              >
+                <Feather name="user" size={14} color="#2C2724" style={{ marginRight: 6 }} />
+                <Text style={{ color: '#8C7D6B', fontSize: 13, fontWeight: '600' }}>마이페이지</Text>
               </TouchableOpacity>
             </View>
-          ) : null
-        ),
+          ) : null,
       }}>
       <Tabs.Screen
         name="home"

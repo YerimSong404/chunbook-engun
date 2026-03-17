@@ -283,9 +283,11 @@ export default function RecordScreen() {
                                     <View key={mb.id} style={styles.answerCard}>
                                         <View style={styles.answerMemberRow}>
                                             <View style={styles.avatar}>
-                                                <Feather name="user" size={16} color="#7A7265" />
+                                                <Feather name="user" size={16} color="#2C2724" strokeWidth={2.5} />
                                             </View>
-                                            <Text style={styles.answerMemberName}>{mb.name}</Text>
+                                            <View style={[styles.answerMemberNameBadge, { backgroundColor: mb.color?.trim() || '#C7CEEA' }]}>
+                                                <Text style={styles.answerMemberName}>{mb.name}</Text>
+                                            </View>
                                         </View>
                                         <TextInput
                                             style={styles.textarea}
@@ -435,7 +437,8 @@ const styles = StyleSheet.create({
     },
     answerMemberRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
     avatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#F9F6F0', justifyContent: 'center', alignItems: 'center', marginRight: 12 },
-    answerMemberName: { fontSize: 16, fontWeight: '600', color: '#2C2724' },
+    answerMemberNameBadge: { paddingVertical: 4, paddingHorizontal: 12, borderRadius: 8 },
+    answerMemberName: { fontSize: 15, fontWeight: '700', color: '#2C2724' },
     textarea: {
         minHeight: 140,
         backgroundColor: '#FAFAFA',

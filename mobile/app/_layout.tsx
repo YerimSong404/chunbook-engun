@@ -7,6 +7,8 @@ export default function RootLayout() {
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="mypage" />
+        <Stack.Screen name="member/[id]" />
         <Stack.Screen name="meeting/new" />
         <Stack.Screen name="meeting/[id]" />
       </Stack>

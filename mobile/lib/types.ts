@@ -2,6 +2,9 @@ export interface Member {
     id: string;
     name: string;
     joinedAt: number;
+    statusMessage?: string;
+    profileImageUrl?: string;
+    color?: string;
 }
 
 export interface Meeting {
@@ -27,5 +30,6 @@ export interface Answer {
 }
 
 export interface AppSettings {
-    firstMeetingNumber: number; // 첫 번째 모임의 번호 (기본값 1)
+    firstMeetingNumber: number;
+    adminMemberIds?: string[];
 }

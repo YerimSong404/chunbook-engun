@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useMember } from '@/context/MemberContext';
 import { useData } from '@/context/DataContext';
 import type { Meeting } from '@/lib/types';
@@ -93,7 +94,7 @@ export default function PresentersPage() {
                                 {pendingThisRound.map((m, i) => (
                                     <div key={m.id} className="presenter-row" style={i === pendingThisRound.length - 1 && doneThisRound.length > 0 ? { borderBottom: 'none', paddingBottom: 24 } : {}}>
                                         <div>
-                                            <div className="presenter-name">{m.name}</div>
+                                            <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link">{m.name}</Link>
                                         </div>
                                         <span className="badge badge-accent">미발제</span>
                                     </div>
@@ -112,7 +113,7 @@ export default function PresentersPage() {
                                     return (
                                         <div key={m.id} className="presenter-row">
                                             <div>
-                                                <div className="presenter-name" style={{ opacity: 0.55 }}>{m.name}</div>
+                                                <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link" style={{ opacity: 0.55 }}>{m.name}</Link>
                                                 {mt && (
                                                     <div className="presenter-count">
                                                         『{mt.book || '책 미정'}』({formatDate(mt.date, 'short')})
@@ -142,7 +143,7 @@ export default function PresentersPage() {
                             return (
                                 <div key={m.id} className="presenter-row">
                                     <div>
-                                        <div className="presenter-name">{m.name}</div>
+                                        <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link">{m.name}</Link>
                                         {list.length > 0 && (
                                             <div className="presenter-count">
                                                 {list.map((mt) => `『${mt.book || '책 미정'}』`).join(' · ')}

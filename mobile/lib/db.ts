@@ -8,6 +8,7 @@ import {
     setDoc,
     updateDoc,
     deleteDoc,
+    deleteField,
     query,
     orderBy,
 } from 'firebase/firestore';
@@ -32,6 +33,22 @@ export async function addMember(name: string): Promise<Member | null> {
     const joinedAt = Date.now();
     const ref = await addDoc(collection(db!, 'members'), { name, joinedAt });
     return { id: ref.id, name, joinedAt };
+}
+
+const OPTIONAL_MEMBER_KEYS = ['statusMessage', 'profileImageUrl', 'color'];
+
+export async function updateMember(id: string, data: Partial<Omit<Member, 'id'>>): Promise<void> {
+    if (!isReady()) return;
+    const updateData: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(data)) {
+        if (OPTIONAL_MEMBER_KEYS.includes(k) && (v === undefined || v === '')) {
+            updateData[k] = deleteField();
+        } else if (v !== undefined) {
+            updateData[k] = v;
+        }
+    }
+    if (Object.keys(updateData).length === 0) return;
+    await updateDoc(doc(db!, 'members', id), updateData);
 }
 
 export async function deleteMember(id: string): Promise<void> {
@@ -111,14 +128,16 @@ export async function saveAnswer(
 // ─── Settings ──────────────────────────────────────────
 const SETTINGS_DOC = 'settings/general';
 
+const DEFAULT_SETTINGS: AppSettings = { firstMeetingNumber: 1, adminMemberIds: [] };
+
 export async function getSettings(): Promise<AppSettings> {
-    if (!isReady()) return { firstMeetingNumber: 1 };
+    if (!isReady()) return DEFAULT_SETTINGS;
     try {
         const snap = await getDoc(doc(db!, SETTINGS_DOC));
-        if (!snap.exists()) return { firstMeetingNumber: 1 };
-        return snap.data() as AppSettings;
+        if (!snap.exists()) return DEFAULT_SETTINGS;
+        return { ...DEFAULT_SETTINGS, ...(snap.data() as AppSettings) };
     } catch {
-        return { firstMeetingNumber: 1 };
+        return DEFAULT_SETTINGS;
     }
 }
 

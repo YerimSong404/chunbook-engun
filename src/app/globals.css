@@ -107,16 +107,27 @@ textarea {
   color: var(--text-sub);
 }
 
-.nav-member-name {
+.nav-member-mypage-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text);
-  cursor: pointer;
-  transition: color 0.15s;
-  font-size: 0.85rem;
+  color: var(--primary);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-light);
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
 }
 
-.nav-member-name:hover {
-  color: var(--primary);
+.nav-member-mypage-btn:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.nav-member-mypage-btn:hover svg {
+  color: #fff;
 }
 
 .nav-nick-input {
@@ -232,6 +243,194 @@ textarea {
 
 .card+.card {
   margin-top: 12px;
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-card-body {
+  min-width: 0;
+}
+
+.profile-card-name {
+  word-break: break-word;
+}
+
+.profile-card-name-badge {
+  word-break: break-word;
+}
+
+.profile-card-status {
+  word-break: break-word;
+}
+
+/* ── Profile edit (mypage) ───────────────────────────── */
+.profile-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.profile-edit-field label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--text-sub);
+  margin-bottom: 8px;
+}
+
+.profile-edit-status-input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  background: var(--surface);
+  color: var(--text);
+}
+
+.profile-edit-status-input::placeholder {
+  color: var(--text-sub);
+  opacity: 0.7;
+}
+
+.profile-edit-emoji-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-edit-emoji-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--surface);
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.profile-edit-emoji-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.profile-edit-emoji-btn.active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.profile-edit-image-wrap {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.profile-edit-image-preview {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.profile-edit-image-circle {
+  position: absolute;
+  inset: 0;
+}
+
+.profile-edit-image-remove {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.15s;
+  z-index: 1;
+}
+
+.profile-edit-image-remove:hover {
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.profile-edit-image-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.profile-edit-color-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.profile-edit-color-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.profile-edit-color-btn:hover {
+  transform: scale(1.08);
+}
+
+.profile-edit-color-btn.active {
+  border-color: var(--text);
+  box-shadow: 0 0 0 1px var(--surface);
+}
+
+.presented-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.presented-list li {
+  border-bottom: 1px solid var(--border);
+}
+
+.presented-list li:last-child {
+  border-bottom: none;
+}
+
+.presented-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 20px;
+  transition: background 0.15s;
+}
+
+.presented-list-item:hover {
+  background: var(--surface-alt);
+}
+
+.presented-list-book {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.presented-list-meta {
+  font-size: 0.85rem;
+  color: var(--text-sub);
 }
 
 /* ── Section headers ────────────────────────────────── */
@@ -624,6 +823,16 @@ textarea {
 .presenter-name {
   font-size: 0.95rem;
   font-weight: 500;
+}
+
+.presenter-name-link {
+  color: var(--text);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.presenter-name-link:hover {
+  color: var(--primary);
 }
 
 .presenter-count {
