@@ -7,11 +7,11 @@ import {
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  Alert,
   Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../context/MemberContext';
+import { useAlert } from '../context/AlertContext';
 import { getMembers, getMeetings, updateMember } from '../lib/db';
 import { Member, Meeting } from '../lib/types';
 import { ProfileCard } from '../components/ProfileCard';
@@ -30,6 +30,7 @@ function formatDate(ts: number) {
 
 export default function MypageScreen() {
   const { currentMemberId, nickname, setNickname, setCurrentMemberId } = useMember();
+  const { showAlert } = useAlert();
   const router = useRouter();
   const [members, setMembers] = useState<Member[]>([]);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -74,9 +75,9 @@ export default function MypageScreen() {
       });
       const [mb] = await Promise.all([getMembers()]);
       setMembers(mb);
-      Alert.alert('저장 완료', '프로필이 저장되었어요.');
+      showAlert('저장 완료', '프로필이 저장되었어요.');
     } catch {
-      Alert.alert('오류', '저장 중 오류가 발생했어요.');
+      showAlert('오류', '저장 중 오류가 발생했어요.');
     } finally {
       setSaving(false);
     }
@@ -85,7 +86,7 @@ export default function MypageScreen() {
   const pickImage = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('권한 필요', '사진을 선택하려면 갤러리 접근 권한이 필요해요.');
+      showAlert('권한 필요', '사진을 선택하려면 갤러리 접근 권한이 필요해요.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -103,7 +104,7 @@ export default function MypageScreen() {
   const removeImage = () => setProfileImageUrl('');
 
   const handleChangeUser = () => {
-    Alert.alert('다른 사용자로 변경', '다른 멤버로 전환할까요?', [
+    showAlert('다른 사용자로 변경', '다른 멤버로 전환할까요?', [
       { text: '취소', style: 'cancel' },
       {
         text: '변경',

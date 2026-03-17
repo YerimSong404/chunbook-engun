@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
+import { useAlert } from '../../context/AlertContext';
 import { getMembers, addMeeting, getSettings, getMeetings } from '../../lib/db';
 import { Member, AppSettings } from '../../lib/types';
 import { Picker } from '@react-native-picker/picker';
@@ -20,6 +21,7 @@ const emptyForm = {
 
 export default function NewMeetingScreen() {
     const { currentMemberId } = useMember();
+    const { showAlert } = useAlert();
     const router = useRouter();
 
     const [members, setMembers] = useState<Member[]>([]);
@@ -45,7 +47,7 @@ export default function NewMeetingScreen() {
     const nextMeetingNumber = settings.firstMeetingNumber + meetingsCount;
 
     const handleSubmitMeeting = async () => {
-        if (!form.date || !form.book) return Alert.alert('오류', '날짜와 책 제목은 필수입니다.');
+        if (!form.date || !form.book) return showAlert('오류', '날짜와 책 제목은 필수입니다.');
         const meetingNumberVal = form.meetingNumber.trim()
             ? parseInt(form.meetingNumber)
             : nextMeetingNumber;
@@ -63,7 +65,7 @@ export default function NewMeetingScreen() {
         };
 
         await addMeeting(data);
-        Alert.alert('성공', '모임이 등록되었습니다!', [
+        showAlert('성공', '모임이 등록되었습니다!', [
             { text: '확인', onPress: () => router.push('/(tabs)/home') }
         ]);
     };
@@ -71,7 +73,7 @@ export default function NewMeetingScreen() {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#0070f3" />
+                <ActivityIndicator size="large" color="#8C7D6B" />
             </View>
         );
     }

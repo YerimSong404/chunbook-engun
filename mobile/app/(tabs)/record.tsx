@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
+import { useAlert } from '../../context/AlertContext';
 import { getMeetings, getMembers, getAnswers, saveAnswer, updateMeeting } from '../../lib/db';
 import { Meeting, Member } from '../../lib/types';
 import { Picker } from '@react-native-picker/picker';
@@ -50,6 +51,7 @@ function AbsentSelector({
 
 export default function RecordScreen() {
     const { currentMemberId } = useMember();
+    const { showAlert } = useAlert();
     const router = useRouter();
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [members, setMembers] = useState<Member[]>([]);
@@ -108,7 +110,7 @@ export default function RecordScreen() {
 
         await Promise.all(promises);
         setSaving(null);
-        Alert.alert('저장 완료', '답변이 성공적으로 저장되었습니다.');
+        showAlert('저장 완료', '답변이 성공적으로 저장되었습니다.');
     };
 
     const handleChange = (memberId: string, topicIndex: number, value: string) => {

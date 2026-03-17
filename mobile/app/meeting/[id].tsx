@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, Alert, TextInput, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Image, Dimensions } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
+import { useAlert } from '../../context/AlertContext';
 import { getMeeting, getMembers, getAnswers, updateMeeting } from '../../lib/db';
 import { Meeting, Member, Answer } from '../../lib/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function MeetingDetailScreen() {
     const { currentMemberId } = useMember();
+    const { showAlert } = useAlert();
     const router = useRouter();
     const { id: meetingId } = useLocalSearchParams<{ id: string }>();
 
@@ -63,7 +66,7 @@ export default function MeetingDetailScreen() {
 
     const handleComplete = async () => {
         if (!meetingId) return;
-        Alert.alert('모임 완료', '모임을 완료 처리하시겠습니까?', [
+        showAlert('모임 완료', '모임을 완료 처리하시겠습니까?', [
             { text: '취소', style: 'cancel' },
             {
                 text: '완료',
@@ -71,10 +74,10 @@ export default function MeetingDetailScreen() {
                     try {
                         await updateMeeting(meetingId, { status: 'done' });
                         setMeeting(prev => prev ? { ...prev, status: 'done' } : null);
-                        Alert.alert('알림', '완료 처리되었습니다.');
+                        showAlert('알림', '완료 처리되었습니다.');
                     } catch (e) {
                         console.error(e);
-                        Alert.alert('오류', '완료 처리 중 오류가 발생했습니다.');
+                        showAlert('오류', '완료 처리 중 오류가 발생했습니다.');
                     }
                 }
             }
@@ -83,7 +86,7 @@ export default function MeetingDetailScreen() {
 
     const handleRevertComplete = async () => {
         if (!meetingId) return;
-        Alert.alert('완료 취소', '모임 완료를 취소하시겠습니까?', [
+        showAlert('완료 취소', '모임 완료를 취소하시겠습니까?', [
             { text: '아니오', style: 'cancel' },
             {
                 text: '예',
@@ -91,10 +94,10 @@ export default function MeetingDetailScreen() {
                     try {
                         await updateMeeting(meetingId, { status: 'upcoming' });
                         setMeeting(prev => prev ? { ...prev, status: 'upcoming' } : null);
-                        Alert.alert('알림', '완료가 취소되었습니다.');
+                        showAlert('알림', '완료가 취소되었습니다.');
                     } catch (e) {
                         console.error(e);
-                        Alert.alert('오류', '완료 취소 중 오류가 발생했습니다.');
+                        showAlert('오류', '완료 취소 중 오류가 발생했습니다.');
                     }
                 }
             }
@@ -128,7 +131,7 @@ export default function MeetingDetailScreen() {
             setIsEditingTopics(false);
         } catch (e) {
             console.error(e);
-            Alert.alert('오류', '발제 저장 중 오류가 발생했습니다.');
+            showAlert('오류', '발제 저장 중 오류가 발생했습니다.');
         } finally {
             setSavingTopics(false);
         }
@@ -137,7 +140,7 @@ export default function MeetingDetailScreen() {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#0070f3" />
+                <ActivityIndicator size="large" color="#8C7D6B" />
             </View>
         );
     }
@@ -153,7 +156,12 @@ export default function MeetingDetailScreen() {
     return (
         <View style={styles.container}>
             {selectedTopicIndex === null && (
-                <View style={styles.heroBackground}>
+                <LinearGradient
+                    colors={['#8C7D6B', '#695D4A', '#D4A373']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.heroBackground}
+                >
                     <SafeAreaView edges={['top']} style={{ flex: 1 }}>
                         <View style={styles.heroHeaderRow}>
                             <TouchableOpacity onPress={() => router.back()} style={styles.heroBackBtn}>
@@ -172,7 +180,7 @@ export default function MeetingDetailScreen() {
                             )}
                         </View>
                     </SafeAreaView>
-                </View>
+                </LinearGradient>
             )}
 
             <ScrollView
@@ -213,7 +221,7 @@ export default function MeetingDetailScreen() {
                                     style={[styles.heroMetaBadge, styles.heroMetaBadgePrimary]}
                                     onPress={() => router.push(`/member/${meeting.presenterMemberId}`)}
                                 >
-                                    <Feather name="mic" size={14} color="#0070f3" />
+                                    <Feather name="mic" size={14} color="#8C7D6B" />
                                     <Text style={[styles.heroMetaBadgeText, styles.heroMetaBadgePrimaryText]}>
                                         발제자: {getMemberName(meeting.presenterMemberId)}
                                     </Text>
@@ -364,7 +372,6 @@ const styles = StyleSheet.create({
 
     // Hero Section
     heroBackground: {
-        backgroundColor: '#9D48B4', // Fallback
         paddingBottom: 20,
         ...StyleSheet.absoluteFillObject,
         height: 250,
@@ -438,14 +445,14 @@ const styles = StyleSheet.create({
     },
     coverPlaceholderIcon: { fontSize: 40 },
     heroTextContainer: { alignItems: 'center' },
-    heroMeetingNumber: { fontSize: 12, fontWeight: '600', color: '#0070f3', marginBottom: 6, letterSpacing: 0.5 },
+    heroMeetingNumber: { fontSize: 12, fontWeight: '600', color: 'rgba(255,255,255,0.95)', marginBottom: 6, letterSpacing: 0.5 },
     heroTitle: { fontSize: 24, fontWeight: '800', color: '#111', textAlign: 'center', marginBottom: 6 },
     heroAuthor: { fontSize: 14, color: '#666', marginBottom: 16 },
     heroMetaRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10 },
     heroMetaBadge: { flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#eee', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 6 },
     heroMetaBadgeText: { fontSize: 12, fontWeight: '600', color: '#555' },
-    heroMetaBadgePrimary: { backgroundColor: '#e6f4fe' },
-    heroMetaBadgePrimaryText: { color: '#0070f3' },
+    heroMetaBadgePrimary: { backgroundColor: 'rgba(255,255,255,0.25)' },
+    heroMetaBadgePrimaryText: { color: '#8C7D6B' },
     dday: { marginLeft: 6, fontSize: 11, fontWeight: '700', color: '#FFF', backgroundColor: '#8C7D6B', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6 },
 
     // Topics Section
@@ -460,19 +467,19 @@ const styles = StyleSheet.create({
     editCard: { backgroundColor: '#fff', borderRadius: 6, padding: 16, borderWidth: 1, borderColor: '#eee', marginBottom: 20 },
     editHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     editLabel: { fontSize: 13, fontWeight: '600', color: '#444' },
-    addTopicBtnText: { color: '#0070f3', fontSize: 13, fontWeight: '600' },
+    addTopicBtnText: { color: '#8C7D6B', fontSize: 13, fontWeight: '600' },
     topicEditRow: { flexDirection: 'row', gap: 8, marginBottom: 8, alignItems: 'center' },
     topicNumBadge: {
-        width: 26, height: 26, borderRadius: 13, backgroundColor: '#e6f4fe',
+        width: 26, height: 26, borderRadius: 13, backgroundColor: '#F0EBE1',
         justifyContent: 'center', alignItems: 'center',
     },
-    topicNumText: { color: '#0070f3', fontSize: 12, fontWeight: '700' },
+    topicNumText: { color: '#8C7D6B', fontSize: 12, fontWeight: '700' },
     input: { backgroundColor: '#fff', borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 10, fontSize: 14 },
     removeTopicBtn: { padding: 6 },
     removeTopicText: { color: '#d32f2f', fontSize: 16, fontWeight: '700' },
     editActionsRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
     btn: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 6, alignItems: 'center', justifyContent: 'center' },
-    btnPrimary: { backgroundColor: '#0070f3' },
+    btnPrimary: { backgroundColor: '#8C7D6B' },
     btnPrimaryText: { color: '#fff', fontSize: 13, fontWeight: '600' },
     btnGhost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: '#ddd' },
     btnGhostText: { color: '#555', fontSize: 13, fontWeight: '600' },
@@ -493,10 +500,10 @@ const styles = StyleSheet.create({
         // Instead of hover effect, rely on activeOpacity
     },
     topicCardBadge: {
-        width: 26, height: 26, borderRadius: 13, backgroundColor: '#e6f4fe',
+        width: 26, height: 26, borderRadius: 13, backgroundColor: '#F0EBE1',
         justifyContent: 'center', alignItems: 'center', marginRight: 12,
     },
-    topicCardBadgeText: { color: '#0070f3', fontSize: 13, fontWeight: '700' },
+    topicCardBadgeText: { color: '#8C7D6B', fontSize: 13, fontWeight: '700' },
     topicCardText: { flex: 1, fontSize: 15, color: '#111', lineHeight: 22 },
 
     // Detail View
@@ -506,13 +513,13 @@ const styles = StyleSheet.create({
     topicDetailHeroCard: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        backgroundColor: '#e6f4fe',
+        backgroundColor: '#F0EBE1',
         borderRadius: 6,
         padding: 20,
         marginBottom: 24,
     },
     topicDetailHeroBadge: {
-        width: 28, height: 28, borderRadius: 14, backgroundColor: '#0070f3',
+        width: 28, height: 28, borderRadius: 14, backgroundColor: '#8C7D6B',
         justifyContent: 'center', alignItems: 'center', marginRight: 12,
         shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 3, elevation: 2,
     },

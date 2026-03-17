@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Picker } from '@react-native-picker/picker';
+import { useAlert } from '../../context/AlertContext';
 import {
     getMembers, addMember, deleteMember,
     getMeetings, addMeeting, updateMeeting, deleteMeeting,
@@ -29,6 +30,7 @@ const emptyForm = {
 type Tab = 'meetings' | 'members' | 'settings';
 
 export default function AdminScreen() {
+    const { showAlert } = useAlert();
     const [tab, setTab] = useState<Tab>('meetings');
     const [members, setMembers] = useState<Member[]>([]);
     const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -70,7 +72,7 @@ export default function AdminScreen() {
     };
 
     const handleDeleteMember = async (id: string) => {
-        Alert.alert('멤버 삭제', '멤버를 삭제할까요?', [
+        showAlert('멤버 삭제', '멤버를 삭제할까요?', [
             { text: '취소', style: 'cancel' },
             {
                 text: '삭제', style: 'destructive', onPress: async () => {
@@ -84,12 +86,12 @@ export default function AdminScreen() {
     // ── Settings ──
     const handleSaveSettings = async () => {
         const num = parseInt(firstNumInput);
-        if (isNaN(num) || num < 1) return Alert.alert('오류', '1 이상의 숫자를 입력해주세요.');
+        if (isNaN(num) || num < 1) return showAlert('오류', '1 이상의 숫자를 입력해주세요.');
         setSettingsSaving(true);
         await updateSettings({ firstMeetingNumber: num });
         setSettings({ firstMeetingNumber: num });
         setSettingsSaving(false);
-        Alert.alert('알림', '저장됐어요!');
+        showAlert('알림', '저장됐어요!');
     };
 
     // ── Meetings ──
@@ -126,7 +128,7 @@ export default function AdminScreen() {
 
     const handleSubmitMeeting = async () => {
         if (!editId) return;
-        if (!form.date || !form.book) return Alert.alert('오류', '날짜와 책 제목은 필수입니다.');
+        if (!form.date || !form.book) return showAlert('오류', '날짜와 책 제목은 필수입니다.');
         const meetingNumberVal = form.meetingNumber.trim()
             ? parseInt(form.meetingNumber)
             : undefined;
@@ -150,7 +152,7 @@ export default function AdminScreen() {
     };
 
     const handleDeleteMeeting = async (id: string) => {
-        Alert.alert('모임 삭제', '모임을 삭제할까요?', [
+        showAlert('모임 삭제', '모임을 삭제할까요?', [
             { text: '취소', style: 'cancel' },
             {
                 text: '삭제', style: 'destructive', onPress: async () => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, ActivityIndicator, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { getMeetings, getMembers } from '../../lib/db';
@@ -45,16 +45,10 @@ export default function HomeScreen() {
     const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? '미정';
 
     return (
+        <View style={styles.wrapper}>
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             <View style={styles.header}>
                 <Text style={styles.pageTitle}>다가오는 모임</Text>
-                <TouchableOpacity 
-                    style={styles.newBtn} 
-                    onPress={() => router.push('/meeting/new')}
-                >
-                    <Feather name="plus" size={16} color="#FFF" style={{ marginRight: 4 }} />
-                    <Text style={styles.newBtnText}>새 모임</Text>
-                </TouchableOpacity>
             </View>
 
             {next ? (
@@ -107,6 +101,16 @@ export default function HomeScreen() {
                 </View>
             )}
         </ScrollView>
+
+        <TouchableOpacity
+            style={styles.fab}
+            onPress={() => router.push('/meeting/new')}
+            activeOpacity={0.85}
+        >
+            <Feather name="plus" size={24} color="#FFF" />
+            <Text style={styles.fabLabel}>새 모임</Text>
+        </TouchableOpacity>
+        </View>
     );
 }
 
@@ -117,18 +121,19 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#FDFBF7'
     },
-    container: {
+    wrapper: {
         flex: 1,
         backgroundColor: '#FDFBF7',
     },
+    container: {
+        flex: 1,
+        backgroundColor: 'transparent',
+    },
     content: {
         padding: 24,
-        paddingBottom: 40,
+        paddingBottom: 100,
     },
     header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: 24,
     },
     pageTitle: {
@@ -137,18 +142,28 @@ const styles = StyleSheet.create({
         color: '#2C2724',
         letterSpacing: -0.5,
     },
-    newBtn: {
+    fab: {
+        position: 'absolute',
+        right: 24,
+        bottom: Platform.OS === 'ios' ? 34 : 24,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
         backgroundColor: '#8C7D6B',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 6,
+        paddingVertical: 14,
+        paddingHorizontal: 20,
+        borderRadius: 28,
+        elevation: 8,
+        shadowColor: '#3A3125',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        gap: 8,
     },
-    newBtnText: {
+    fabLabel: {
         color: '#FFF',
-        fontWeight: '500',
-        fontSize: 14,
+        fontWeight: '600',
+        fontSize: 15,
     },
     card: {
         backgroundColor: '#FFFFFF',
