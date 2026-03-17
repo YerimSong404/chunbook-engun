@@ -8,6 +8,7 @@ import { useToast } from '@/context/ToastContext';
 import { useIsAdmin } from '@/lib/hooks';
 import { addMeeting } from '@/lib/db';
 import AppShell from '@/components/AppShell';
+import { BookCoverSearch } from '@/components/BookCoverSearch';
 
 const emptyForm = {
     date: '',
@@ -46,8 +47,8 @@ export default function NewMeetingPage() {
     const nextMeetingNumber = settings.firstMeetingNumber + meetings.length;
 
     const handleSubmitMeeting = async () => {
-        if (!form.date || !form.book) {
-            showError('날짜와 책 제목은 필수예요.');
+        if (!form.date) {
+            showError('모임 날짜를 선택해 주세요.');
             return;
         }
         const meetingNumberVal = form.meetingNumber.trim()
@@ -114,7 +115,7 @@ export default function NewMeetingPage() {
                         onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">책 제목 *</label>
+                    <label className="form-label">책 제목</label>
                     <input className="form-input" placeholder="예: 채식주의자" value={form.book}
                         onChange={(e) => setForm((p) => ({ ...p, book: e.target.value }))} />
                 </div>
@@ -124,34 +125,32 @@ export default function NewMeetingPage() {
                         onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">책 표지 이미지 URL <span style={{ fontWeight: 400, opacity: 0.6 }}>(선택)</span></label>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                    <label className="form-label">책 표지 <span style={{ fontWeight: 400, opacity: 0.6 }}>(선택)</span></label>
+                    <BookCoverSearch
+                        bookTitle={form.book}
+                        author={form.author}
+                        onSelect={(url) => setForm((p) => ({ ...p, coverImageUrl: url }))}
+                        currentCoverUrl={form.coverImageUrl.trim() || undefined}
+                        disabled={submitting}
+                    />
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginTop: 12 }}>
                         <input
                             className="form-input"
                             style={{ flex: 1 }}
-                            placeholder="https://image.yes24.com/..."
+                            placeholder="또는 이미지 URL 직접 입력 (알라딘·예스24 등)"
                             value={form.coverImageUrl}
                             onChange={(e) => setForm((p) => ({ ...p, coverImageUrl: e.target.value }))}
                         />
                         {form.coverImageUrl.trim() && (
-                            <div style={{
-                                flexShrink: 0, width: 64, height: 88,
-                                borderRadius: 8, overflow: 'hidden',
-                                border: '1.5px solid var(--border)',
-                                background: 'var(--surface-alt)',
-                            }}>
+                            <div className="cover-preview-thumb">
                                 <img
                                     src={form.coverImageUrl}
                                     alt="표지 미리보기"
-                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                                    onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
                                 />
                             </div>
                         )}
                     </div>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-sub)', marginTop: 6 }}>
-                        💡 알라딘/예스24 책 상세페이지에서 표지 이미지 우클릭 → "이미지 주소 복사"
-                    </p>
                 </div>
                 <div className="form-group">
                     <label className="form-label">발제자</label>

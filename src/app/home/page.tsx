@@ -59,7 +59,7 @@ export default function HomePage() {
                                 {next.meetingNumber != null ? `제${next.meetingNumber}회 독서모임` : '다음 모임'}
                             </div>
                             <div style={{ fontSize: '1.6rem', fontWeight: 700, color: 'var(--text)', marginBottom: 0, wordBreak: 'keep-all', paddingRight: '100px', lineHeight: 1.4, letterSpacing: '-0.5px' }}>
-                                『{next.book}』
+                                {next.book ? `『${next.book}』` : '책·발제자 미정'}
                             </div>
                         </div>
 
@@ -81,9 +81,11 @@ export default function HomePage() {
                                 </div>
                             )}
 
+                            {(next.book || next.author) && (
                             <div style={{ fontSize: '1rem', color: 'var(--text)', fontWeight: 500, marginBottom: 20 }}>
-                                {next.author}
+                                {next.author || '\u00A0'}
                             </div>
+                            )}
 
                             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
                                 <span style={{ 

@@ -178,7 +178,7 @@ export default function RecordPage() {
                             <option value="">— 모임을 선택하세요 —</option>
                             {meetings.map((m) => (
                                 <option key={m.id} value={m.id}>
-                                    {m.meetingNumber != null ? `제${m.meetingNumber}회 · ` : ''}{formatDate(m.date, 'short')} 『{m.book}』
+                                    {m.meetingNumber != null ? `제${m.meetingNumber}회 · ` : ''}{formatDate(m.date, 'short')} 『{m.book || '책 미정'}』
                                 </option>
                             ))}
                         </select>

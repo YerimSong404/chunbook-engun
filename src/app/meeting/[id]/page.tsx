@@ -156,10 +156,10 @@ export default function MeetingDetailPage() {
                             {meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : '독서모임'}
                         </div>
                         <h1 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 8px 0', color: 'var(--text)', wordBreak: 'keep-all' }}>
-                            {meeting.book}
+                            {meeting.book || '책 미정'}
                         </h1>
                         <div style={{ fontSize: '0.95rem', color: 'var(--text-sub)', marginBottom: 16 }}>
-                            {meeting.author}
+                            {meeting.author || '\u00A0'}
                         </div>
 
                         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>

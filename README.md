@@ -41,6 +41,16 @@ pnpm dev
 - **스타일링**: CSS Modules / Global CSS 변수 (바닐라 CSS 기반 다크모드 및 토큰 시스템 설계)
 - **데이터베이스/저장소**: 클라이언트 사이드 스토리지 (IndexedDB) 활용 (`lib/db.ts` 참조)
 
+## 📖 책 표지 검색 (선택)
+
+모임 등록 시 책 제목·저자로 표지를 검색할 수 있습니다.
+
+- **한국 도서**: [알라딘 API 키 발급](https://www.aladin.co.kr/ttb/wblog_manage.aspx)에서 사용할 URL을 등록한 뒤 발급받은 **TTBKey**를 `.env.local`에 추가하면 **알라딘 책 검색**이 우선 사용됩니다.
+  ```env
+  ALADIN_TTB_KEY=발급받은_TTB키
+  ```
+- **미설정 시**: API 키 없이 Open Library 검색만 사용됩니다(해외 도서 위주).
+
 ## 📌 향후 개선 사항
 
 - 외부 클라우드 데이터베이스(Supabase, Firebase 등)를 연동한 실시간 동기화 지원

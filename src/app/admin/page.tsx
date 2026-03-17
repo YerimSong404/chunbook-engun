@@ -171,7 +171,7 @@ export default function AdminPage() {
                                                     borderRadius: 8, padding: '2px 8px', flexShrink: 0,
                                                 }}>제{m.meetingNumber}회</span>
                                             )}
-                                            <span style={{ fontWeight: 600 }}>『{m.book}』</span>
+                                            <span style={{ fontWeight: 600 }}>『{m.book || '책 미정'}』</span>
                                         </div>
                                         <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)' }}>
                                             {formatDate(m.date, 'dateOnly')} · {getMemberName(members, m.presenterMemberId, '발제자 미정')}

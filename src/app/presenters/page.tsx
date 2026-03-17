@@ -115,7 +115,7 @@ export default function PresentersPage() {
                                                 <div className="presenter-name" style={{ opacity: 0.55 }}>{m.name}</div>
                                                 {mt && (
                                                     <div className="presenter-count">
-                                                        『{mt.book}』({formatDate(mt.date, 'short')})
+                                                        『{mt.book || '책 미정'}』({formatDate(mt.date, 'short')})
                                                     </div>
                                                 )}
                                             </div>
@@ -145,7 +145,7 @@ export default function PresentersPage() {
                                         <div className="presenter-name">{m.name}</div>
                                         {list.length > 0 && (
                                             <div className="presenter-count">
-                                                {list.map((mt) => `『${mt.book}』`).join(' · ')}
+                                                {list.map((mt) => `『${mt.book || '책 미정'}』`).join(' · ')}
                                             </div>
                                         )}
                                     </div>

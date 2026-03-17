@@ -189,7 +189,7 @@ export default function PastMeetingsPage() {
                                                 }}>제{m.meetingNumber}회</span>
                                             )}
                                             <span style={{ fontWeight: 700, fontSize: '1.05rem', color: 'var(--text)' }}>
-                                                {m.book.length > 15 ? m.book.slice(0, 15) + '...' : m.book}
+                                                {(m.book || '책 미정').length > 15 ? (m.book || '책 미정').slice(0, 15) + '...' : (m.book || '책 미정')}
                                             </span>
                                         </div>
                                         <div style={{ fontSize: '0.82rem', color: 'var(--text-sub)', display: 'flex', gap: 8, alignItems: 'center' }}>
