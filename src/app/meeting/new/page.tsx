@@ -8,7 +8,7 @@ import { useToast } from '@/context/ToastContext';
 import { useIsAdmin } from '@/lib/hooks';
 import { addMeeting } from '@/lib/db';
 import AppShell from '@/components/AppShell';
-import { BookCoverSearch } from '@/components/BookCoverSearch';
+import { BookCoverSection } from '@/components/BookCoverSection';
 
 const emptyForm = {
     date: '',
@@ -125,32 +125,13 @@ export default function NewMeetingPage() {
                         onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">책 표지 <span style={{ fontWeight: 400, opacity: 0.6 }}>(선택)</span></label>
-                    <BookCoverSearch
+                    <BookCoverSection
                         bookTitle={form.book}
                         author={form.author}
-                        onSelect={(url) => setForm((p) => ({ ...p, coverImageUrl: url }))}
-                        currentCoverUrl={form.coverImageUrl.trim() || undefined}
+                        coverImageUrl={form.coverImageUrl}
+                        onChange={(url) => setForm((p) => ({ ...p, coverImageUrl: url }))}
                         disabled={submitting}
                     />
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginTop: 12 }}>
-                        <input
-                            className="form-input"
-                            style={{ flex: 1 }}
-                            placeholder="또는 이미지 URL 직접 입력 (알라딘·예스24 등)"
-                            value={form.coverImageUrl}
-                            onChange={(e) => setForm((p) => ({ ...p, coverImageUrl: e.target.value }))}
-                        />
-                        {form.coverImageUrl.trim() && (
-                            <div className="cover-preview-thumb">
-                                <img
-                                    src={form.coverImageUrl}
-                                    alt="표지 미리보기"
-                                    onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = 'none'; }}
-                                />
-                            </div>
-                        )}
-                    </div>
                 </div>
                 <div className="form-group">
                     <label className="form-label">발제자</label>

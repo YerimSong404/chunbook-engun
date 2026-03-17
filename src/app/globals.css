@@ -714,6 +714,135 @@ textarea {
   accent-color: var(--primary);
 }
 
+/* ── Book cover section (접기/펼치기 + 검색|업로드) ─────── */
+.book-cover-section {
+  margin-bottom: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.book-cover-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  font-family: var(--font);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.book-cover-section-header:hover:not(:disabled) {
+  background: var(--surface-alt);
+}
+
+.book-cover-section-header:disabled {
+  cursor: default;
+  opacity: 0.7;
+}
+
+.book-cover-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.book-cover-section-title .muted {
+  font-weight: 400;
+  opacity: 0.6;
+}
+
+.book-cover-section-preview {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.book-cover-section-preview .cover-preview-thumb.inline {
+  width: 36px;
+  height: 50px;
+}
+
+.book-cover-section-preview .rotated {
+  transform: rotate(180deg);
+}
+
+.book-cover-section-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.book-cover-mode-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  padding-top: 14px;
+}
+
+.book-cover-mode-tabs button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-sub);
+  background: var(--surface-alt);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.15s, color 0.15s;
+}
+
+.book-cover-mode-tabs button.active {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+.book-cover-mode-tabs button:not(.active):hover {
+  color: var(--text);
+}
+
+.book-cover-url-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 12px;
+}
+
+.book-cover-url-row .form-input {
+  flex: 1;
+}
+
+.book-cover-upload {
+  padding-top: 4px;
+}
+
+.book-cover-file-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.book-cover-upload-hint {
+  font-size: 0.78rem;
+  color: var(--text-sub);
+  margin-top: 8px;
+}
+
 /* ── Book cover search ────────────────────────────────── */
 .book-cover-search {
   margin-bottom: 16px;
