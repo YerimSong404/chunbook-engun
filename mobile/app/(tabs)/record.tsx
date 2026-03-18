@@ -62,6 +62,7 @@ export default function RecordScreen() {
     const [absentIds, setAbsentIds] = useState<string[]>([]);
     const [absentSaving, setAbsentSaving] = useState(false);
     const [selectedTopicIndex, setSelectedTopicIndex] = useState<number | null>(null);
+    const [answerHeights, setAnswerHeights] = useState<Record<string, number>>({});
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -292,13 +293,21 @@ export default function RecordScreen() {
                                             </View>
                                         </View>
                                         <TextInput
-                                            style={styles.textarea}
+                                            style={[
+                                                styles.textarea,
+                                                { height: Math.max(140, answerHeights[`${mb.id}_${selectedTopicIndex}`] ?? 140) },
+                                            ]}
                                             multiline
                                             placeholder={`${mb.name}의 답변을 입력하세요`}
                                             placeholderTextColor="#C1B7A7"
                                             value={val}
                                             onChangeText={(text) => handleChange(mb.id, selectedTopicIndex, text)}
                                             textAlignVertical="top"
+                                            onContentSizeChange={(e) => {
+                                                const { height } = e.nativeEvent.contentSize;
+                                                const key = `${mb.id}_${selectedTopicIndex}`;
+                                                setAnswerHeights((prev) => ({ ...prev, [key]: height + 40 }));
+                                            }}
                                         />
                                     </View>
                                 );

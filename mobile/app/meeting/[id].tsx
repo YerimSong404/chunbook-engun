@@ -25,6 +25,7 @@ export default function MeetingDetailScreen() {
     const [isEditingTopics, setIsEditingTopics] = useState(false);
     const [editingTopics, setEditingTopics] = useState<string[]>([]);
     const [savingTopics, setSavingTopics] = useState(false);
+    const [topicHeights, setTopicHeights] = useState<Record<number, number>>({});
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -324,10 +325,20 @@ export default function MeetingDetailScreen() {
                                         <Text style={styles.topicNumText}>{i + 1}</Text>
                                     </View>
                                     <TextInput
-                                        style={[styles.input, { flex: 1, marginBottom: 0 }]}
+                                        style={[
+                                            styles.input,
+                                            styles.inputMultiline,
+                                            { flex: 1, marginBottom: 0, height: Math.max(44, topicHeights[i] ?? 44) },
+                                        ]}
                                         placeholder={`주제 ${i + 1}`}
                                         value={t}
                                         onChangeText={(val) => handleTopicChange(i, val)}
+                                        multiline
+                                        textAlignVertical="top"
+                                        onContentSizeChange={(e) => {
+                                            const height = e.nativeEvent.contentSize.height + 20;
+                                            setTopicHeights((prev) => ({ ...prev, [i]: height }));
+                                        }}
                                     />
                                     {editingTopics.length > 3 && (
                                         <TouchableOpacity onPress={() => removeTopicSlot(i)} style={styles.removeTopicBtn}>
@@ -513,10 +524,11 @@ const styles = StyleSheet.create({
     editHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
     editLabel: { fontSize: 13, fontWeight: '600', color: '#4A4238' },
     addTopicBtnText: { color: '#8C7D6B', fontSize: 13, fontWeight: '600' },
-    topicEditRow: { flexDirection: 'row', gap: 8, marginBottom: 8, alignItems: 'center' },
+    topicEditRow: { flexDirection: 'row', gap: 8, marginBottom: 8, alignItems: 'flex-start' },
     topicNumBadge: { width: 26, height: 26, borderRadius: 13, backgroundColor: '#F0EBE1', justifyContent: 'center', alignItems: 'center' },
     topicNumText: { color: '#8C7D6B', fontSize: 12, fontWeight: '700' },
     input: { backgroundColor: '#FDFBF7', borderWidth: 1, borderColor: '#EBE5D9', borderRadius: 8, padding: 10, fontSize: 14 },
+    inputMultiline: { paddingTop: 10, paddingBottom: 10 },
     removeTopicBtn: { padding: 6 },
     removeTopicText: { color: '#C45C4A', fontSize: 16, fontWeight: '700' },
     editActionsRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
