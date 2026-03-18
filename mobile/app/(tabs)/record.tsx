@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
@@ -63,6 +63,8 @@ export default function RecordScreen() {
     const [absentSaving, setAbsentSaving] = useState(false);
     const [selectedTopicIndex, setSelectedTopicIndex] = useState<number | null>(null);
     const [answerHeights, setAnswerHeights] = useState<Record<string, number>>({});
+    const scrollRef = useRef<ScrollView>(null);
+    const layoutRef = useRef<{ answersContainerY: number; cardY: Record<string, number> }>({ answersContainerY: 0, cardY: {} });
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -144,12 +146,29 @@ export default function RecordScreen() {
     const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? id;
     const presentMembers = members.filter((m) => !absentIds.includes(m.id));
 
+    const scrollToFocusedCard = (memberId: string) => {
+        setTimeout(() => {
+            const { answersContainerY, cardY } = layoutRef.current;
+            const y = answersContainerY + (cardY[memberId] ?? 0) - 100;
+            scrollRef.current?.scrollTo({ y: Math.max(0, y), animated: true });
+        }, 100);
+    };
+
     return (
         <KeyboardAvoidingView 
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={styles.container}
+            keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
-            <ScrollView contentContainerStyle={styles.content}>
+            <ScrollView
+                ref={scrollRef}
+                contentContainerStyle={[
+                    styles.content,
+                    selectedTopicIndex !== null && styles.contentWithKeyboardPadding,
+                ]}
+                keyboardShouldPersistTaps="handled"
+                keyboardDismissMode="on-drag"
+            >
                 {selectedTopicIndex === null ? (
                     <>
                         <Text style={styles.pageTitle}>서기 기록</Text>
@@ -279,11 +298,22 @@ export default function RecordScreen() {
                             </TouchableOpacity>
                         </View>
 
-                        <View style={styles.answersContainer}>
+                        <View
+                            style={styles.answersContainer}
+                            onLayout={(e) => {
+                                layoutRef.current.answersContainerY = e.nativeEvent.layout.y;
+                            }}
+                        >
                             {presentMembers.map((mb) => {
                                 const val = answers[mb.id]?.[selectedTopicIndex] ?? '';
                                 return (
-                                    <View key={mb.id} style={styles.answerCard}>
+                                    <View
+                                        key={mb.id}
+                                        style={styles.answerCard}
+                                        onLayout={(e) => {
+                                            layoutRef.current.cardY[mb.id] = e.nativeEvent.layout.y;
+                                        }}
+                                    >
                                         <View style={styles.answerMemberRow}>
                                             <View style={styles.avatar}>
                                                 <Feather name="user" size={16} color="#2C2724" strokeWidth={2.5} />
@@ -303,6 +333,7 @@ export default function RecordScreen() {
                                             value={val}
                                             onChangeText={(text) => handleChange(mb.id, selectedTopicIndex, text)}
                                             textAlignVertical="top"
+                                            onFocus={() => scrollToFocusedCard(mb.id)}
                                             onContentSizeChange={(e) => {
                                                 const { height } = e.nativeEvent.contentSize;
                                                 const key = `${mb.id}_${selectedTopicIndex}`;
@@ -324,6 +355,7 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FDFBF7' },
     container: { flex: 1, backgroundColor: '#FDFBF7' },
     content: { padding: 24, paddingBottom: 60 },
+    contentWithKeyboardPadding: { paddingBottom: 340 },
     pageTitle: { fontSize: 26, fontWeight: '600', color: '#2C2724', marginBottom: 20, letterSpacing: -0.5 },
     formGroup: { marginBottom: 28 },
     label: { fontSize: 13, fontWeight: '600', color: '#7A7265', marginBottom: 8, letterSpacing: 0.5 },
