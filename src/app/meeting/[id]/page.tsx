@@ -131,7 +131,7 @@ export default function MeetingDetailPage() {
                                 <>
                                     {meeting.status === 'upcoming' && (
                                         <button onClick={handleComplete} className="meeting-hero-btn">
-                                            모임 완료 처리
+                                            모임 완료
                                         </button>
                                     )}
                                     {meeting.status === 'done' && (

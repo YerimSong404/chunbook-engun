@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Image } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { useAlert } from '../../context/AlertContext';
 import { getMeeting, getMembers, getAnswers, updateMeeting } from '../../lib/db';
@@ -13,6 +13,7 @@ export default function MeetingDetailScreen() {
     const { currentMemberId } = useMember();
     const { showAlert } = useAlert();
     const router = useRouter();
+    const navigation = useNavigation();
     const { id: meetingId } = useLocalSearchParams<{ id: string }>();
 
     const [meeting, setMeeting] = useState<Meeting | null>(null);
@@ -43,6 +44,16 @@ export default function MeetingDetailScreen() {
             })
             .finally(() => setLoading(false));
     }, [currentMemberId, meetingId, router]);
+
+    // 발제 상세 보기 중일 때 기기 뒤로가기 → 발제 목록으로만 이동 (한 화면씩)
+    useEffect(() => {
+        if (selectedTopicIndex === null) return;
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+            setSelectedTopicIndex(null);
+        });
+        return unsubscribe;
+    }, [navigation, selectedTopicIndex]);
 
     const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? id;
 
@@ -199,46 +210,42 @@ export default function MeetingDetailScreen() {
     // ── 메인 뷰 (버튼 고정 + 히어로·토픽 전체 스크롤) ──
     return (
         <View style={styles.container}>
-            {/* ── 고정 버튼 행만 ScrollView 밖 ── */}
-            <LinearGradient
-                colors={['#8C7D6B', '#695D4A', '#D4A373']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-            >
-                <SafeAreaView edges={['top']}>
-                    <View style={styles.headerRow}>
-                        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn} activeOpacity={0.7}>
-                            <Text style={styles.headerBtnText}>← 뒤로가기</Text>
-                        </TouchableOpacity>
-                        <View style={styles.headerActions}>
-                            <TouchableOpacity
-                                onPress={() => router.push(`/meeting/edit/${meetingId}` as never)}
-                                style={styles.headerBtn}
-                                activeOpacity={0.7}
-                            >
-                                <Feather name="edit-2" size={14} color="#fff" />
-                                <Text style={[styles.headerBtnText, { marginLeft: 4 }]}>수정</Text>
-                            </TouchableOpacity>
-                            {meeting.status === 'upcoming' && (
-                                <TouchableOpacity onPress={handleComplete} style={styles.headerBtn} activeOpacity={0.7}>
-                                    <Text style={styles.headerBtnText}>완료 처리</Text>
-                                </TouchableOpacity>
-                            )}
-                            {meeting.status === 'done' && (
-                                <TouchableOpacity onPress={handleRevertComplete} style={styles.headerBtn} activeOpacity={0.7}>
-                                    <Text style={styles.headerBtnText}>완료 취소</Text>
-                                </TouchableOpacity>
-                            )}
-                        </View>
-                    </View>
-                </SafeAreaView>
-            </LinearGradient>
-
-            {/* ── 히어로 + 토픽 전체 스크롤 ── */}
             <ScrollView
                 style={styles.scrollView}
                 showsVerticalScrollIndicator={false}
+                stickyHeaderIndices={[0]}
             >
+                {/* ── 고정 버튼 행: ScrollView 내부 sticky header ── */}
+                <View style={styles.headerStickyWrap}>
+                    <SafeAreaView edges={['top']}>
+                        <View style={styles.headerRow}>
+                            <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn} activeOpacity={0.7}>
+                                <Text style={styles.headerBtnText}>← 뒤로가기</Text>
+                            </TouchableOpacity>
+                            <View style={styles.headerActions}>
+                                <TouchableOpacity
+                                    onPress={() => router.push(`/meeting/edit/${meetingId}` as never)}
+                                    style={styles.headerBtn}
+                                    activeOpacity={0.7}
+                                >
+                                    <Feather name="edit-2" size={14} color="#695D4A" />
+                                    <Text style={[styles.headerBtnText, { marginLeft: 4 }]}>수정</Text>
+                                </TouchableOpacity>
+                                {meeting.status === 'upcoming' && (
+                                    <TouchableOpacity onPress={handleComplete} style={styles.headerBtn} activeOpacity={0.7}>
+                                        <Text style={styles.headerBtnText}>완료 처리</Text>
+                                    </TouchableOpacity>
+                                )}
+                                {meeting.status === 'done' && (
+                                    <TouchableOpacity onPress={handleRevertComplete} style={styles.headerBtn} activeOpacity={0.7}>
+                                        <Text style={styles.headerBtnText}>완료 취소</Text>
+                                    </TouchableOpacity>
+                                )}
+                            </View>
+                        </View>
+                    </SafeAreaView>
+                </View>
+
                 {/* 히어로: 그라데이션 배경 + 책 표지·제목·정보 */}
                 <LinearGradient
                     colors={['#8C7D6B', '#695D4A', '#D4A373']}
@@ -258,7 +265,7 @@ export default function MeetingDetailScreen() {
                         )}
 
                         <Text style={styles.heroMeetingNumber}>
-                            {meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : '독서모임'}
+                            {meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : ' '}
                         </Text>
                         <Text style={styles.heroTitle}>{meeting.book || '책 미정'}</Text>
                         {!!meeting.author && <Text style={styles.heroAuthor}>{meeting.author}</Text>}
@@ -380,7 +387,12 @@ const styles = StyleSheet.create({
     emptyText: { fontSize: 16, color: '#666' },
     container: { flex: 1, backgroundColor: '#D4A373' }, // gradient 색으로 하단 빈 공간 방지
 
-    // 헤더 버튼 행
+    // 헤더 버튼 행 (발제 키워드와 같은 배경으로 의도적 분리)
+    headerStickyWrap: {
+        backgroundColor: '#FDFBF7',
+        borderBottomWidth: 1,
+        borderBottomColor: '#EBE5D9',
+    },
     headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -394,21 +406,23 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingVertical: 8,
         paddingHorizontal: 12,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: '#F0EBE1',
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: '#EBE5D9',
     },
-    headerBtnText: { color: '#fff', fontSize: 13, fontWeight: '600' },
+    headerBtnText: { color: '#695D4A', fontSize: 13, fontWeight: '600' },
 
-    // 히어로 섹션
+    // 히어로 섹션 (모바일 넉넉한 여백·크기)
     heroContent: {
         alignItems: 'center',
-        paddingHorizontal: 20,
-        paddingTop: 8,
-        paddingBottom: 40,
+        paddingHorizontal: 28,
+        paddingTop: 20,
+        paddingBottom: 48,
     },
     coverShadowWrap: {
-        width: 120,
-        height: 172,
+        width: 140,
+        height: 200,
         borderRadius: 8,
         overflow: 'hidden',
         backgroundColor: '#fff',
@@ -417,47 +431,48 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 16,
         elevation: 10,
-        marginBottom: 20,
+        marginBottom: 24,
     },
     coverImage: { width: '100%', height: '100%' },
     coverPlaceholder: {
-        width: 120,
-        height: 172,
+        width: 140,
+        height: 200,
         borderRadius: 8,
         backgroundColor: 'rgba(255,255,255,0.15)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
+        marginBottom: 24,
     },
     heroMeetingNumber: {
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: '600',
         color: 'rgba(255,255,255,0.8)',
         letterSpacing: 0.8,
-        marginBottom: 6,
+        marginBottom: 8,
         textTransform: 'uppercase',
     },
     heroTitle: {
-        fontSize: 22,
+        fontSize: 26,
         fontWeight: '800',
         color: '#fff',
         textAlign: 'center',
-        marginBottom: 4,
-        lineHeight: 30,
+        marginBottom: 8,
+        lineHeight: 34,
+        paddingHorizontal: 4,
     },
     heroAuthor: {
-        fontSize: 14,
+        fontSize: 15,
         color: 'rgba(255,255,255,0.75)',
-        marginBottom: 16,
+        marginBottom: 20,
     },
-    heroMetaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
+    heroMetaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, justifyContent: 'center' },
     heroBadge: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 5,
+        gap: 6,
         backgroundColor: 'rgba(0,0,0,0.18)',
-        paddingHorizontal: 12,
-        paddingVertical: 6,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
         borderRadius: 20,
     },
     heroBadgePrimary: { backgroundColor: 'rgba(255,255,255,0.22)' },
@@ -483,10 +498,10 @@ const styles = StyleSheet.create({
         backgroundColor: '#FDFBF7',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
-        marginTop: -24,
+        marginTop: -20,
         minHeight: 400,
     },
-    topicsContent: { padding: 20, paddingBottom: 80 },
+    topicsContent: { padding: 24, paddingBottom: 80 },
 
     sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
     sectionTitle: { fontSize: 16, fontWeight: '700', color: '#2C2724' },

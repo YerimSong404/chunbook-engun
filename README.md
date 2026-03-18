@@ -62,6 +62,62 @@ npm start
 
 실기기 테스트 시 PC와 휴대폰이 같은 네트워크에 있어야 하며, 방화벽에서 19000·19001 포트가 막혀 있지 않아야 합니다.
 
+## 모바일 앱 빌드 (설치 파일 만들기)
+
+Expo **EAS Build**로 APK(Android) 또는 IPA(iOS)를 만들어 설치할 수 있습니다.
+
+### 사전 준비
+
+1. [Expo 계정](https://expo.dev) 가입
+2. EAS CLI 설치 (한 번만)
+   ```bash
+   npm install -g eas-cli
+   ```
+3. 로그인
+   ```bash
+   eas login
+   ```
+
+### Android APK (내부 테스트용, 스토어 없이 설치)
+
+설치 파일(.apk) 하나로 팀원에게 배포할 때 적합합니다.
+
+```bash
+cd mobile
+eas build --platform android --profile preview
+```
+
+빌드가 끝나면 [expo.dev](https://expo.dev) 대시보드에서 **APK 다운로드 링크**를 받을 수 있습니다. 링크를 휴대폰으로 보내 받아 설치하면 됩니다.
+
+### Android AAB (Google Play 스토어 제출용)
+
+스토어에 올릴 때는 다음 명령으로 AAB를 만듭니다.
+
+```bash
+cd mobile
+eas build --platform android --profile production
+```
+
+생성된 `.aab` 파일을 Google Play Console에 업로드해 앱을 배포합니다.
+
+### iOS (Apple 기기)
+
+Apple Developer 계정이 필요합니다.
+
+```bash
+cd mobile
+eas build --platform ios --profile production
+```
+
+### 프로필 정리 (eas.json 기준)
+
+| 프로필 | 용도 | Android | iOS |
+|--------|------|---------|-----|
+| `preview` | 내부 테스트용 APK | APK | - |
+| `production` | 스토어/정식 배포 | AAB | IPA |
+
+빌드 진행 상황과 로그는 [expo.dev](https://expo.dev) 대시보드에서 확인할 수 있습니다.
+
 ## 기술 스택
 
 - **프레임워크**: [Next.js 14+](https://nextjs.org/) (App Router 기반)
