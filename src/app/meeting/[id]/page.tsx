@@ -94,6 +94,18 @@ export default function MeetingDetailPage() {
     const addTopicSlot = () => setEditingTopics(prev => prev.length < 10 ? [...prev, ''] : prev);
     const removeTopicSlot = (i: number) => setEditingTopics(prev => prev.length > 3 ? prev.filter((_, idx) => idx !== i) : prev);
 
+    const handleSaveToCalendar = () => {
+        if (!meeting) return;
+        const title = encodeURIComponent(`[독서모임] ${meeting.book || '새 모임'}`);
+        const dateObj = new Date(meeting.date);
+        const startStr = dateObj.toISOString().slice(0, 10).replace(/-/g, '');
+        dateObj.setDate(dateObj.getDate() + 1);
+        const endStr = dateObj.toISOString().slice(0, 10).replace(/-/g, '');
+        const details = encodeURIComponent(`저자: ${meeting.author || '미상'}\n발제자: ${getMemberName(members, meeting.presenterMemberId) || '미정'}`);
+        const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}`;
+        window.open(url, '_blank');
+    };
+
     const handleSaveTopics = async () => {
         if (!meetingId) return;
         setSavingTopics(true);
@@ -187,6 +199,10 @@ export default function MeetingDetailPage() {
                                 </Link>
                             </span>
                         </div>
+                        
+                        <button onClick={handleSaveToCalendar} style={{ marginTop: 12, padding: 0, color: 'var(--primary)', fontSize: '0.82rem', textDecoration: 'underline', background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                            <Calendar size={13} /> 구글 캘린더에 일정 저장하기
+                        </button>
                     </div>
                 </div>
             )}

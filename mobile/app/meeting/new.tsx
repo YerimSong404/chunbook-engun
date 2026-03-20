@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
@@ -30,6 +31,7 @@ export default function NewMeetingScreen() {
     const [meetingsCount, setMeetingsCount] = useState(0);
     const [form, setForm] = useState(emptyForm);
     const [loading, setLoading] = useState(true);
+    const [showDatePicker, setShowDatePicker] = useState(false);
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -66,6 +68,7 @@ export default function NewMeetingScreen() {
         };
 
         await addMeeting(data);
+
         showAlert('성공', '모임이 등록되었습니다!', [
             { text: '확인', onPress: () => router.push('/(tabs)/home') }
         ]);
@@ -81,7 +84,7 @@ export default function NewMeetingScreen() {
 
     return (
         <SafeAreaView style={styles.safeArea}>
-            <KeyboardAvoidingView 
+            <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                 style={styles.container}
             >
@@ -109,13 +112,63 @@ export default function NewMeetingScreen() {
                         </View>
 
                         <View style={styles.formGroup}>
-                            <Text style={styles.label}>모임 날짜 * (YYYY-MM-DD)</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="YYYY-MM-DD"
-                                value={form.date}
-                                onChangeText={(t) => setForm((p) => ({ ...p, date: t }))}
-                            />
+                            <Text style={styles.label}>모임 날짜 *</Text>
+                            {Platform.OS === 'web' ? (
+                                <input
+                                    type="date"
+                                    style={{
+                                        borderWidth: 1, borderColor: '#ddd', borderRadius: 6, padding: 12, fontSize: 15,
+                                        width: '100%', boxSizing: 'border-box', backgroundColor: '#fff', outline: 'none'
+                                    }}
+                                    value={form.date}
+                                    onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))}
+                                />
+                            ) : Platform.OS === 'ios' ? (
+                                <View style={[styles.input, { paddingVertical: 8, flexDirection: 'row', alignItems: 'center' }]}>
+                                    <DateTimePicker
+                                        value={form.date ? new Date(form.date) : new Date()}
+                                        mode="date"
+                                        display="default"
+                                        onChange={(event, selectedDate) => {
+                                            if (selectedDate) {
+                                                const d = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+                                                setForm(p => ({ ...p, date: d.toISOString().split('T')[0] }));
+                                            }
+                                        }}
+                                        style={{ height: 40 }}
+                                    />
+                                    {form.date === '' && (
+                                        <Text style={{ position: 'absolute', left: 12, top: 12, color: '#999', fontSize: 15, pointerEvents: 'none' }}>
+                                            달력을 터치해 선택하세요 &gt;
+                                        </Text>
+                                    )}
+                                </View>
+                            ) : (
+                                <>
+                                    <TouchableOpacity 
+                                        style={[styles.input, { justifyContent: 'center' }]} 
+                                        onPress={() => setShowDatePicker(true)}
+                                    >
+                                        <Text style={{ color: form.date ? '#111' : '#999', fontSize: 15 }}>
+                                            {form.date || '달력을 터치해 날짜를 선택하세요'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    {showDatePicker && (
+                                        <DateTimePicker
+                                            value={form.date ? new Date(form.date) : new Date()}
+                                            mode="date"
+                                            display="default"
+                                            onChange={(event, selectedDate) => {
+                                                setShowDatePicker(false);
+                                                if (event.type !== 'dismissed' && selectedDate) {
+                                                    const d = new Date(selectedDate.getTime() - selectedDate.getTimezoneOffset() * 60000);
+                                                    setForm(p => ({ ...p, date: d.toISOString().split('T')[0] }));
+                                                }
+                                            }}
+                                        />
+                                    )}
+                                </>
+                            )}
                         </View>
 
                         <View style={styles.formGroup}>

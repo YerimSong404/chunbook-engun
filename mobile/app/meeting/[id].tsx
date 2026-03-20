@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Image, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { useAlert } from '../../context/AlertContext';
@@ -8,6 +8,7 @@ import { Meeting, Member, Answer } from '../../lib/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Calendar from 'expo-calendar';
 
 export default function MeetingDetailScreen() {
     const { currentMemberId } = useMember();
@@ -123,6 +124,51 @@ export default function MeetingDetailScreen() {
 
     const addTopicSlot = () => setEditingTopics(prev => prev.length < 10 ? [...prev, ''] : prev);
     const removeTopicSlot = (i: number) => setEditingTopics(prev => prev.length > 3 ? prev.filter((_, idx) => idx !== i) : prev);
+
+    const handleSaveToCalendar = async () => {
+        if (!meeting) return;
+        try {
+            if (Platform.OS !== 'web') {
+                const { status } = await Calendar.requestCalendarPermissionsAsync();
+                if (status === 'granted') {
+                    const calendars = await Calendar.getCalendarsAsync(Calendar.EntityTypes.EVENT);
+                    const writeableCalendars = calendars.filter(c => c.allowsModifications);
+                    let targetId = writeableCalendars[0]?.id || calendars.find(c => c.isPrimary)?.id || calendars[0]?.id;
+                    if (!targetId && Platform.OS === 'ios') {
+                        const defaultCal = await Calendar.getDefaultCalendarAsync();
+                        targetId = defaultCal?.id;
+                    }
+                    if (targetId) {
+                        const startDate = new Date(meeting.date);
+                        await Calendar.createEventAsync(targetId, {
+                            title: `[독서모임] ${meeting.book || '새 모임'}`,
+                            startDate,
+                            endDate: new Date(startDate.getTime() + 60 * 60 * 1000),
+                            allDay: true,
+                            notes: `저자: ${meeting.author || '미상'}\n발제자: ${getMemberName(meeting.presenterMemberId) || '미정'}`,
+                        });
+                        showAlert('성공', '캘린더에 일정 저장 성공!');
+                    } else {
+                        showAlert('오류', '권한이 허용된 기본 캘린더를 찾을 수 없습니다.');
+                    }
+                } else {
+                    showAlert('오류', '캘린더 접근 권한이 필요합니다.');
+                }
+            } else if (typeof window !== 'undefined') {
+                const title = encodeURIComponent(`[독서모임] ${meeting.book || '새 모임'}`);
+                const dateObj = new Date(meeting.date);
+                const startStr = dateObj.toISOString().slice(0, 10).replace(/-/g, '');
+                dateObj.setDate(dateObj.getDate() + 1);
+                const endStr = dateObj.toISOString().slice(0, 10).replace(/-/g, '');
+                const details = encodeURIComponent(`저자: ${meeting.author || '미상'}\n발제자: ${getMemberName(meeting.presenterMemberId) || '미정'}`);
+                const calUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startStr}/${endStr}&details=${details}`;
+                window.open(calUrl, '_blank');
+            }
+        } catch (e) {
+            console.error('Calendar error:', e);
+            showAlert('오류', '캘린더 저장 중 오류가 발생했습니다.');
+        }
+    };
 
     const handleSaveTopics = async () => {
         if (!meetingId) return;
@@ -292,6 +338,13 @@ export default function MeetingDetailScreen() {
                                 </TouchableOpacity>
                             )}
                         </View>
+                        
+                        <TouchableOpacity onPress={handleSaveToCalendar} style={{ marginTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                            <Feather name="calendar" size={13} color="rgba(255,255,255,0.7)" />
+                            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, textDecorationLine: 'underline' }}>
+                                캘린더에 일정 저장하기
+                            </Text>
+                        </TouchableOpacity>
                     </View>
                 </LinearGradient>
 
