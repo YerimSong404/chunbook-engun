@@ -35,6 +35,11 @@ export default function MypagePage() {
     const member = members.find((m) => m.id === currentMemberId) ?? null;
 
     useEffect(() => {
+        if (!loading && currentMemberId && !member) {
+            setCurrentMemberId(null);
+            router.replace('/');
+            return;
+        }
         if (!currentMemberId) {
             router.replace('/');
             return;
@@ -45,7 +50,7 @@ export default function MypagePage() {
             setProfileImageUrl(member.profileImageUrl ?? '');
             setColor(member.color ?? '');
         }
-    }, [currentMemberId, member?.id, member?.statusMessage, member?.profileImageUrl, member?.color, nickname, router]);
+    }, [loading, currentMemberId, member?.id, member?.statusMessage, member?.profileImageUrl, member?.color, nickname, router, setCurrentMemberId]);
 
     const handleSave = async () => {
         if (!currentMemberId) return;
@@ -81,7 +86,7 @@ export default function MypagePage() {
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
     if (error) return <AppShell><div className="empty">{error}</div></AppShell>;
-    if (!member) return <AppShell><div className="empty">멤버 정보를 찾을 수 없어요</div></AppShell>;
+    if (!member) return null;
 
     const myPresentedMeetings = meetings
         .filter((m) => m.presenterMemberId === currentMemberId)

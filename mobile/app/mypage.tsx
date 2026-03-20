@@ -58,6 +58,9 @@ export default function MypageScreen() {
           setStatusMessage(m.statusMessage ?? '');
           setProfileImageUrl(m.profileImageUrl ?? '');
           setColor(m.color ?? '');
+        } else {
+          setCurrentMemberId(null);
+          router.replace('/');
         }
       })
       .finally(() => setLoading(false));
@@ -126,13 +129,7 @@ export default function MypageScreen() {
     );
   }
 
-  if (!member) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.emptyText}>멤버 정보를 찾을 수 없어요</Text>
-      </View>
-    );
-  }
+  if (!member) return null;
 
   const myPresentedMeetings = meetings
     .filter((m) => m.presenterMemberId === currentMemberId)

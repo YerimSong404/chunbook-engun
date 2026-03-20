@@ -172,7 +172,7 @@ export default function AdminScreen() {
     }
 
     return (
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             style={styles.container}
         >
@@ -180,22 +180,22 @@ export default function AdminScreen() {
                 <Text style={styles.pageTitle}>관리</Text>
 
                 <View style={styles.tabsContainer}>
-                    <TouchableOpacity 
-                        style={[styles.tabBtn, tab === 'meetings' && styles.tabBtnActive]} 
+                    <TouchableOpacity
+                        style={[styles.tabBtn, tab === 'meetings' && styles.tabBtnActive]}
                         onPress={() => setTab('meetings')}
                     >
                         <Feather name="calendar" size={16} color={tab === 'meetings' ? '#2C2724' : '#8C7D6B'} style={{ marginBottom: 4 }} />
                         <Text style={[styles.tabBtnText, tab === 'meetings' && styles.tabBtnTextActive]}>모임</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                        style={[styles.tabBtn, tab === 'members' && styles.tabBtnActive]} 
+                    <TouchableOpacity
+                        style={[styles.tabBtn, tab === 'members' && styles.tabBtnActive]}
                         onPress={() => setTab('members')}
                     >
                         <Feather name="users" size={16} color={tab === 'members' ? '#2C2724' : '#8C7D6B'} style={{ marginBottom: 4 }} />
                         <Text style={[styles.tabBtnText, tab === 'members' && styles.tabBtnTextActive]}>멤버</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity 
-                        style={[styles.tabBtn, tab === 'settings' && styles.tabBtnActive]} 
+                    <TouchableOpacity
+                        style={[styles.tabBtn, tab === 'settings' && styles.tabBtnActive]}
                         onPress={() => setTab('settings')}
                     >
                         <Feather name="settings" size={16} color={tab === 'settings' ? '#2C2724' : '#8C7D6B'} style={{ marginBottom: 4 }} />
@@ -208,7 +208,7 @@ export default function AdminScreen() {
                         {editId && (
                             <View style={styles.editCard}>
                                 <Text style={styles.sectionTitle}>모임 편집</Text>
-                                
+
                                 <Text style={styles.label}>모임 번호</Text>
                                 <TextInput
                                     style={styles.input}
@@ -256,9 +256,9 @@ export default function AdminScreen() {
                                         onChangeText={(t) => setForm((p) => ({ ...p, coverImageUrl: t }))}
                                     />
                                     {form.coverImageUrl.trim() ? (
-                                        <Image 
-                                            source={{ uri: form.coverImageUrl }} 
-                                            style={styles.coverPreview} 
+                                        <Image
+                                            source={{ uri: form.coverImageUrl }}
+                                            style={styles.coverPreview}
                                         />
                                     ) : null}
                                 </View>
@@ -387,9 +387,9 @@ export default function AdminScreen() {
                                 value={newName}
                                 onChangeText={setNewName}
                             />
-                            <TouchableOpacity 
-                                style={[styles.btn, styles.btnPrimary, memberLoading && styles.btnDisabled]} 
-                                onPress={handleAddMember} 
+                            <TouchableOpacity
+                                style={[styles.btn, styles.btnPrimary, memberLoading && styles.btnDisabled]}
+                                onPress={handleAddMember}
                                 disabled={memberLoading}
                             >
                                 <Text style={styles.btnPrimaryText}>추가</Text>
@@ -435,9 +435,9 @@ export default function AdminScreen() {
                                     onChangeText={setFirstNumInput}
                                     placeholderTextColor="#C1B7A7"
                                 />
-                                <TouchableOpacity 
-                                    style={[styles.btn, styles.btnPrimary, settingsSaving && styles.btnDisabled]} 
-                                    onPress={handleSaveSettings} 
+                                <TouchableOpacity
+                                    style={[styles.btn, styles.btnPrimary, settingsSaving && styles.btnDisabled]}
+                                    onPress={handleSaveSettings}
                                     disabled={settingsSaving}
                                 >
                                     <Text style={styles.btnPrimaryText}>{settingsSaving ? '저장 중…' : '저장'}</Text>
