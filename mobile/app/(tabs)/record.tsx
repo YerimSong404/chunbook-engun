@@ -171,7 +171,15 @@ export default function RecordScreen() {
             >
                 {selectedTopicIndex === null ? (
                     <>
-                        <Text style={styles.pageTitle}>서기 기록</Text>
+                        <View style={styles.headerRow}>
+                            <Text style={[styles.pageTitle, { marginBottom: 0 }]}>서기 기록</Text>
+                            <TouchableOpacity 
+                                style={styles.addMeetingBtn}
+                                onPress={() => router.push('/meeting/new')}
+                            >
+                                <Text style={styles.addMeetingBtnText}>+ 새 모임 추가</Text>
+                            </TouchableOpacity>
+                        </View>
 
                         <View style={styles.formGroup}>
                             <Text style={styles.label}>모임 선택</Text>
@@ -356,7 +364,10 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#FDFBF7' },
     content: { padding: 24, paddingBottom: 60 },
     contentWithKeyboardPadding: { paddingBottom: 340 },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
     pageTitle: { fontSize: 26, fontWeight: '600', color: '#2C2724', marginBottom: 20, letterSpacing: -0.5 },
+    addMeetingBtn: { backgroundColor: '#695D4A', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 6 },
+    addMeetingBtnText: { color: '#FFFFFF', fontSize: 13, fontWeight: '600' },
     formGroup: { marginBottom: 28 },
     label: { fontSize: 13, fontWeight: '600', color: '#7A7265', marginBottom: 8, letterSpacing: 0.5 },
     pickerContainer: {

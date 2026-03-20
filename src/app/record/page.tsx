@@ -165,7 +165,12 @@ export default function RecordPage() {
         <AppShell>
             {selectedTopicIndex === null ? (
                 <>
-                    <h1 className="page-title">서기 기록</h1>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                        <h1 className="page-title" style={{ marginBottom: 0 }}>서기 기록</h1>
+                        <button className="btn btn-primary" style={{ padding: '6px 12px', fontSize: '0.85rem' }} onClick={() => router.push('/meeting/new')}>
+                            + 새 모임 추가
+                        </button>
+                    </div>
 
                     {/* 모임 선택 */}
                     <div className="form-group">

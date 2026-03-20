@@ -7,16 +7,10 @@ import { Member } from '../lib/types';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function SelectMemberScreen() {
-  const { currentMemberId, setCurrentMemberId, nickname, setNickname } = useMember();
+  const { currentMemberId, setCurrentMemberId } = useMember();
   const router = useRouter();
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // 별명 입력 단계
-  const [step, setStep] = useState<'select' | 'nickname'>('select');
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [selectedName, setSelectedName] = useState('');
-  const [nicknameInput, setNicknameInput] = useState('');
 
   useEffect(() => {
     if (currentMemberId) {
@@ -28,19 +22,9 @@ export default function SelectMemberScreen() {
       .finally(() => setLoading(false));
   }, [currentMemberId, router]);
 
-  // 멤버 선택 → 별명 입력 단계로
+  // 멤버 선택 → 홈으로
   const handleSelect = (member: Member) => {
-    setSelectedId(member.id);
-    setSelectedName(member.name);
-    setNicknameInput('');
-    setStep('nickname');
-  };
-
-  // 별명 확정 or 건너뛰기 → 홈으로
-  const handleConfirm = (nick?: string) => {
-    if (!selectedId) return;
-    setCurrentMemberId(selectedId);
-    setNickname(nick?.trim() || null);
+    setCurrentMemberId(member.id);
     router.replace('/(tabs)/home');
   };
 
@@ -50,54 +34,6 @@ export default function SelectMemberScreen() {
         <ActivityIndicator size="large" color="#007bff" />
         <Text style={{ marginTop: 10 }}>불러오는 중…</Text>
       </View>
-    );
-  }
-
-  // ── 별명 입력 화면 ──
-  if (step === 'nickname') {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.content}>
-          <Text style={styles.logo}>✏️</Text>
-          <Text style={styles.title}>
-            반가워요, <Text style={styles.primaryText}>{selectedName}</Text>님!
-          </Text>
-          <Text style={styles.subtitle}>앱에서 쓸 별명을 설정할 수 있어요</Text>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder={`예: ${selectedName.slice(0, 1)}발제왕`}
-              value={nicknameInput}
-              onChangeText={setNicknameInput}
-              maxLength={12}
-              autoFocus
-            />
-            
-            <TouchableOpacity 
-              style={[styles.btn, styles.btnPrimary, !nicknameInput.trim() && styles.btnDisabled]} 
-              onPress={() => handleConfirm(nicknameInput)}
-              disabled={!nicknameInput.trim()}
-            >
-              <Text style={styles.btnPrimaryText}>별명으로 시작하기</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={[styles.btn, styles.btnGhost]} 
-              onPress={() => handleConfirm()}
-            >
-              <Text style={styles.btnGhostText}>건너뛰기 ({selectedName}으로 표시)</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={{ alignSelf: 'center', padding: 10, marginTop: 10 }} 
-              onPress={() => setStep('select')}
-            >
-              <Text style={styles.backText}>← 다시 선택</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
     );
   }
 
