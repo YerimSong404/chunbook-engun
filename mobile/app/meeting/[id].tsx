@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Image, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator, TextInput, Image, Platform, Share } from 'react-native';
 import { useRouter, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useMember } from '../../context/MemberContext';
 import { useAlert } from '../../context/AlertContext';
@@ -167,6 +167,22 @@ export default function MeetingDetailScreen() {
         } catch (e) {
             console.error('Calendar error:', e);
             showAlert('오류', '캘린더 저장 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleShare = async () => {
+        if (!meeting) return;
+        
+        const dStr = formatDate(meeting.date);
+        const name = meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : '새 독서모임';
+        const presenter = meeting.presenterMemberId ? getMemberName(meeting.presenterMemberId) : '미정';
+        
+        const message = `[천북인권] ${name} 안내 📚\n\n📖 책: ${meeting.book || '미정'}\n✍️ 저자: ${meeting.author || '미상'}\n📅 일시: ${dStr}\n🗣 발제자: ${presenter}\n\n앱에서 상세 정보와 발제를 확인해주세요!`;
+
+        try {
+            await Share.share({ message });
+        } catch (error) {
+            showAlert('오류', '공유하기에 실패했습니다.');
         }
     };
 
@@ -339,12 +355,20 @@ export default function MeetingDetailScreen() {
                             )}
                         </View>
                         
-                        <TouchableOpacity onPress={handleSaveToCalendar} style={{ marginTop: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                            <Feather name="calendar" size={13} color="rgba(255,255,255,0.7)" />
-                            <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, textDecorationLine: 'underline' }}>
-                                캘린더에 일정 저장하기
-                            </Text>
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', gap: 16, marginTop: 14, justifyContent: 'center' }}>
+                            <TouchableOpacity onPress={handleSaveToCalendar} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <Feather name="calendar" size={13} color="rgba(255,255,255,0.7)" />
+                                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, textDecorationLine: 'underline' }}>
+                                    일정 저장
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={handleShare} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                                <Feather name="share-2" size={13} color="rgba(255,255,255,0.7)" />
+                                <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, textDecorationLine: 'underline' }}>
+                                    카톡 등에 공유하기
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </LinearGradient>
 

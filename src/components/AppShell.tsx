@@ -26,8 +26,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                         <span style={{ fontWeight: 800 }}>천북인권</span>
                     </span>
                     {currentMemberId && (
-                        <Link href="/mypage" className="nav-member-mypage-btn">
-                            <User size={14} color="#000" strokeWidth={2.5} /> 마이페이지
+                        <Link href="/mypage" style={{ fontSize: '0.85rem', color: 'var(--text-sub)', fontWeight: 600, padding: '4px' }}>
+                            마이페이지
                         </Link>
                     )}
                 </div>

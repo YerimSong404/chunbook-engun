@@ -6,19 +6,47 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBQ6paQc36UdzLmBimTd8b6GJ3MLEDlUHA",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "chun-book-ingun.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "chun-book-ingun",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "chun-book-ingun.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "126303083326",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:126303083326:web:25e0fc3127f328b773aa6f",
+        "EXPO_PUBLIC_ALADIN_TTB_KEY": "ttbprayturtle1115001"
+      }
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBQ6paQc36UdzLmBimTd8b6GJ3MLEDlUHA",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "chun-book-ingun.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "chun-book-ingun",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "chun-book-ingun.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "126303083326",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:126303083326:web:25e0fc3127f328b773aa6f",
+        "EXPO_PUBLIC_ALADIN_TTB_KEY": "ttbprayturtle1115001"
       }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBQ6paQc36UdzLmBimTd8b6GJ3MLEDlUHA",
+        "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "chun-book-ingun.firebaseapp.com",
+        "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "chun-book-ingun",
+        "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "chun-book-ingun.firebasestorage.app",
+        "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "126303083326",
+        "EXPO_PUBLIC_FIREBASE_APP_ID": "1:126303083326:web:25e0fc3127f328b773aa6f",
+        "EXPO_PUBLIC_ALADIN_TTB_KEY": "ttbprayturtle1115001"
+      }
     }
   },
   "submit": {
     "production": {}
   }
 }
+

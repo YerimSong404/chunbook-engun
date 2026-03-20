@@ -36,12 +36,8 @@ export default function TabLayout() {
         headerRight: () =>
           currentMemberId ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 15 }}>
-              <TouchableOpacity
-                style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0EBE1', paddingVertical: 6, paddingHorizontal: 12, borderRadius: 8 }}
-                onPress={() => router.push('/mypage')}
-              >
-                <Feather name="user" size={14} color="#2C2724" style={{ marginRight: 6 }} />
-                <Text style={{ color: '#8C7D6B', fontSize: 13, fontWeight: '600' }}>마이페이지</Text>
+              <TouchableOpacity onPress={() => router.push('/mypage')}>
+                <Text style={{ color: '#8C7D6B', fontSize: 14, fontWeight: '600', padding: 4 }}>마이페이지</Text>
               </TouchableOpacity>
             </View>
           ) : null,
