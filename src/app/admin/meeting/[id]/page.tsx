@@ -26,7 +26,7 @@ export default function EditMeetingPage() {
     const router = useRouter();
     const params = useParams();
     const isAdmin = useIsAdmin();
-    const { members } = useData();
+    const { members, refetch } = useData();
     const { showToast, showError } = useToast();
     const meetingId = params.id as string;
 
@@ -105,6 +105,7 @@ export default function EditMeetingPage() {
 
         try {
             await updateMeeting(meetingId, data);
+            await refetch();
             showToast('수정되었어요');
             router.back();
         } catch {

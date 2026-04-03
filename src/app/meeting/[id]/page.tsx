@@ -41,13 +41,24 @@ export default function MeetingDetailPage() {
             return;
         }
 
-        Promise.all([getMeeting(meetingId), getAnswers(meetingId)])
-            .then(([mt, ans]) => {
-                setMeeting(mt);
-                setAnswers(ans);
-            })
-            .catch(() => showError('모임 정보를 불러오지 못했어요.'))
-            .finally(() => setLoading(false));
+        const load = () => {
+            Promise.all([getMeeting(meetingId), getAnswers(meetingId)])
+                .then(([mt, ans]) => {
+                    setMeeting(mt);
+                    setAnswers(ans);
+                })
+                .catch(() => showError('모임 정보를 불러오지 못했어요.'))
+                .finally(() => setLoading(false));
+        };
+
+        load();
+
+        // 편집 페이지에서 돌아왔을 때(탭 포커스 복귀) 자동 재조회
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') load();
+        };
+        document.addEventListener('visibilitychange', handleVisibility);
+        return () => document.removeEventListener('visibilitychange', handleVisibility);
     }, [currentMemberId, meetingId, router, showError]);
 
     if (loading) return <AppShell><div className="spinner">불러오는 중…</div></AppShell>;
