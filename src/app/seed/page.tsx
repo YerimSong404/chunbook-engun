@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useData } from '@/context/DataContext';
-import { addMeeting } from '@/lib/db';
+import { addMeeting, getMeetings, updateMeeting } from '@/lib/db';
 import AppShell from '@/components/AppShell';
 
 // ─── 원본 데이터 ───────────────────────────────────────────
@@ -63,10 +63,75 @@ function toTimestamp(dateStr: string) {
 type LogEntry = { icon: string; text: string };
 
 export default function SeedPage() {
-    const { members, meetings } = useData();
+    const { members, meetings, refetch } = useData();
     const [running, setRunning] = useState(false);
     const [done, setDone] = useState(false);
     const [log, setLog] = useState<LogEntry[]>([]);
+
+    // ─── 표지 자동 채우기 ────────────────────────────────────────
+    const [coverRunning, setCoverRunning] = useState(false);
+    const [coverDone, setCoverDone] = useState(false);
+    const [coverLog, setCoverLog] = useState<LogEntry[]>([]);
+    const MAX_COVER_SESSION = 24; // 24회 이전까지 자동 채우기
+
+    const handleFillCovers = async () => {
+        if (!confirm(`1~${MAX_COVER_SESSION}회 중 표지가 없는 모임을 검색해서 자동으로 저장합니다. 계속할까요?`)) return;
+        setCoverRunning(true);
+        setCoverDone(false);
+        setCoverLog([]);
+
+        // 최신 meetings 다시 조회 (Firestore)
+        const freshMeetings = await getMeetings();
+        const targets = freshMeetings.filter(
+            (m) => m.meetingNumber != null && m.meetingNumber <= MAX_COVER_SESSION && !m.coverImageUrl
+        ).sort((a, b) => (a.meetingNumber ?? 0) - (b.meetingNumber ?? 0));
+
+        const entries: LogEntry[] = [];
+
+        if (targets.length === 0) {
+            entries.push({ icon: '✅', text: `1~${MAX_COVER_SESSION}회 모두 표지가 이미 있어요!` });
+            setCoverLog([...entries]);
+            setCoverRunning(false);
+            setCoverDone(true);
+            return;
+        }
+
+        for (const meeting of targets) {
+            const q = [meeting.book, meeting.author].filter(Boolean).join(' ');
+            if (!q.trim()) {
+                entries.push({ icon: '⏭️', text: `제${meeting.meetingNumber}회 — 책 제목 없음 (skip)` });
+                setCoverLog([...entries]);
+                continue;
+            }
+
+            try {
+                const res = await fetch(`/api/search-book?q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+                const first = data.results?.[0];
+
+                if (!first?.coverUrl) {
+                    entries.push({ icon: '❓', text: `제${meeting.meetingNumber}회 「${meeting.book}」 — 검색 결과 없음` });
+                    setCoverLog([...entries]);
+                    continue;
+                }
+
+                await updateMeeting(meeting.id, { coverImageUrl: first.coverUrl });
+                entries.push({ icon: '🖼️', text: `제${meeting.meetingNumber}회 「${meeting.book}」 → 표지 저장 완료` });
+            } catch (e) {
+                entries.push({ icon: '❌', text: `제${meeting.meetingNumber}회 「${meeting.book}」 — 오류: ${String(e)}` });
+            }
+
+            setCoverLog([...entries]);
+            // API 연속 호출 방지용 딜레이
+            await new Promise(r => setTimeout(r, 400));
+        }
+
+        entries.push({ icon: '🎉', text: `완료! 총 ${targets.length}건 처리` });
+        setCoverLog([...entries]);
+        setCoverRunning(false);
+        setCoverDone(true);
+        await refetch();
+    };
 
     // 이름 → ID 매핑
     const nameToId = Object.fromEntries(members.map(m => [m.name, m.id]));
@@ -216,6 +281,41 @@ export default function SeedPage() {
                         gap: 4,
                     }}>
                         {log.map((entry, i) => (
+                            <div key={i} style={{ fontSize: '0.83rem', display: 'flex', gap: 6 }}>
+                                <span>{entry.icon}</span>
+                                <span style={{ color: entry.icon === '❌' ? 'var(--accent)' : 'inherit' }}>
+                                    {entry.text}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+            {/* ── 표지 자동 채우기 ─────────────────────────── */}
+            <hr style={{ margin: '32px 0', borderColor: 'var(--border)' }} />
+            <h2 className="section-title" style={{ fontSize: '1rem', textTransform: 'none', letterSpacing: 0, color: 'var(--text)', marginBottom: 8 }}>
+                🖼️ 표지 자동 채우기 <span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-sub)' }}>(1~{MAX_COVER_SESSION}회)</span>
+            </h2>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-sub)', marginBottom: 16, lineHeight: 1.6 }}>
+                1~{MAX_COVER_SESSION}회 중 책 표지가 없는 모임을 찾아 알라딘에서 자동으로 검색해 저장합니다.<br />
+                이미 표지가 있는 모임은 건너뜁니다.
+            </p>
+            <button
+                className="btn btn-primary"
+                style={{ width: '100%', marginBottom: 24 }}
+                onClick={handleFillCovers}
+                disabled={coverRunning || meetings.length === 0}
+            >
+                {coverRunning ? '검색 중…' : `🔍 1~${MAX_COVER_SESSION}회 표지 자동 채우기`}
+            </button>
+
+            {coverLog.length > 0 && (
+                <div className="card">
+                    <div className="section-title" style={{ marginBottom: 12 }}>
+                        {coverDone ? '표지 채우기 결과' : '진행 중…'} ({coverLog.length}건)
+                    </div>
+                    <div style={{ maxHeight: 400, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                        {coverLog.map((entry, i) => (
                             <div key={i} style={{ fontSize: '0.83rem', display: 'flex', gap: 6 }}>
                                 <span>{entry.icon}</span>
                                 <span style={{ color: entry.icon === '❌' ? 'var(--accent)' : 'inherit' }}>
