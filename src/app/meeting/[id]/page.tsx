@@ -111,7 +111,7 @@ export default function MeetingDetailPage() {
         const dStr = formatDate(meeting.date, 'full');
         const name = meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : '새 독서모임';
         const presenter = meeting.presenterMemberId ? getMemberName(members, meeting.presenterMemberId) : '미정';
-        
+
         const message = `[천북인권] ${name} 안내 📚\n\n📖 책: ${meeting.book || '미정'}\n✍️ 저자: ${meeting.author || '미상'}\n📅 일시: ${dStr}\n🗣 발제자: ${presenter}\n\n웹앱 혹은 모바일 앱에서 상세 정보와 발제를 확인해주세요!`;
 
         if (navigator.share) {
@@ -226,13 +226,13 @@ export default function MeetingDetailPage() {
                                 </Link>
                             </span>
                         </div>
-                        
+
                         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginTop: 12 }}>
                             <button onClick={handleSaveToCalendar} style={{ padding: 0, color: 'var(--primary)', fontSize: '0.82rem', textDecoration: 'underline', background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                                 <Calendar size={13} /> 일정 저장
                             </button>
                             <button onClick={handleShare} style={{ padding: 0, color: 'var(--primary)', fontSize: '0.82rem', textDecoration: 'underline', background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                                <Share2 size={13} /> 카톡 등에 공유하기
+                                <Share2 size={13} /> 공유하기
                             </button>
                         </div>
                     </div>

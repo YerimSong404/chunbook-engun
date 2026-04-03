@@ -12,7 +12,10 @@ import { Member, Meeting, AppSettings } from '../../lib/types';
 import { Feather } from '@expo/vector-icons';
 
 function formatDate(ts: number) {
-    return new Date(ts).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+    const d = new Date(ts);
+    const dateStr = d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+    const weekday = d.toLocaleDateString('ko-KR', { weekday: 'short' });
+    return `${dateStr} (${weekday})`;
 }
 
 const emptyForm = {

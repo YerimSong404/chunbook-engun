@@ -59,8 +59,12 @@ export default function MeetingDetailScreen() {
 
     const getMemberName = (id: string) => members.find((m) => m.id === id)?.name ?? id;
 
-    const formatDate = (ts: number) =>
-        new Date(ts).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+    const formatDate = (ts: number) => {
+        const d = new Date(ts);
+        const dateStr = d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+        const weekday = d.toLocaleDateString('ko-KR', { weekday: 'short' });
+        return `${dateStr} (${weekday})`;
+    };
 
     const getDDay = (ts: number) => {
         const today = new Date();
@@ -172,11 +176,11 @@ export default function MeetingDetailScreen() {
 
     const handleShare = async () => {
         if (!meeting) return;
-        
+
         const dStr = formatDate(meeting.date);
         const name = meeting.meetingNumber != null ? `제${meeting.meetingNumber}회 독서모임` : '새 독서모임';
         const presenter = meeting.presenterMemberId ? getMemberName(meeting.presenterMemberId) : '미정';
-        
+
         const message = `[천북인권] ${name} 안내 📚\n\n📖 책: ${meeting.book || '미정'}\n✍️ 저자: ${meeting.author || '미상'}\n📅 일시: ${dStr}\n🗣 발제자: ${presenter}\n\n앱에서 상세 정보와 발제를 확인해주세요!`;
 
         try {
@@ -354,7 +358,7 @@ export default function MeetingDetailScreen() {
                                 </TouchableOpacity>
                             )}
                         </View>
-                        
+
                         <View style={{ flexDirection: 'row', gap: 16, marginTop: 14, justifyContent: 'center' }}>
                             <TouchableOpacity onPress={handleSaveToCalendar} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                 <Feather name="calendar" size={13} color="rgba(255,255,255,0.7)" />
@@ -365,7 +369,7 @@ export default function MeetingDetailScreen() {
                             <TouchableOpacity onPress={handleShare} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                                 <Feather name="share-2" size={13} color="rgba(255,255,255,0.7)" />
                                 <Text style={{ color: 'rgba(255,255,255,0.7)', fontSize: 13, textDecorationLine: 'underline' }}>
-                                    카톡 등에 공유하기
+                                    공유하기
                                 </Text>
                             </TouchableOpacity>
                         </View>
@@ -375,95 +379,95 @@ export default function MeetingDetailScreen() {
                 {/* ── 흰색 카드: 위쪽 모서리 라운드 ── */}
                 <View style={styles.whiteCard}>
                     <View style={styles.topicsContent}>
-                    <View style={styles.sectionHeaderRow}>
-                        <Text style={styles.sectionTitle}>발제 키워드</Text>
-                        {!isEditingTopics && meeting.status === 'upcoming' && (
-                            <TouchableOpacity onPress={startEditTopics} style={styles.editTopicsBtn}>
-                                <Text style={styles.editTopicsBtnText}>
-                                    {meeting.topics.length === 0 ? '+ 발제 등록' : '수정'}
-                                </Text>
-                            </TouchableOpacity>
-                        )}
-                    </View>
+                        <View style={styles.sectionHeaderRow}>
+                            <Text style={styles.sectionTitle}>발제 키워드</Text>
+                            {!isEditingTopics && meeting.status === 'upcoming' && (
+                                <TouchableOpacity onPress={startEditTopics} style={styles.editTopicsBtn}>
+                                    <Text style={styles.editTopicsBtnText}>
+                                        {meeting.topics.length === 0 ? '+ 발제 등록' : '수정'}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
 
-                    {isEditingTopics ? (
-                        <View style={styles.editCard}>
-                            <View style={styles.editHeaderRow}>
-                                <Text style={styles.editLabel}>발제 주제 ({editingTopics.length}/10)</Text>
-                                {editingTopics.length < 10 && (
-                                    <TouchableOpacity onPress={addTopicSlot}>
-                                        <Text style={styles.addTopicBtnText}>+ 추가</Text>
-                                    </TouchableOpacity>
-                                )}
-                            </View>
-                            {editingTopics.map((t, i) => (
-                                <View key={i} style={styles.topicEditRow}>
-                                    <View style={styles.topicNumBadge}>
-                                        <Text style={styles.topicNumText}>{i + 1}</Text>
-                                    </View>
-                                    <TextInput
-                                        style={[
-                                            styles.input,
-                                            styles.inputMultiline,
-                                            { flex: 1, marginBottom: 0, height: Math.max(44, topicHeights[i] ?? 44) },
-                                        ]}
-                                        placeholder={`주제 ${i + 1}`}
-                                        value={t}
-                                        onChangeText={(val) => handleTopicChange(i, val)}
-                                        multiline
-                                        textAlignVertical="top"
-                                        onContentSizeChange={(e) => {
-                                            const height = e.nativeEvent.contentSize.height + 20;
-                                            setTopicHeights((prev) => ({ ...prev, [i]: height }));
-                                        }}
-                                    />
-                                    {editingTopics.length > 3 && (
-                                        <TouchableOpacity onPress={() => removeTopicSlot(i)} style={styles.removeTopicBtn}>
-                                            <Text style={styles.removeTopicText}>✕</Text>
+                        {isEditingTopics ? (
+                            <View style={styles.editCard}>
+                                <View style={styles.editHeaderRow}>
+                                    <Text style={styles.editLabel}>발제 주제 ({editingTopics.length}/10)</Text>
+                                    {editingTopics.length < 10 && (
+                                        <TouchableOpacity onPress={addTopicSlot}>
+                                            <Text style={styles.addTopicBtnText}>+ 추가</Text>
                                         </TouchableOpacity>
                                     )}
                                 </View>
-                            ))}
-                            <View style={styles.editActionsRow}>
-                                <TouchableOpacity
-                                    style={[styles.btn, styles.btnPrimary, savingTopics && styles.btnDisabled]}
-                                    onPress={handleSaveTopics}
-                                    disabled={savingTopics}
-                                >
-                                    <Text style={styles.btnPrimaryText}>{savingTopics ? '저장 중…' : '저장 완료'}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={[styles.btn, styles.btnGhost]}
-                                    onPress={() => setIsEditingTopics(false)}
-                                    disabled={savingTopics}
-                                >
-                                    <Text style={styles.btnGhostText}>취소</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-                    ) : meeting.topics.length === 0 ? (
-                        <View style={styles.emptyCard}>
-                            <Text style={styles.emptyCardText}>아직 등록된 발제가 없어요.</Text>
-                        </View>
-                    ) : (
-                        <View style={{ gap: 10 }}>
-                            {meeting.topics.map((t, idx) => (
-                                <TouchableOpacity
-                                    key={idx}
-                                    style={styles.topicCard}
-                                    activeOpacity={0.7}
-                                    onPress={() => setSelectedTopicIndex(idx)}
-                                >
-                                    <View style={styles.topicCardBadge}>
-                                        <Text style={styles.topicCardBadgeText}>{idx + 1}</Text>
+                                {editingTopics.map((t, i) => (
+                                    <View key={i} style={styles.topicEditRow}>
+                                        <View style={styles.topicNumBadge}>
+                                            <Text style={styles.topicNumText}>{i + 1}</Text>
+                                        </View>
+                                        <TextInput
+                                            style={[
+                                                styles.input,
+                                                styles.inputMultiline,
+                                                { flex: 1, marginBottom: 0, height: Math.max(44, topicHeights[i] ?? 44) },
+                                            ]}
+                                            placeholder={`주제 ${i + 1}`}
+                                            value={t}
+                                            onChangeText={(val) => handleTopicChange(i, val)}
+                                            multiline
+                                            textAlignVertical="top"
+                                            onContentSizeChange={(e) => {
+                                                const height = e.nativeEvent.contentSize.height + 20;
+                                                setTopicHeights((prev) => ({ ...prev, [i]: height }));
+                                            }}
+                                        />
+                                        {editingTopics.length > 3 && (
+                                            <TouchableOpacity onPress={() => removeTopicSlot(i)} style={styles.removeTopicBtn}>
+                                                <Text style={styles.removeTopicText}>✕</Text>
+                                            </TouchableOpacity>
+                                        )}
                                     </View>
-                                    <Text style={styles.topicCardText}>{t}</Text>
-                                    <Feather name="chevron-right" size={16} color="#C1B7A7" />
-                                </TouchableOpacity>
-                            ))}
-                        </View>
-                    )}
-                </View>
+                                ))}
+                                <View style={styles.editActionsRow}>
+                                    <TouchableOpacity
+                                        style={[styles.btn, styles.btnPrimary, savingTopics && styles.btnDisabled]}
+                                        onPress={handleSaveTopics}
+                                        disabled={savingTopics}
+                                    >
+                                        <Text style={styles.btnPrimaryText}>{savingTopics ? '저장 중…' : '저장 완료'}</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.btn, styles.btnGhost]}
+                                        onPress={() => setIsEditingTopics(false)}
+                                        disabled={savingTopics}
+                                    >
+                                        <Text style={styles.btnGhostText}>취소</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        ) : meeting.topics.length === 0 ? (
+                            <View style={styles.emptyCard}>
+                                <Text style={styles.emptyCardText}>아직 등록된 발제가 없어요.</Text>
+                            </View>
+                        ) : (
+                            <View style={{ gap: 10 }}>
+                                {meeting.topics.map((t, idx) => (
+                                    <TouchableOpacity
+                                        key={idx}
+                                        style={styles.topicCard}
+                                        activeOpacity={0.7}
+                                        onPress={() => setSelectedTopicIndex(idx)}
+                                    >
+                                        <View style={styles.topicCardBadge}>
+                                            <Text style={styles.topicCardBadgeText}>{idx + 1}</Text>
+                                        </View>
+                                        <Text style={styles.topicCardText}>{t}</Text>
+                                        <Feather name="chevron-right" size={16} color="#C1B7A7" />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </View>
                 </View>
             </ScrollView>
         </View>

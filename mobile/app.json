@@ -20,8 +20,10 @@
               "NSExceptionAllowsInsecureHTTPLoads": true
             }
           }
-        }
-      }
+        },
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.yearm404.mobile"
     },
     "android": {
       "adaptiveIcon": {

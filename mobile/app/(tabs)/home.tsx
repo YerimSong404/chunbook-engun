@@ -9,7 +9,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 
 function formatDate(ts: number) {
     const d = new Date(ts);
-    return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+    const dateStr = d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+    const weekday = d.toLocaleDateString('ko-KR', { weekday: 'short' });
+    return `${dateStr} (${weekday})`;
 }
 
 export default function HomeScreen() {

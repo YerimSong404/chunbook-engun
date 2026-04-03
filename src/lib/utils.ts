@@ -2,8 +2,8 @@ import { Member } from './types';
 
 /**
  * 날짜 포맷 (ko-KR 기준)
- * - full: 연월일 + 요일 (예: 2025년 3월 17일 월)
- * - dateOnly: 연월일 (예: 2025년 3월 17일)
+ * - full: 연월일 + 요일 (예: 2025년 3월 17일 (월))
+ * - dateOnly: 연월일 + 요일 (예: 2025년 3월 17일 (월))
  * - short: 월일 (예: 3월 17일)
  */
 export function formatDate(
@@ -14,19 +14,13 @@ export function formatDate(
   if (format === 'short') {
     return d.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
   }
-  if (format === 'dateOnly') {
-    return d.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }
-  return d.toLocaleDateString('ko-KR', {
+  const dateStr = d.toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
-    weekday: 'short',
   });
+  const weekday = d.toLocaleDateString('ko-KR', { weekday: 'short' });
+  return `${dateStr} (${weekday})`;
 }
 
 /**
