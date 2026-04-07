@@ -187,8 +187,14 @@ export default function EditMeetingPage() {
                                 color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 700,
                                 display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 10
                             }}>{i + 1}</span>
-                            <input className="form-input" placeholder={`주제 ${i + 1}`} value={t}
-                                onChange={(e) => handleTopicChange(i, e.target.value)} style={{ flex: 1 }} />
+                            <textarea
+                                className="form-textarea"
+                                placeholder={`주제 ${i + 1}`}
+                                value={t}
+                                rows={3}
+                                onChange={(e) => handleTopicChange(i, e.target.value)}
+                                style={{ flex: 1 }}
+                            />
                             {form.topics.length > 3 && (
                                 <button className="btn btn-ghost btn-sm" onClick={() => removeTopicSlot(i)}
                                     style={{ color: 'var(--accent)', flexShrink: 0 }}>✕</button>

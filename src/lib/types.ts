@@ -37,3 +37,19 @@ export interface AppSettings {
     firstMeetingNumber: number; // 첫 번째 모임의 번호 (기본값 1)
     adminMemberIds?: string[];  // 관리자로 지정된 멤버 ID 목록
 }
+
+export type LogAction = 'view' | 'create' | 'update' | 'delete';
+export type LogTarget = 'meeting' | 'member' | 'answer' | 'settings' | 'page';
+
+export interface LogEvent {
+    id: string;
+    action: LogAction;
+    target: LogTarget;
+    targetId?: string;       // 대상 문서 ID
+    label?: string;          // 사람이 읽을 수 있는 대상 이름 (책 제목, 멤버 이름 등)
+    memberId?: string;       // 행위자 멤버 ID
+    memberName?: string;     // 행위자 이름 (스냅샷)
+    detail?: string;         // 추가 설명
+    createdAt: number;       // timestamp ms
+    expiresAt: number;       // 7일 후 timestamp
+}
