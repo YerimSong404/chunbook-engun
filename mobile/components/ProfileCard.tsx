@@ -66,7 +66,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
   },
-  body: { flex: 1, minWidth: 0 },
+  body: { 
+    flex: 1, 
+    minWidth: 0, 
+    flexDirection: 'row', 
+    alignItems: 'center',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
   nameBadge: {
     alignSelf: 'flex-start',
     paddingHorizontal: 12,
@@ -80,6 +87,7 @@ const styles = StyleSheet.create({
   status: {
     fontSize: 14,
     color: '#7A7265',
-    marginTop: 6,
+    flex: 1,
+    minWidth: 100,
   },
 });

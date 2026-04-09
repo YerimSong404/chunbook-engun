@@ -21,7 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 
 const PROFILE_COLORS = [
   '#FFB5C2', '#B5EAD7', '#C7CEEA', '#FFDAC1',
-  '#E2F0CB', '#B4D7FF', '#F9D5E5', '#DDA0DD',
+  '#E2F0CB', '#B4D7FF', '#F9D5E5', '#FFF0B5', '#DDA0DD',
 ];
 
 function formatDate(ts: number) {

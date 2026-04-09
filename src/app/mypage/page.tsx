@@ -16,7 +16,7 @@ import { BookOpen, Save, ImagePlus, X, LogOut, ArrowLeft } from 'lucide-react';
 /** 밝은 파스텔 톤 */
 const PROFILE_COLORS = [
     '#FFB5C2', '#B5EAD7', '#C7CEEA', '#FFDAC1',
-    '#E2F0CB', '#B4D7FF', '#F9D5E5', '#DDA0DD',
+    '#E2F0CB', '#B4D7FF', '#F9D5E5', '#FFF0B5', '#DDA0DD',
 ];
 
 export default function MypagePage() {
@@ -53,15 +53,16 @@ export default function MypagePage() {
     }, [loading, currentMemberId, member?.id, member?.statusMessage, member?.profileImageUrl, member?.color, nickname, router, setCurrentMemberId]);
 
     const handleSave = async () => {
-        if (!currentMemberId) return;
+        if (!currentMemberId || !member) return;
         setSaving(true);
         try {
+            const nameToSave = nickInput.trim() || nickname || member.name;
             setNickname(nickInput.trim() || null);
             await updateMember(currentMemberId, {
                 statusMessage: statusMessage.trim() || undefined,
                 profileImageUrl: profileImageUrl.trim() || undefined,
                 color: color.trim() || undefined,
-            });
+            }, currentMemberId, nameToSave);
             await refetch();
             showToast('프로필이 저장되었어요');
         } catch {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useMember } from '@/context/MemberContext';
@@ -8,12 +8,14 @@ import { useData } from '@/context/DataContext';
 import type { Meeting } from '@/lib/types';
 import { formatDate } from '@/lib/utils';
 import AppShell from '@/components/AppShell';
+import { ProfileCard } from '@/components/ProfileCard';
 import { Users } from 'lucide-react';
 
 export default function PresentersPage() {
     const { currentMemberId } = useMember();
     const { members, meetings, loading, error } = useData();
     const router = useRouter();
+    const [activeTab, setActiveTab] = useState<'members' | 'presenters'>('members');
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -60,102 +62,138 @@ export default function PresentersPage() {
 
     return (
         <AppShell>
-            <h1 className="page-title">발제자 현황</h1>
+            <h1 className="page-title">멤버</h1>
 
-            {/* 회차 뱃지 */}
-            <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: 'var(--primary-light)', color: 'var(--primary)',
-                borderRadius: 8, padding: '6px 16px', marginBottom: 20,
-                fontSize: '0.85rem', fontWeight: 700,
-            }}>
-                🔄 {currentRound}회차 진행 중
-                <span style={{ fontWeight: 400, opacity: 0.75 }}>
-                    ({doneThisRound.length}/{memberCount}명 완료)
-                </span>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 24, borderBottom: '1px solid var(--border)' }}>
+                <button
+                    style={{
+                        flex: 1, padding: '12px 0', fontSize: '0.95rem', fontWeight: 600,
+                        borderBottom: activeTab === 'members' ? '2px solid var(--primary)' : '2px solid transparent',
+                        color: activeTab === 'members' ? 'var(--primary)' : 'var(--text-sub)'
+                    }}
+                    onClick={() => setActiveTab('members')}
+                >
+                    전체 멤버 ({memberCount})
+                </button>
+                <button
+                    style={{
+                        flex: 1, padding: '12px 0', fontSize: '0.95rem', fontWeight: 600,
+                        borderBottom: activeTab === 'presenters' ? '2px solid var(--primary)' : '2px solid transparent',
+                        color: activeTab === 'presenters' ? 'var(--primary)' : 'var(--text-sub)'
+                    }}
+                    onClick={() => setActiveTab('presenters')}
+                >
+                    발제자 현황
+                </button>
             </div>
 
-            {/* 이번 회차 진행 상황 */}
-            <div className="section-title">이번 회차 ({currentRound}회차)</div>
-            <div className="card" style={{ marginBottom: 20 }}>
-                {members.length === 0 ? (
-                    <div className="empty">
-                        <Users size={40} color="var(--border)" style={{ marginBottom: 16 }} />
-                        <div className="empty-text">등록된 멤버가 없어요</div>
+            {activeTab === 'members' ? (
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                    {members.map(m => (
+                        <Link key={m.id} href={`/member/${m.id}`} style={{ display: 'block', textDecoration: 'none' }}>
+                            <ProfileCard member={m} size="sm" />
+                        </Link>
+                    ))}
+                    {members.length === 0 && <div className="empty" style={{ padding: 24, textAlign: 'center', color: 'var(--text-sub)' }}>등록된 멤버가 없어요</div>}
+                </div>
+            ) : (
+                <>
+                    {/* 회차 뱃지 */}
+                    <div style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        background: 'var(--primary-light)', color: 'var(--primary)',
+                        borderRadius: 8, padding: '6px 16px', marginBottom: 20,
+                        fontSize: '0.85rem', fontWeight: 700,
+                    }}>
+                        🔄 {currentRound}회차 진행 중
+                        <span style={{ fontWeight: 400, opacity: 0.75 }}>
+                            ({doneThisRound.length}/{memberCount}명 완료)
+                        </span>
                     </div>
-                ) : (
-                    <>
-                        {/* 아직 안 한 멤버 */}
-                        {pendingThisRound.length > 0 && (
+
+                    {/* 이번 회차 진행 상황 */}
+                    <div className="section-title">이번 회차 ({currentRound}회차)</div>
+                    <div className="card" style={{ marginBottom: 20 }}>
+                        {members.length === 0 ? (
+                            <div className="empty">
+                                <Users size={40} color="var(--border)" style={{ marginBottom: 16 }} />
+                                <div className="empty-text">등록된 멤버가 없어요</div>
+                            </div>
+                        ) : (
                             <>
-                                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, letterSpacing: '0.05em' }}>
-                                    대기 중
-                                </div>
-                                {pendingThisRound.map((m, i) => (
-                                    <div key={m.id} className="presenter-row" style={i === pendingThisRound.length - 1 && doneThisRound.length > 0 ? { borderBottom: 'none', paddingBottom: 24 } : {}}>
-                                        <div>
-                                            <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link">{m.name}</Link>
+                                {/* 아직 안 한 멤버 */}
+                                {pendingThisRound.length > 0 && (
+                                    <>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, letterSpacing: '0.05em' }}>
+                                            대기 중
                                         </div>
-                                        <span className="badge badge-accent">미발제</span>
-                                    </div>
-                                ))}
+                                        {pendingThisRound.map((m, i) => (
+                                            <div key={m.id} className="presenter-row" style={i === pendingThisRound.length - 1 && doneThisRound.length > 0 ? { borderBottom: 'none', paddingBottom: 24 } : {}}>
+                                                <div>
+                                                    <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link">{m.name}</Link>
+                                                </div>
+                                                <span className="badge badge-accent">미발제</span>
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+
+                                {/* 이미 한 멤버 */}
+                                {doneThisRound.length > 0 && (
+                                    <>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, letterSpacing: '0.05em', marginTop: pendingThisRound.length > 0 ? 0 : 0 }}>
+                                            완료
+                                        </div>
+                                        {doneThisRound.map((m) => {
+                                            const mt = getRoundMeeting(m.id);
+                                            return (
+                                                <div key={m.id} className="presenter-row">
+                                                    <div>
+                                                        <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link" style={{ opacity: 0.55 }}>{m.name}</Link>
+                                                        {mt && (
+                                                            <div className="presenter-count">
+                                                                『{mt.book || '책 미정'}』({formatDate(mt.date, 'short')})
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className="badge badge-success">완료</span>
+                                                </div>
+                                            );
+                                        })}
+                                    </>
+                                )}
                             </>
                         )}
+                    </div>
 
-                        {/* 이미 한 멤버 */}
-                        {doneThisRound.length > 0 && (
-                            <>
-                                <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-sub)', marginBottom: 8, letterSpacing: '0.05em', marginTop: pendingThisRound.length > 0 ? 0 : 0 }}>
-                                    완료
-                                </div>
-                                {doneThisRound.map((m) => {
-                                    const mt = getRoundMeeting(m.id);
+                    {/* 전체 발제 횟수 */}
+                    <div className="section-title">전체 발제 횟수</div>
+                    <div className="card">
+                        {members.length === 0 ? (
+                            <div style={{ color: 'var(--text-sub)', fontSize: '0.9rem' }}>등록된 멤버가 없어요</div>
+                        ) : (
+                            [...members]
+                                .sort((a, b) => (allPresented.get(b.id)?.length ?? 0) - (allPresented.get(a.id)?.length ?? 0))
+                                .map((m) => {
+                                    const list = allPresented.get(m.id) ?? [];
                                     return (
                                         <div key={m.id} className="presenter-row">
                                             <div>
-                                                <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link" style={{ opacity: 0.55 }}>{m.name}</Link>
-                                                {mt && (
+                                                <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link">{m.name}</Link>
+                                                {list.length > 0 && (
                                                     <div className="presenter-count">
-                                                        『{mt.book || '책 미정'}』({formatDate(mt.date, 'short')})
+                                                        {list.map((mt) => `『${mt.book || '책 미정'}』`).join(' · ')}
                                                     </div>
                                                 )}
                                             </div>
-                                            <span className="badge badge-success">완료</span>
+                                            <span className="badge badge-gray">{list.length}회</span>
                                         </div>
                                     );
-                                })}
-                            </>
+                                })
                         )}
-                    </>
-                )}
-            </div>
-
-            {/* 전체 발제 횟수 */}
-            <div className="section-title">전체 발제 횟수</div>
-            <div className="card">
-                {members.length === 0 ? (
-                    <div style={{ color: 'var(--text-sub)', fontSize: '0.9rem' }}>등록된 멤버가 없어요</div>
-                ) : (
-                    [...members]
-                        .sort((a, b) => (allPresented.get(b.id)?.length ?? 0) - (allPresented.get(a.id)?.length ?? 0))
-                        .map((m) => {
-                            const list = allPresented.get(m.id) ?? [];
-                            return (
-                                <div key={m.id} className="presenter-row">
-                                    <div>
-                                        <Link href={`/member/${m.id}`} className="presenter-name presenter-name-link">{m.name}</Link>
-                                        {list.length > 0 && (
-                                            <div className="presenter-count">
-                                                {list.map((mt) => `『${mt.book || '책 미정'}』`).join(' · ')}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <span className="badge badge-gray">{list.length}회</span>
-                                </div>
-                            );
-                        })
-                )}
-            </div>
+                    </div>
+                </>
+            )}
         </AppShell>
     );
 }

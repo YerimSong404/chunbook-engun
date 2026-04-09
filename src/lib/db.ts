@@ -103,7 +103,7 @@ export async function updateMember(id: string, data: Partial<Omit<Member, 'id'>>
     }
     if (Object.keys(updateData).length === 0) return;
     await updateDoc(doc(db!, 'members', id), updateData);
-    logEvent({ action: 'update', target: 'member', targetId: id, label: data.name, memberId: actorId, memberName: actorName });
+    logEvent({ action: 'update', target: 'member', targetId: id, label: data.name || actorName || '프로필', memberId: actorId, memberName: actorName });
 }
 
 export async function deleteMember(id: string, label?: string, actorId?: string, actorName?: string): Promise<void> {

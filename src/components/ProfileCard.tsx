@@ -63,7 +63,7 @@ export function ProfileCard({ member, displayName, size = 'md' }: ProfileCardPro
                     />
                 )}
             </div>
-            <div className="profile-card-body">
+            <div className="profile-card-body" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                 <span
                     className="profile-card-name-badge"
                     style={{
@@ -79,7 +79,7 @@ export function ProfileCard({ member, displayName, size = 'md' }: ProfileCardPro
                     {name}
                 </span>
                 {member.statusMessage != null && member.statusMessage.trim() !== '' && (
-                    <div className="profile-card-status" style={{ fontSize: isSm ? '0.8rem' : '0.9rem', color: 'var(--text-sub)', marginTop: 4 }}>
+                    <div className="profile-card-status" style={{ fontSize: isSm ? '0.8rem' : '0.9rem', color: 'var(--text-sub)' }}>
                         {member.statusMessage.trim()}
                     </div>
                 )}

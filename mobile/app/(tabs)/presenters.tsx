@@ -5,6 +5,7 @@ import { useMember } from '../../context/MemberContext';
 import { getMembers, getMeetings } from '../../lib/db';
 import { Member, Meeting } from '../../lib/types';
 import { Feather } from '@expo/vector-icons';
+import { ProfileCard } from '../../components/ProfileCard';
 
 function formatDate(ts: number) {
     const d = new Date(ts);
@@ -17,6 +18,7 @@ export default function PresentersScreen() {
     const [members, setMembers] = useState<Member[]>([]);
     const [meetings, setMeetings] = useState<Meeting[]>([]);
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState<'members' | 'presenters'>('members');
 
     useEffect(() => {
         if (!currentMemberId) {
@@ -70,103 +72,140 @@ export default function PresentersScreen() {
         <ScrollView style={styles.container} contentContainerStyle={styles.content}>
             <Text style={styles.pageTitle}>멤버</Text>
 
-            <View style={styles.roundBadge}>
-                <Feather name="refresh-cw" size={14} color="#695D4A" style={{ marginRight: 6 }} />
-                <Text style={styles.roundBadgeText}>{currentRound}회차 진행 중 </Text>
-                <Text style={styles.roundBadgeSubtext}>({doneThisRound.length}/{memberCount}명 완료)</Text>
+            <View style={styles.tabContainer}>
+                <TouchableOpacity
+                    style={[styles.tabButton, activeTab === 'members' && styles.tabButtonActive]}
+                    onPress={() => setActiveTab('members')}
+                >
+                    <Text style={[styles.tabText, activeTab === 'members' && styles.tabTextActive]}>전체 멤버 ({memberCount})</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.tabButton, activeTab === 'presenters' && styles.tabButtonActive]}
+                    onPress={() => setActiveTab('presenters')}
+                >
+                    <Text style={[styles.tabText, activeTab === 'presenters' && styles.tabTextActive]}>발제자 현황</Text>
+                </TouchableOpacity>
             </View>
 
-            <Text style={styles.sectionTitle}>이번 회차 ({currentRound}회차)</Text>
-            <View style={styles.card}>
-                {members.length === 0 ? (
-                    <View style={styles.emptyContainer}>
-                        <Feather name="users" size={40} color="#C1B7A7" style={{ marginBottom: 12 }} />
-                        <Text style={styles.emptyText}>등록된 멤버가 없어요</Text>
+            {activeTab === 'members' ? (
+                <View style={styles.card}>
+                    {members.map((m, index) => {
+                        const isLast = index === members.length - 1;
+                        return (
+                            <TouchableOpacity
+                                key={m.id}
+                                style={[styles.row, isLast && { borderBottomWidth: 0, paddingBottom: 0, marginBottom: 0 }]}
+                                onPress={() => router.push(`/member/${m.id}`)}
+                            >
+                                <View style={styles.rowContent}>
+                                    <ProfileCard member={m} size="md" />
+                                </View>
+                            </TouchableOpacity>
+                        );
+                    })}
+                    {members.length === 0 && <Text style={styles.emptyTextSub}>등록된 멤버가 없어요</Text>}
+                </View>
+            ) : (
+                <>
+                    <View style={styles.roundBadge}>
+                        <Feather name="refresh-cw" size={14} color="#695D4A" style={{ marginRight: 6 }} />
+                        <Text style={styles.roundBadgeText}>{currentRound}회차 진행 중 </Text>
+                        <Text style={styles.roundBadgeSubtext}>({doneThisRound.length}/{memberCount}명 완료)</Text>
                     </View>
-                ) : (
-                    <>
-                        {pendingThisRound.length > 0 && (
-                            <View style={styles.groupSection}>
-                                <Text style={styles.groupLabel}>대기 중</Text>
-                                {pendingThisRound.map((m) => (
-                                    <View key={m.id} style={styles.row}>
-                                        <View style={styles.rowContent}>
-                                            <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
-                                                <Text style={styles.name}>{m.name}</Text>
-                                            </TouchableOpacity>
-                                        </View>
-                                        <View style={[styles.badge, styles.badgeAccent]}>
-                                            <Text style={styles.badgeAccentText}>미발제</Text>
-                                        </View>
-                                    </View>
-                                ))}
-                            </View>
-                        )}
-                        
-                        {pendingThisRound.length > 0 && doneThisRound.length > 0 && (
-                            <View style={styles.divider} />
-                        )}
 
-                        {doneThisRound.length > 0 && (
-                            <View style={styles.groupSection}>
-                                <Text style={styles.groupLabel}>완료</Text>
-                                {doneThisRound.map((m) => {
-                                    const mt = getRoundMeeting(m.id);
+                    <Text style={styles.sectionTitle}>이번 회차 ({currentRound}회차)</Text>
+                    <View style={styles.card}>
+                        {members.length === 0 ? (
+                            <View style={styles.emptyContainer}>
+                                <Feather name="users" size={40} color="#C1B7A7" style={{ marginBottom: 12 }} />
+                                <Text style={styles.emptyText}>등록된 멤버가 없어요</Text>
+                            </View>
+                        ) : (
+                            <>
+                                {pendingThisRound.length > 0 && (
+                                    <View style={styles.groupSection}>
+                                        <Text style={styles.groupLabel}>대기 중</Text>
+                                        {pendingThisRound.map((m) => (
+                                            <View key={m.id} style={styles.row}>
+                                                <View style={styles.rowContent}>
+                                                    <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
+                                                        <Text style={styles.name}>{m.name}</Text>
+                                                    </TouchableOpacity>
+                                                </View>
+                                                <View style={[styles.badge, styles.badgeAccent]}>
+                                                    <Text style={styles.badgeAccentText}>미발제</Text>
+                                                </View>
+                                            </View>
+                                        ))}
+                                    </View>
+                                )}
+
+                                {pendingThisRound.length > 0 && doneThisRound.length > 0 && (
+                                    <View style={styles.divider} />
+                                )}
+
+                                {doneThisRound.length > 0 && (
+                                    <View style={styles.groupSection}>
+                                        <Text style={styles.groupLabel}>완료</Text>
+                                        {doneThisRound.map((m) => {
+                                            const mt = getRoundMeeting(m.id);
+                                            return (
+                                                <View key={m.id} style={styles.row}>
+                                                    <View style={styles.rowContent}>
+                                                        <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
+                                                            <Text style={[styles.name, styles.nameFaded]}>{m.name}</Text>
+                                                        </TouchableOpacity>
+                                                        {mt && (
+                                                            <Text style={styles.countText}>
+                                                                『{mt.book || '책 미정'}』({formatDate(mt.date)})
+                                                            </Text>
+                                                        )}
+                                                    </View>
+                                                    <View style={[styles.badge, styles.badgeSuccess]}>
+                                                        <Feather name="check" size={12} color="#4A6A55" style={{ marginRight: 2 }} />
+                                                        <Text style={styles.badgeSuccessText}>완료</Text>
+                                                    </View>
+                                                </View>
+                                            );
+                                        })}
+                                    </View>
+                                )}
+                            </>
+                        )}
+                    </View>
+
+                    <Text style={styles.sectionTitle}>전체 참여 현황</Text>
+                    <View style={styles.card}>
+                        {members.length === 0 ? (
+                            <Text style={styles.emptyTextSub}>등록된 멤버가 없어요</Text>
+                        ) : (
+                            [...members]
+                                .sort((a, b) => (allPresented.get(b.id)?.length ?? 0) - (allPresented.get(a.id)?.length ?? 0))
+                                .map((m, index) => {
+                                    const list = allPresented.get(m.id) ?? [];
+                                    const isLast = index === members.length - 1;
                                     return (
-                                        <View key={m.id} style={styles.row}>
+                                        <View key={m.id} style={[styles.row, isLast && { borderBottomWidth: 0, paddingBottom: 0, marginBottom: 0 }]}>
                                             <View style={styles.rowContent}>
                                                 <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
-                                                    <Text style={[styles.name, styles.nameFaded]}>{m.name}</Text>
+                                                    <Text style={styles.name}>{m.name}</Text>
                                                 </TouchableOpacity>
-                                                {mt && (
+                                                {list.length > 0 && (
                                                     <Text style={styles.countText}>
-                                                        『{mt.book || '책 미정'}』({formatDate(mt.date)})
+                                                        {list.map((mt) => `『${mt.book || '책 미정'}』`).join(' · ')}
                                                     </Text>
                                                 )}
                                             </View>
-                                            <View style={[styles.badge, styles.badgeSuccess]}>
-                                                <Feather name="check" size={12} color="#4A6A55" style={{ marginRight: 2 }} />
-                                                <Text style={styles.badgeSuccessText}>완료</Text>
+                                            <View style={[styles.badge, styles.badgeGray]}>
+                                                <Text style={styles.badgeGrayText}>{list.length}회</Text>
                                             </View>
                                         </View>
                                     );
-                                })}
-                            </View>
+                                })
                         )}
-                    </>
-                )}
-            </View>
-
-            <Text style={styles.sectionTitle}>전체 참여 현황</Text>
-            <View style={styles.card}>
-                {members.length === 0 ? (
-                    <Text style={styles.emptyTextSub}>등록된 멤버가 없어요</Text>
-                ) : (
-                    [...members]
-                        .sort((a, b) => (allPresented.get(b.id)?.length ?? 0) - (allPresented.get(a.id)?.length ?? 0))
-                        .map((m, index) => {
-                            const list = allPresented.get(m.id) ?? [];
-                            const isLast = index === members.length - 1;
-                            return (
-                                <View key={m.id} style={[styles.row, isLast && { borderBottomWidth: 0, paddingBottom: 0, marginBottom: 0 }]}>
-                                    <View style={styles.rowContent}>
-                                        <TouchableOpacity onPress={() => router.push(`/member/${m.id}`)}>
-                                            <Text style={styles.name}>{m.name}</Text>
-                                        </TouchableOpacity>
-                                        {list.length > 0 && (
-                                            <Text style={styles.countText}>
-                                                {list.map((mt) => `『${mt.book || '책 미정'}』`).join(' · ')}
-                                            </Text>
-                                        )}
-                                    </View>
-                                    <View style={[styles.badge, styles.badgeGray]}>
-                                        <Text style={styles.badgeGrayText}>{list.length}회</Text>
-                                    </View>
-                                </View>
-                            );
-                        })
-                )}
-            </View>
+                    </View>
+                </>
+            )}
         </ScrollView>
     );
 }
@@ -192,6 +231,30 @@ const styles = StyleSheet.create({
         color: '#2C2724',
         marginBottom: 20,
         letterSpacing: -0.5,
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        borderBottomWidth: 1,
+        borderBottomColor: '#EBE5D9',
+        marginBottom: 24,
+    },
+    tabButton: {
+        flex: 1,
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 2,
+        borderBottomColor: 'transparent',
+    },
+    tabButtonActive: {
+        borderBottomColor: '#8C7D6B',
+    },
+    tabText: {
+        fontSize: 15,
+        fontWeight: '600',
+        color: '#A0968A',
+    },
+    tabTextActive: {
+        color: '#8C7D6B',
     },
     roundBadge: {
         flexDirection: 'row',
